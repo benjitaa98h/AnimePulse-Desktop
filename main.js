@@ -27,7 +27,7 @@ function pollWindowTitles() {
           const j = JSON.parse(txt);
           list = Array.isArray(j) ? j : [j];
         }
-        return list.filter(w => w && w.t && w.n && !/animepulse/i.test(w.t));
+        return list.filter(w => w && w.t && w.n && !/animepulse|zxs/i.test(w.t));
       });
   } else if (platform === 'linux') {
     promise = execFileAsync('hyprctl', ['clients', '-j'], { timeout: 4500, maxBuffer: 8 * 1024 * 1024 })
@@ -35,7 +35,7 @@ function pollWindowTitles() {
         const arr = JSON.parse((stdout || '').trim() || '[]');
         if (!Array.isArray(arr)) return [];
         return arr
-          .filter(c => c && c.title && String(c.title).trim() && !/animepulse/i.test(String(c.title)) && !/opencode/i.test(String(c.title)))
+          .filter(c => c && c.title && String(c.title).trim() && !/animepulse|zxs/i.test(String(c.title)) && !/opencode/i.test(String(c.title)))
           .map(c => ({ t: String(c.title).trim(), n: String(c.class || 'hyprland') }));
       })
       .catch(() => execFileAsync('xdotool', ['search', '--name', '', 'getwindowname', '%1', 'getwindowpid', '%1'], { timeout: 4500, maxBuffer: 8 * 1024 * 1024 })
@@ -47,7 +47,7 @@ function pollWindowTitles() {
             const pid = (lines[i + 1] || '').trim();
             if (title && pid) list.push({ t: title, n: 'pid:' + pid });
           }
-          return list.filter(w => w.t && !/animepulse/i.test(w.t));
+          return list.filter(w => w.t && !/animepulse|zxs/i.test(w.t));
         })
         .catch(() => {
           return execFileAsync('wmctrl', ['-l'], { timeout: 3000 })
@@ -56,7 +56,7 @@ function pollWindowTitles() {
                 const parts = line.split(/\s+/);
                 const title = parts.slice(2).join(' ');
                 return { t: title, n: 'wmctrl' };
-              }).filter(w => w.t && !/animepulse/i.test(w.t));
+              }).filter(w => w.t && !/animepulse|zxs/i.test(w.t));
             })
             .catch(() => []);
         }));
@@ -69,7 +69,7 @@ function pollWindowTitles() {
           const parsed = JSON.parse('[' + txt + ']');
           list = parsed.map(p => ({ t: String(p[0] || ''), n: 'pid:' + String(p[1] || '') }));
         }
-        return list.filter(w => w.t && !/animepulse/i.test(w.t));
+        return list.filter(w => w.t && !/animepulse|zxs/i.test(w.t));
       })
       .catch(() => []);
   } else {
@@ -129,7 +129,7 @@ function createWindow() {
 app.whenReady().then(() => {
   appDB = createDB(app.getPath('userData'));
   const migrated = appDB.migrateLegacy();
-  if (migrated) console.log('[animepulse] Copia de seguridad JSON migrada a SQLite.');
+  if (migrated) console.log('[zxs] Copia de seguridad JSON migrada a SQLite.');
   createWindow();
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 });
@@ -196,7 +196,7 @@ ipcMain.handle('fs:save-png', async (e, dataUrl, name) => {
     const base64 = dataUrl.replace(/^data:image\/png;base64,/, '');
     const buf = Buffer.from(base64, 'base64');
     if (!buf.length) return { error: 'vacio' };
-    let outName = String(name || 'animepulse.png').replace(/[\\/:*?"<>|]/g, '_');
+    let outName = String(name || 'zxs.png').replace(/[\\/:*?"<>|]/g, '_');
     if (!/\.png$/i.test(outName)) outName += '.png';
     const dir = app.getPath('downloads');
     const full = path.join(dir, outName);

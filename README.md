@@ -1,4 +1,4 @@
-# 🎬 AnimePulse Desktop
+# zxs
 
 > **Next-Gen anime tracker** para PC, inspirado en la potencia de **Taiga** con la estética moderna de **AniList / Netflix**.
 
@@ -69,7 +69,7 @@ Los instaladores se generan en `dist/`: **Windows** (`NSIS` + `portable`), **Lin
 ## 🗂️ Estructura
 
 ```
-AnimePulse-Desktop/
+zxs/
 ├── index.html        # UI completa (HTML + Tailwind + Lucide + JS ES6, archivo único)
 ├── main.js           # Proceso principal de Electron (ventana + IPC + base en disco + Discord)
 ├── preload.js        # Puente seguro contextBridge -> electronAPI

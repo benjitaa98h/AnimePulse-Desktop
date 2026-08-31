@@ -1,6 +1,6 @@
 {
-  "name": "animepulse-desktop",
-  "productName": "AnimePulse Desktop",
+  "name": "zxs",
+  "productName": "zxs",
   "version": "2.0.0",
   "description": "Next-Gen anime tracker para PC inspirado en Taiga con la estética de AniList/Netflix. Integra la API GraphQL de AniList (con respaldo de Jikan/MyAnimeList) y un Auto-Scrobbler simulado.",
   "main": "main.js",
@@ -11,8 +11,8 @@
     "dist": "electron-builder"
   },
   "build": {
-    "appId": "com.animepulse.desktop",
-    "productName": "AnimePulse Desktop",
+    "appId": "com.zxs.desktop",
+    "productName": "zxs",
     "files": [
       "main.js",
       "preload.js",
@@ -49,7 +49,7 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "shortcutName": "AnimePulse Desktop"
+      "shortcutName": "zxs"
     }
   },
   "devDependencies": {
