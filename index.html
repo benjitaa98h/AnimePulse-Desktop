@@ -485,6 +485,31 @@ tailwind.config = {
                 <p class="text-[10px] text-slate-500 leading-relaxed">Crunchyroll y otras webs se detectan solas mientras las ves en tu navegador (la API de Crunchyroll no permite apps de terceros, por eso la sincronizaciÃ³n en lÃ­nea usa AniList/MyAnimeList).</p>
               </div>
             </div>
+            <div class="mt-4 pt-4 border-t border-white/5">
+              <h4 class="font-display font-semibold text-[13px] text-white mb-3 flex items-center gap-2"><i data-lucide="git-branch" class="w-4 h-4 text-cyan-400"></i> Sincronizar con Kitsu (clÃ¡sico de MyAnimeList)</h4>
+              <div class="space-y-3">
+                <label class="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[.03] hover:bg-white/[.06] transition cursor-pointer">
+                  <div class="flex items-center gap-3">
+                    <i data-lucide="cloud-cog" class="w-4 h-4 text-cyan-400"></i>
+                    <div><div class="text-[13px] font-medium text-slate-200">Sync bidireccional con Kitsu</div><div class="text-[11px] text-slate-500">Trae tu lista a la app y sube tu progreso automÃ¡ticamente (importa, vincula por tÃ­tulo y empuja cambios)</div></div>
+                  </div>
+                  <input type="checkbox" data-setting="kitsuOn" class="accent-cyan-500 w-4 h-4">
+                </label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div><label class="text-[11px] text-slate-500 font-medium mb-1 block">Client ID</label><input id="kitsuClientId" type="text" placeholder="De kitsu.io/settings/apps" spellcheck="false" class="w-full bg-white/[.05] edge rounded-xl px-3 py-2 text-[12px] text-slate-200 placeholder:text-slate-600"></div>
+                  <div><label class="text-[11px] text-slate-500 font-medium mb-1 block">Client Secret</label><input id="kitsuSecret" type="password" placeholder="Secreto de tu app" spellcheck="false" class="w-full bg-white/[.05] edge rounded-xl px-3 py-2 text-[12px] text-slate-200 placeholder:text-slate-600"></div>
+                  <div><label class="text-[11px] text-slate-500 font-medium mb-1 block">Email</label><input id="kitsuEmail" type="email" placeholder="tu@email.com" spellcheck="false" class="w-full bg-white/[.05] edge rounded-xl px-3 py-2 text-[12px] text-slate-200 placeholder:text-slate-600"></div>
+                  <div><label class="text-[11px] text-slate-500 font-medium mb-1 block">ContraseÃ±a</label><input id="kitsuPass" type="password" placeholder="ContraseÃ±a de tu cuenta" spellcheck="false" class="w-full bg-white/[.05] edge rounded-xl px-3 py-2 text-[12px] text-slate-200 placeholder:text-slate-600"></div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <button id="kitsuAuthBtn" class="px-3.5 py-2 rounded-xl text-[12px] font-semibold btn-primary text-white flex items-center gap-1.5"><i data-lucide="key-round" class="w-3.5 h-3.5"></i> Conectar</button>
+                  <button id="kitsuImportBtn" class="px-3.5 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition flex items-center gap-1.5"><i data-lucide="download-cloud" class="w-3.5 h-3.5"></i> Traer mi lista</button>
+                  <button id="kitsuPushBtn" class="px-3.5 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition flex items-center gap-1.5"><i data-lucide="cloud-upload" class="w-3.5 h-3.5"></i> Subir progreso</button>
+                </div>
+                <div id="kitsuStatus" class="text-[11px] text-slate-500">Sin cuenta de Kitsu vinculada.</div>
+                <p class="text-[10px] text-slate-500 leading-relaxed">Crea una app gratis en <b>kitsu.io/settings/apps</b> (para uso personal) y pega su Client ID y Secret. Tu contraseÃ±a solo se usa en el momento de conectar; la app guarda Ãºnicamente el token de acceso.</p>
+              </div>
+            </div>
           </div>
 
           <div class="glass edge rounded-2xl p-5">
@@ -528,12 +553,14 @@ tailwind.config = {
 
           <div class="glass edge rounded-2xl p-5">
             <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="database" class="w-4 h-4 text-sky-400"></i> Datos locales (localStorage)</h3>
-            <p class="text-[12px] text-slate-500 mb-4">Tu lista, progreso, notas y configuraciÃ³n se guardan automÃ¡ticamente en este dispositivo.</p>
+            <p class="text-[12px] text-slate-500 mb-4">Tu lista, progreso, notas y configuraciÃ³n se guardan automÃ¡ticamente en este dispositivo (localStorage + <b>copia de seguridad en disco</b> que se recupera si el tema caduca o se borra).</p>
             <div class="flex flex-wrap gap-2">
               <button id="exportBtn" class="px-3.5 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition flex items-center gap-1.5"><i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar JSON</button>
               <button id="importBtn" class="px-3.5 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition flex items-center gap-1.5"><i data-lucide="upload" class="w-3.5 h-3.5"></i> Importar JSON</button>
               <button id="resetBtn" class="px-3.5 py-2 rounded-xl text-[12px] font-semibold bg-rose-500/10 edge border-rose-400/20 text-rose-300 hover:bg-rose-500/20 transition flex items-center gap-1.5"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Borrar lista</button>
+            <button id="restoreDiskBtn" class="px-3.5 py-2 rounded-xl text-[12px] font-semibold bg-emerald-500/10 edge border-emerald-400/20 text-emerald-300 hover:bg-emerald-500/20 transition flex items-center gap-1.5"><i data-lucide="history" class="w-3.5 h-3.5"></i> Restaurar copia en disco</button>
             </div>
+            <div id="diskBackupInfo" class="text-[10px] text-slate-500 mt-2"></div>
             <input type="file" id="importFile" accept="application/json" class="hidden">
           </div>
 
@@ -644,7 +671,7 @@ const MOCK_ANIME = [
 let state = {
   filter: 'watching',
   view: 'grid',
-  settings: { detectPlayers: true, autoIncrement: true, notifications: true, theme: 'dark', accent: 'purple', autoAdd: true, syncOn: false, alClientId: '', alToken: '', dcEnabled: false, dcClientId: '', autoOrganize: false },
+  settings: { detectPlayers: true, autoIncrement: true, notifications: true, theme: 'dark', accent: 'purple', autoAdd: true, syncOn: false, alClientId: '', alToken: '', dcEnabled: false, dcClientId: '', autoOrganize: false, kitsuOn: false, kitsuClientId: '', kitsuSecret: '', kitsuEmail: '', kitsuToken: '', kitsuUserId: null },
   animeList: [],
   activity: [2,3,1,4,2,5,3],
   calendarDay: 'monday',
@@ -696,15 +723,27 @@ function ratingSelect(a, zeroLabel) {
   return '<select data-role="rating" data-id="' + esc(a.id) + '" class="native-dark" title="Puntuar">' + opts + '</select>';
 }
 
-function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) { console.warn('No se pudo guardar:', e); } }
+let diskSaveTimer = null;
+function save() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) { console.warn('No se pudo guardar:', e); }
+  if (window.electronAPI && window.electronAPI.saveState) {
+    clearTimeout(diskSaveTimer);
+    diskSaveTimer = setTimeout(() => { try { window.electronAPI.saveState(JSON.stringify(state)); } catch (e) { /* noop */ } }, 300);
+  }
+}
+window.addEventListener('pagehide', () => {
+  if (window.electronAPI && window.electronAPI.saveState) { try { window.electronAPI.saveState(JSON.stringify(state)); } catch (e) { /* noop */ } }
+});
 
+let lsHadState = false;
 function load() {
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (raw) {
       const p = JSON.parse(raw);
+      lsHadState = true;
       state = Object.assign(state, p);
-      state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notifications:true, theme:'dark', accent:'purple', autoAdd:true, syncOn:false, alClientId:'', alToken:'', dcEnabled:false, dcClientId:'', autoOrganize:false }, p.settings || {});
+      state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notifications:true, theme:'dark', accent:'purple', autoAdd:true, syncOn:false, alClientId:'', alToken:'', dcEnabled:false, dcClientId:'', autoOrganize:false, kitsuOn:false, kitsuClientId:'', kitsuSecret:'', kitsuEmail:'', kitsuToken:'', kitsuUserId:null }, p.settings || {});
       state.scrobbler = Object.assign({ running:false, player:'VLC Player', animeId:null, episodeNow:0, progress:0, fileName:null, timer:null, source:'manual', increment:true }, p.scrobbler || {});
       state.scrobbler.timer = null;
       if (Array.isArray(p.animeList)) state.animeList = p.animeList;
@@ -719,6 +758,34 @@ function load() {
     if (state.animeList.length && state.animeList.every(a => demoIds.has(a.id))) state.animeList = [];
   }
   if (!Array.isArray(state.activity) || state.activity.length !== 7) state.activity = [0,0,0,0,0,0,0];
+}
+
+async function restoreDisk(force) {
+  if ((!force && lsHadState) || !window.electronAPI || !window.electronAPI.loadState) return false;
+  try {
+    const p = await window.electronAPI.loadState();
+    if (!p || !Array.isArray(p.animeList)) return false;
+    state = Object.assign(state, p);
+    state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notifications:true, theme:'dark', accent:'purple', autoAdd:true, syncOn:false, alClientId:'', alToken:'', dcEnabled:false, dcClientId:'', autoOrganize:false, kitsuOn:false, kitsuClientId:'', kitsuSecret:'', kitsuEmail:'', kitsuToken:'', kitsuUserId:null }, p.settings || {});
+    state.scrobbler = Object.assign({ running:false, player:'VLC Player', animeId:null, episodeNow:0, progress:0, fileName:null, timer:null, source:'manual', increment:true }, p.scrobbler || {});
+    state.scrobbler.timer = null;
+    if (Array.isArray(p.activity) && p.activity.length === 7) state.activity = p.activity;
+    if (typeof p.folder === 'string') state.folder = p.folder;
+    if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
+    applyAppearance();
+    recomputeStats(); renderDashboard(); renderScrobblerUI(); setupSettings(); icons();
+    refreshDiskInfo();
+    toast('Lista restaurada desde la copia en disco âœ“', 'ok');
+    return true;
+  } catch (e) { return false; }
+}
+
+async function refreshDiskInfo() {
+  const el = document.getElementById('diskBackupInfo');
+  if (!el || !window.electronAPI || !window.electronAPI.stateInfo) return;
+  const info = await window.electronAPI.stateInfo();
+  if (info) { const kb = Math.max(1, Math.round(info.size / 1024)); const d = new Date(info.mtime); el.textContent = 'Copia en disco: <b>' + kb + ' KB</b> Â· guardada el ' + d.toLocaleString(); }
+  else el.textContent = 'AÃºn no hay copia en disco (se crea a los pocos segundos de guardar).';
 }
 
 function icons() { if (window.lucide) lucide.createIcons(); }
@@ -959,7 +1026,7 @@ function updateProgress(id, delta) {
   recomputeStats();
   renderScrobblerUI();
   if (document.getElementById('detailModal') && !document.getElementById('detailModal').classList.contains('hidden')) refreshDetail();
-  alMaybeSync(id);
+  alMaybeSync(id); kitsuMaybeSync(id);
 }
 
 function setStatus(id, status) {
@@ -969,7 +1036,7 @@ function setStatus(id, status) {
   save();
   renderDashboard(); recomputeStats(); renderScrobblerUI();
   if (state.settings.notifications) toast('Estado actualizado: <b>' + STATUS_META[status].label + '</b>', 'info');
-  alMaybeSync(id);
+  alMaybeSync(id); kitsuMaybeSync(id);
 }
 
 function setRating(id, rating) {
@@ -1539,6 +1606,172 @@ function alSilentSyncAll() {
       .catch(() => failed++);
   });
   toast('Sincronizando ' + state.animeList.length + ' entradas con AniListâ€¦', 'info');
+}
+
+const KITSU_BASE = 'https://kitsu.io/api';
+const K_STATUS = { watching: 'current', plan: 'planned', completed: 'completed', onhold: 'on_hold', dropped: 'dropped' };
+const K_STATUS_REV = { current: 'watching', planned: 'plan', completed: 'completed', on_hold: 'onhold', dropped: 'dropped' };
+let kitsuProfile = null;
+const kitsuNorm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+async function kitsuFetch(path, opts) {
+  opts = opts || {};
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 20000);
+  try {
+    const headers = Object.assign({ Accept: 'application/vnd.api+json' }, opts.headers || {});
+    const t = (state.settings && state.settings.kitsuToken) || '';
+    if (t) headers.Authorization = 'Bearer ' + t;
+    if (opts.body) headers['Content-Type'] = 'application/vnd.api+json';
+    const res = await fetch(KITSU_BASE + path, { method: opts.method || 'GET', headers: headers, body: opts.body ? JSON.stringify(opts.body) : undefined, signal: ctrl.signal });
+    clearTimeout(timer);
+    if (res.status === 401) return { error: 401 };
+    if (res.status === 204) return { ok: true };
+    if (!res.ok) return { error: res.status };
+    return await res.json();
+  } catch (e) { clearTimeout(timer); return { error: 'net' }; }
+}
+async function kitsuLogin() {
+  const cid = (document.getElementById('kitsuClientId').value || '').trim();
+  const cs = (document.getElementById('kitsuSecret').value || '').trim();
+  const email = (document.getElementById('kitsuEmail').value || '').trim();
+  const pass = document.getElementById('kitsuPass').value || '';
+  if (!cid || !cs || !email || !pass) { toast('Completa Client ID, Secret, email y contraseÃ±a.', 'warn'); return false; }
+  try {
+    const res = await fetch('https://kitsu.io/api/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+      body: new URLSearchParams({ grant_type: 'password', username: email, password: pass, client_id: cid, client_secret: cs }).toString()
+    });
+    const j = await res.json().catch(() => null);
+    if (!res.ok || !j || !j.access_token) { toast('Kitsu rechazÃ³ las credenciales (revisa el Client Secret).', 'err'); return false; }
+    state.settings.kitsuClientId = cid;
+    state.settings.kitsuSecret = cs;
+    state.settings.kitsuEmail = email;
+    state.settings.kitsuToken = j.access_token;
+    state.settings.kitsuUserId = null;
+    save();
+    const me = await kitsuFetch('/users/me');
+    if (me && me.data && me.data.id) { state.settings.kitsuUserId = me.data.id; kitsuProfile = me.data; save(); }
+    document.getElementById('kitsuPass').value = '';
+    renderKitsuStatus();
+    toast('Conectado a Kitsu sÃ­ncrono âœ“', 'ok');
+    return true;
+  } catch (e) { toast('No se pudo conectar con Kitsu (Â¿internet?).', 'err'); return false; }
+}
+function renderKitsuStatus(user) {
+  const el = document.getElementById('kitsuStatus');
+  if (!el) return;
+  const st = state.settings || {};
+  if (st.kitsuToken) {
+    const name = (user && user.attributes && user.attributes.name) || (kitsuProfile && kitsuProfile.attributes && kitsuProfile.attributes.name);
+    el.innerHTML = name ? 'Conectado como <b class="text-cyan-300">' + esc(name) + '</b> Â· sync ' + (st.kitsuOn ? '<b class="text-emerald-300">activa</b>' : 'pausada') + '.' :
+      'Token guardado Â· sync ' + (st.kitsuOn ? '<b class="text-emerald-300">activa</b>' : 'pausada') + ' (pulsa <b>Conectar</b> para verificar).';
+  } else el.innerHTML = 'Sin cuenta de Kitsu vinculada.';
+}
+function mapKitsuMedia(m) {
+  const a = m.attributes || {};
+  const t = a.titles || {};
+  const img = (a.posterImage && (a.posterImage.large || a.posterImage.original || a.posterImage.medium)) || '';
+  const y = parseInt(String(a.startDate || '').slice(0, 4), 10) || null;
+  return { id: 'kitsu_' + m.id, kitsu_id: Number(m.id), title: a.canonicalTitle || t.en || t.en_jp || 'Sin tÃ­tulo', title_english: t.en || '', image: img, studio: '', genres: [], year: y, malScore: a.averageRating ? (parseInt(a.averageRating, 10) || 0) / 10 : null, malEpisodes: a.episodeCount || 0, synopsis: (a.synopsis || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(), trailerId: '', airing: a.status === 'current' };
+}
+async function kitsuImport() {
+  if (!state.settings.kitsuToken) { toast('Conecta tu cuenta de Kitsu primero.', 'warn'); return; }
+  const uid = state.settings.kitsuUserId || (kitsuProfile && kitsuProfile.id);
+  if (!uid) { toast('No se pudo obtener tu usuario de Kitsu.', 'err'); return; }
+  toast('Trayendo tu lista de Kitsuâ€¦', 'info');
+  const normMap = new Map();
+  state.animeList.forEach((a, i) => { const n = kitsuNorm(a.title); if (n) normMap.set(n, i); });
+  let added = 0, updated = 0, offset = 0;
+  for (let guard = 0; guard < 30; guard++) {
+    const j = await kitsuFetch('/library-entries?filter[userId]=' + uid + '&include=media&page[limit]=20&page[offset]=' + offset);
+    if (!j || j.error) { toast('No se pudo leer tu biblioteca de Kitsu.', 'err'); return; }
+    const entries = j.data || [];
+    if (!entries.length) break;
+    const count = (j.meta && j.meta.count != null) ? Number(j.meta.count) : entries.length;
+    for (const e of entries) {
+      const attr = e.attributes || {};
+      const mid = e.relationships && e.relationships.media && e.relationships.media.data;
+      const media = (j.included || []).find(r => r.type === 'anime' && r.id === String(mid && mid.id));
+      if (!media) continue;
+      const it = mapKitsuMedia(media);
+      const status = K_STATUS_REV[attr.status] || 'plan';
+      const prog = parseInt(attr.progress, 10) || 0;
+      const rating = attr.ratingTwenty != null && attr.ratingTwenty !== '' ? Math.round(parseInt(attr.ratingTwenty, 10) / 2) : null;
+      const existing = state.animeList.find(a => String(a.kitsu_id) === String(it.kitsu_id)) || state.animeList[normMap.get(kitsuNorm(it.title))];
+      if (existing) {
+        existing.kitsu_id = it.kitsu_id; existing.kitsuEntryId = e.id;
+        if (prog > (existing.watched || 0)) existing.watched = prog;
+        if (rating && !existing.rating) existing.rating = rating;
+        if ((existing.status === 'plan' || existing.status === 'dropped') && (status === 'watching' || status === 'completed')) existing.status = status;
+        else if (existing.status === 'watching' && status === 'completed') existing.status = 'completed';
+        updated++;
+      } else {
+        state.animeList.unshift({ id: 'kitsu_' + it.kitsu_id, kitsu_id: it.kitsu_id, kitsuEntryId: e.id, title: it.title, title_english: it.title_english, image: it.image, studio: it.studio, genres: it.genres, year: it.year, malScore: it.malScore, malEpisodes: it.malEpisodes, synopsis: it.synopsis, trailerId: '', airing: it.airing, watched: prog, status: status, rating: rating, notes: '', addedAt: Date.now() });
+        added++;
+      }
+    }
+    offset += entries.length;
+    if (offset >= count || entries.length < 20) break;
+  }
+  save();
+  state.filter = 'watching';
+  renderDashboard(); recomputeStats(); renderScrobblerUI();
+  toast('Kitsu: <b>' + added + '</b> nuevas, <b>' + updated + '</b> actualizadas âœ“', 'ok');
+}
+const kitsuMediaCache = {};
+async function kitsuFindMediaId(title) {
+  const n = kitsuNorm(title);
+  if (!n) return null;
+  if (n in kitsuMediaCache) return kitsuMediaCache[n];
+  const j = await kitsuFetch('/anime?filter[text]=' + encodeURIComponent(title) + '&page[limit]=6');
+  let found = null;
+  if (j && j.data && Array.isArray(j.data)) {
+    for (const d of j.data) { const cand = mapKitsuMedia(d); const nc = kitsuNorm(cand.title); if (nc === n) { found = cand.kitsu_id; break; } if (!found) found = cand.kitsu_id; }
+  }
+  kitsuMediaCache[n] = found;
+  return found;
+}
+async function kitsuPushOne(a) {
+  if (!a || !state.settings.kitsuToken) return 'skip';
+  const uid = state.settings.kitsuUserId || (kitsuProfile && kitsuProfile.id);
+  if (!uid) return 'no-user';
+  let mid = a.kitsu_id || null;
+  if (!mid) { mid = await kitsuFindMediaId(a.title); if (!mid) return 'unknown'; }
+  const attrs = { progress: a.watched || 0, status: K_STATUS[a.status] || 'current' };
+  if (a.rating && !isNaN(a.rating)) attrs.ratingTwenty = Math.round((a.rating || 0) * 2);
+  if (a.kitsuEntryId) {
+    const r = await kitsuFetch('/library-entries/' + a.kitsuEntryId, { method: 'PATCH', body: { data: { type: 'library-entries', attributes: attrs } } });
+    if (r && r.data) { a.kitsuEntryId = r.data.id; return 'ok'; }
+    return (r && r.error === 401) ? 'auth' : 'fail';
+  }
+  const look = await kitsuFetch('/library-entries?filter[userId]=' + uid + '&filter[mediaId]=' + mid);
+  const found = look && !look.error && look.data && look.data[0];
+  if (found) { a.kitsuEntryId = found.id; return kitsuPushOne(a); }
+  const r2 = await kitsuFetch('/library-entries', { method: 'POST', body: { data: { type: 'library-entries', attributes: attrs, relationships: { media: { data: { type: 'anime', id: String(mid) } }, user: { data: { type: 'users', id: String(uid) } } } } } });
+  if (r2 && r2.data) { a.kitsuEntryId = r2.data.id; return 'ok'; }
+  return (r2 && r2.error === 401) ? 'auth' : 'fail';
+}
+async function kitsuPushAll() {
+  if (!state.settings.kitsuToken) { toast('Conecta tu cuenta de Kitsu primero.', 'warn'); return; }
+  toast('Subiendo tu progreso a Kitsuâ€¦', 'info');
+  let ok = 0, fail = 0, unknown = 0;
+  for (const a of state.animeList.slice()) {
+    const r = await kitsuPushOne(a);
+    if (r === 'ok') ok++;
+    else if (r === 'unknown') unknown++;
+    else if (r === 'auth') { toast('Token de Kitsu invÃ¡lido: reconecta.', 'err'); break; }
+    else if (r !== 'skip' && r !== 'no-user') fail++;
+  }
+  save();
+  toast('Kitsu: <b>' + ok + '</b> subidas âœ“' + (unknown ? ', ' + unknown + ' sin vincular por tÃ­tulo' : '') + (fail ? ', ' + fail + ' con error' : '') + '.', ok ? 'ok' : 'warn');
+}
+let kitsuSyncTimer = null;
+function kitsuMaybeSync(id) {
+  if (!state.settings || state.settings.kitsuOn !== true) return;
+  if (!state.settings.kitsuToken) return;
+  clearTimeout(kitsuSyncTimer);
+  kitsuSyncTimer = setTimeout(() => { const a = findAnime(id); if (a) kitsuPushOne(a).then(r => { if (r === 'auth') renderKitsuStatus(); }); }, 1400);
 }
 
 function renderALStatus(user) {
@@ -2220,7 +2453,24 @@ function scheduleCard(m, isMock) {
     (m.image ? '<img src="' + esc(m.image) + '" class="w-full h-full object-cover relative z-[1]" loading="lazy" onerror="this.remove()">' : '') + '</div>' +
     '<div class="flex-1 min-w-0"><div class="text-[13px] font-semibold text-white truncate">' + esc(m.title) + '</div>' +
     '<div class="text-[11px] text-slate-500 truncate">' + esc(m.studio || '') + '</div></div>' +
-    '<div class="text-right shrink-0 no-select"><div class="font-mono font-bold text-white text-[13px]">' + m.time + '</div><div class="text-[9px] text-slate-500 uppercase tracking-wide">JST' + (m.ep ? ' Â· Ep ' + m.ep : '') + (isMock ? ' Â· demo' : '') + '</div></div></div>';
+    '<div class="text-right shrink-0 no-select"><div class="font-mono font-bold text-white text-[13px]">' + m.time + '</div><div class="text-[9px] text-slate-500 uppercase tracking-wide">JST' + (m.ep ? ' Â· Ep ' + m.ep : '') + (isMock ? ' Â· demo' : '') + '</div>' +
+    (m.ts ? '<div class="cal-countdown text-[9px] font-semibold" data-ts="' + m.ts + '"></div>' : '') + '</div></div>';
+}
+
+function calCountdownText(tsMs) {
+  if (!tsMs) return '';
+  const diff = tsMs - Date.now();
+  const abs = Math.abs(diff);
+  if (abs < 60000) return diff < 0 ? 'ahora' : 'en breve';
+  const m = Math.max(1, Math.round(abs / 60000));
+  const d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mm = m % 60;
+  const parts = [];
+  if (d) parts.push(d + 'd'); if (h) parts.push(h + 'h'); parts.push(mm + 'm');
+  return (diff < 0 ? 'hace ' : 'en ') + parts.join(' ');
+}
+function updateCalCountdowns() {
+  const els = document.querySelectorAll('#calList .cal-countdown');
+  els.forEach(el => { const ts = parseInt(el.getAttribute('data-ts'), 10); if (!ts) return; el.textContent = calCountdownText(ts); });
 }
 
 async function loadSchedule(day) {
@@ -2247,7 +2497,8 @@ async function loadSchedule(day) {
           time: CAL_JST_TIME.format(new Date(a.airingAt * 1000)),
           image: (m.coverImage && (m.coverImage.large || m.coverImage.medium)) || '',
           mal_id: m.id,
-          ep: a.episode
+          ep: a.episode,
+          ts: a.airingAt * 1000
         };
       })
       .slice(0, 20);
@@ -2257,11 +2508,13 @@ async function loadSchedule(day) {
     }
     wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
       items.map(m => scheduleCard(m, false)).join('') + '</div>';
+    updateCalCountdowns();
     return;
   }
   const items = CAL_MOCK[day] || [];
   wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
     items.map(m => scheduleCard(m, true)).join('') + '</div>';
+  updateCalCountdowns();
 }
 
 function setupScrobblerUI() {
@@ -2346,7 +2599,7 @@ function finishEpisode() {
       save();
       renderDashboard(); recomputeStats();
       if (state.settings.notifications) toast('<b>' + esc(a.title) + '</b> â€” Episodio ' + (a.watched) + ' registrado por Auto-Scrobbler âœ“', 'ok');
-      alMaybeSync(a.id);
+      alMaybeSync(a.id); kitsuMaybeSync(a.id); kitsuMaybeSync(a.id);
     }
   }
   if (state.scrobbler.running) {
@@ -2417,9 +2670,11 @@ function switchSection(section) {
 
 function setupSettings() {
   applyAppearance();
+  if (window.__settingsWired) { refreshSettingsValues(); return; }
+  window.__settingsWired = true;
   document.querySelectorAll('input[data-setting]').forEach(cb => {
     cb.checked = !!state.settings[cb.dataset.setting];
-    cb.addEventListener('change', () => { state.settings[cb.dataset.setting] = cb.checked; save(); if (cb.dataset.setting === 'syncOn') renderALStatus(); toast('ConfiguraciÃ³n actualizada', 'info'); });
+    cb.addEventListener('change', () => { state.settings[cb.dataset.setting] = cb.checked; save(); if (cb.dataset.setting === 'syncOn') renderALStatus(); if (cb.dataset.setting === 'kitsuOn') renderKitsuStatus(); toast('ConfiguraciÃ³n actualizada', 'info'); });
   });
   document.querySelectorAll('[data-theme-pick]').forEach(b => {
     b.addEventListener('click', () => { state.settings.theme = b.getAttribute('data-theme-pick'); save(); applyAppearance(); toast('Tema: <b>' + (b.getAttribute('data-theme-pick') === 'oled' ? 'OLED Negro' : b.getAttribute('data-theme-pick') === 'light' ? 'Claro' : 'Oscuro') + '</b>', 'ok'); });
@@ -2488,13 +2743,38 @@ function setupSettings() {
   document.getElementById('resetBtn').addEventListener('click', () => {
     localStorage.removeItem(LS_KEY);
     localStorage.removeItem('animepulse.v2.backup');
+    if (window.electronAPI && window.electronAPI.stateWipe) { try { window.electronAPI.stateWipe(); } catch (e) { /* noop */ } }
     state.animeList = [];
     state.activity = [0,0,0,0,0,0,0];
-    state.settings = { detectPlayers: true, autoIncrement: true, notifications: true, theme: 'dark', accent: 'purple', autoAdd: true, syncOn: false, alClientId: '', alToken: '', dcEnabled: false, dcClientId: '', autoOrganize: false };
+    state.settings = { detectPlayers: true, autoIncrement: true, notifications: true, theme: 'dark', accent: 'purple', autoAdd: true, syncOn: false, alClientId: '', alToken: '', dcEnabled: false, dcClientId: '', autoOrganize: false, kitsuOn: false, kitsuClientId: '', kitsuSecret: '', kitsuEmail: '', kitsuToken: '', kitsuUserId: null };
     stopScrobble();
     renderDashboard(); recomputeStats(); renderFilterBar(); renderScrobblerUI(); setupSettings();
     toast('Lista borrada. Ahora empiezas desde cero, sin datos de demo âœ“', 'ok');
   });
+  document.getElementById('kitsuAuthBtn').addEventListener('click', kitsuLogin);
+  document.getElementById('kitsuImportBtn').addEventListener('click', kitsuImport);
+  document.getElementById('kitsuPushBtn').addEventListener('click', kitsuPushAll);
+  const kc = document.getElementById('kitsuClientId');
+  const ks = document.getElementById('kitsuSecret');
+  const ke = document.getElementById('kitsuEmail');
+  if (kc) { kc.value = state.settings.kitsuClientId || ''; kc.addEventListener('input', () => { state.settings.kitsuClientId = kc.value.trim(); save(); }); }
+  if (ks) { ks.value = state.settings.kitsuSecret || ''; ks.addEventListener('input', () => { state.settings.kitsuSecret = ks.value.trim(); save(); }); }
+  if (ke) { ke.value = state.settings.kitsuEmail || ''; ke.addEventListener('input', () => { state.settings.kitsuEmail = ke.value.trim(); save(); }); }
+  const rdb = document.getElementById('restoreDiskBtn');
+  if (rdb) rdb.addEventListener('click', () => restoreDisk(true));
+  refreshSettingsValues();
+}
+function refreshSettingsValues() {
+  document.querySelectorAll('input[data-setting]').forEach(cb => { cb.checked = !!state.settings[cb.dataset.setting]; });
+  const cid = document.getElementById('alClientId'), tok = document.getElementById('alToken');
+  if (cid) cid.value = state.settings.alClientId || '';
+  if (tok) tok.value = state.settings.alToken || '';
+  const kc = document.getElementById('kitsuClientId'), ks = document.getElementById('kitsuSecret'), ke = document.getElementById('kitsuEmail');
+  if (kc) kc.value = state.settings.kitsuClientId || '';
+  if (ks) ks.value = state.settings.kitsuSecret || '';
+  if (ke) ke.value = state.settings.kitsuEmail || '';
+  renderALStatus();
+  renderKitsuStatus();
 }
 
 function wireActions() {
@@ -2552,7 +2832,7 @@ function wireActions() {
     const id = el.getAttribute('data-id');
     const a = findAnime(id);
     if (!a) return;
-    if (action === 'ep') { a.watched = clamp(parseInt(el.value, 10) || 0, 0, totalEps(a) > 0 ? totalEps(a) : 99999); save(); refreshDetail(); recomputeStats(); alMaybeSync(id); }
+    if (action === 'ep') { a.watched = clamp(parseInt(el.value, 10) || 0, 0, totalEps(a) > 0 ? totalEps(a) : 99999); save(); refreshDetail(); recomputeStats(); alMaybeSync(id); kitsuMaybeSync(id); }
     else if (action === 'status') setStatus(id, el.value);
     else if (action === 'rating') setRating(id, parseInt(el.value, 10) || 0);
     else if (action === 'notes') { a.notes = el.value; save(); }
@@ -2622,6 +2902,10 @@ function init() {
   setupWatchListener();
   setupDiscordUI();
   if (state.settings.notifications === true) { checkAiringNow(); setInterval(checkAiringNow, 3600000); }
+  setInterval(updateCalCountdowns, 30000);
+  updateCalCountdowns();
+  restoreDisk(false);
+  refreshDiskInfo();
   icons();
   if (window.electronAPI && window.electronAPI.onMaximized) {
     window.electronAPI.onMaximized(max => {

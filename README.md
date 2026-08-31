@@ -14,14 +14,15 @@ App de escritorio para el seguimiento de anime inspirada en la potencia de **Tai
 - **Prompts inteligentes al detectar**: si el anime que ves no está en tu lista te pregunta si quieres agregarlo (Añadir / Ver ficha / Descartar). Para franquicias largas (p. ej. Bleach) detecta las temporadas anteriores vía `relations` de AniList y te ofrece marcarlas como completadas al instante.
 - **Tráiler funcional**: se reproduce dentro de la app al abrir la ficha (autoplay) con enlace externo a YouTube si el embed está bloqueado.
 - **Cuenta AniList (OAuth)**: conecta tu cuenta pegando el Client ID y access token (crea una app gratis en `anilist.co/settings/developer`). Tu progreso y estado se sincronizan automáticamente en línea; hay re-sincronización completa con un clic desde la ficha del conector o con el botón «Sync AniList» de la barra de Mi Lista. Crunchyroll y otras webs se detectan solas al verlas en el navegador (Crunchyroll no ofrece API pública para terceros).
+- **Sincronización con Kitsu**: segundo conector bidireccional (además de AniList) para tu cuenta de Kitsu (lo clásico de la comunidad de MyAnimeList). Crea una app personal gratis en `kitsu.io/settings/apps`, pega Client ID/Secret+tu email y contraseña una sola vez (la app guarda solo el token) y podrás **traer tu lista** (importa y enlaza por título, con deduplicación), **subir tu progreso** y activar el **sync automático** que empuja cada cambio cuando reproduces un episodio.
 - **Notificaciones de escritorio**: cuando un episodio de un anime que estás siguiendo (Viendo/En pausa) se emite, recibes un aviso nativo (también al abrir la app si se emitió en las últimas 24 h; cada episodio avisa una sola vez).
 - **Organizador de Archivos**: elige una carpeta con tus descargas (.mkv/.mp4/.avi…) y renombra en lote a `Anime - S01E01.ext`. Detecta la serie y el episodio por nombre, marca conflictos si el destino ya existe, y puede usar el título oficial de AniList como referencia de serie. Activa el modo **vigilancia**: los archivos nuevos que caigan en la carpeta se renombran solos.
 - **Tarjetas compartibles**: desde la ficha de cualquier anime abre «Compartir» para ver la tarjeta y copiar **texto** o **imagen** al portapapeles (si el portapapeles no está disponible, el PNG se guarda en Descargas).
 - **Rich Presence de Discord**: conecta tu perfil con una app gratuita de `discord.com/developers/applications` para mostrar qué estás viendo (título + episodio) en tiempo real mientras el Auto-Scrobbler está activo. Cliente IPC propio (sin dependencias nativas).
 - **Ajustes del Tracker**: temas («Oscuro», «OLED Negro», «Claro») y 6 colores de acento, además de los interruptores del Auto-Scrobbler (detección, incremento, notificaciones, prompt automático y sincronización).
 - **Estadísticas personales**: métricas globales, género favoritos, distribución por estado y gráfico de actividad de los últimos 7 días.
-- **Calendario de emisión** horario JST con datos en vivo desde el `airingSchedules` de AniList (sábados-completos) con respaldo de demo.
-- **Persistencia total** en `localStorage` con exportación/importación de respaldo JSON. Arranca con la lista vacía (sin datos de demo).
+- **Calendario de emisión** horario JST con datos en vivo desde el `airingSchedules` de AniList (sábados-completos) con respaldo de demo. Cada episodio muestra un **contador regresivo** en tiempo real (en 2h 15m / hace 1h 30m) que se actualiza solo.
+- **Persistencia total** en `localStorage` con exportación/importación de respaldo JSON **y una copia de seguridad atómica en disco** (que se restaura automáticamente si el almacenamiento local se borra o caduca; también puedes restaurarla a mano desde Ajustes). Arranca con la lista vacía (sin datos de demo).
 
 ## Requisitos
 
@@ -46,9 +47,11 @@ Los instaladores se generan en la carpeta `dist/` (`NSIS` + `portable`).
 
 ```
 AnimePulse-Desktop/
-├── index.html    # UI completa (HTML + Tailwind + Lucide + JS ES6 en un solo archivo)
-├── main.js       # Proceso principal de Electron (ventana sin marco + IPC)
-├── preload.js    # Puente seguro contextBridge -> electronAPI
+├── index.html        # UI completa (HTML + Tailwind + Lucide + JS ES6 en un solo archivo)
+├── main.js           # Proceso principal de Electron (ventana sin marco + IPC + base en disco + conector Discord)
+├── preload.js        # Puente seguro contextBridge -> electronAPI
+├── discord-rpc.js    # Cliente Rich Presence de Discord (IPC sobre named pipes, sin dependencias)
+├── folder-watcher.js # Vigilante de la carpeta del organizador (intervalo configurable)
 └── package.json
 ```
 

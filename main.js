@@ -146,6 +146,38 @@ ipcMain.handle('fs:save-png', async (e, dataUrl, name) => {
   } catch (err) { return { error: String((err && err.message) || err) }; }
 });
 
+const stateFilePath = () => path.join(app.getPath('userData'), 'animepulse-state.json');
+ipcMain.handle('state:save', (e, data) => {
+  try {
+    if (typeof data !== 'string' || !data) return { error: 'formato' };
+    const full = stateFilePath();
+    fs.mkdirSync(path.dirname(full), { recursive: true });
+    const tmp = full + '.tmp';
+    fs.writeFileSync(tmp, data, 'utf8');
+    fs.renameSync(tmp, full);
+    return { ok: true };
+  } catch (err) { return { error: String((err && err.message) || err) }; }
+});
+ipcMain.handle('state:load', () => {
+  try {
+    const full = stateFilePath();
+    if (!fs.existsSync(full)) return null;
+    return JSON.parse(fs.readFileSync(full, 'utf8'));
+  } catch (e) { return null; }
+});
+ipcMain.handle('state:info', () => {
+  try {
+    const full = stateFilePath();
+    if (!fs.existsSync(full)) return null;
+    const st = fs.statSync(full);
+    return { size: st.size, mtime: st.mtimeMs };
+  } catch (e) { return null; }
+});
+ipcMain.handle('state:wipe', () => {
+  try { const full = stateFilePath(); if (fs.existsSync(full)) fs.rmSync(full); } catch (e) { /* noop */ }
+  return { ok: true };
+});
+
 const { createWatcher } = require('./folder-watcher');
 const watcher = createWatcher(fresh => {
   if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents && !mainWindow.webContents.isDestroyed()) mainWindow.webContents.send('organizer:new', fresh);
