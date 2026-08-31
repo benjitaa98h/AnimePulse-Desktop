@@ -100,6 +100,29 @@ function createDB(userDataDir) {
       episode_count INTEGER NOT NULL,
       multiplier REAL DEFAULT 1.0
     );
+
+    CREATE TABLE IF NOT EXISTS store_items (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      kind TEXT NOT NULL,
+      rarity TEXT NOT NULL,
+      cost INTEGER NOT NULL,
+      min_rank TEXT NOT NULL,
+      value TEXT NOT NULL,
+      owned INTEGER DEFAULT 0,
+      equipped INTEGER DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS inventory (
+      id TEXT PRIMARY KEY,
+      item_id TEXT NOT NULL,
+      kind TEXT NOT NULL,
+      name TEXT NOT NULL,
+      value TEXT,
+      acquired_at INTEGER NOT NULL,
+      equipped INTEGER DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS idx_inventory_kind ON inventory(kind);
   `);
 
   const dbPath = path.join(userDataDir, 'animepulse-state.json');
@@ -171,7 +194,7 @@ function createDB(userDataDir) {
   }
 
   function wipe() {
-    db.exec('DELETE FROM app_state; DELETE FROM anime_list; DELETE FROM user_stats; DELETE FROM trophies; DELETE FROM trophies_history; DELETE FROM scrobble_history; DELETE FROM coin_tx; DELETE FROM xp_tx; DELETE FROM marathons;');
+    db.exec('DELETE FROM app_state; DELETE FROM anime_list; DELETE FROM user_stats; DELETE FROM trophies; DELETE FROM trophies_history; DELETE FROM scrobble_history; DELETE FROM coin_tx; DELETE FROM xp_tx; DELETE FROM marathons; DELETE FROM store_items; DELETE FROM inventory;');
     return { ok: true };
   }
 
@@ -314,6 +337,82 @@ function createDB(userDataDir) {
     };
   }
 
+  function isItemOwned(id) {
+    const row = db.prepare('SELECT 1 FROM inventory WHERE item_id = ?').get(String(id));
+    return !!row;
+  }
+
+  function ipcStoreList() {
+    return db.prepare(
+      'SELECT id, name, kind, rarity, cost, min_rank, value, owned, equipped FROM store_items ORDER BY cost'
+    ).all();
+  }
+
+  function ipcStoreUpsert(items) {
+    if (!Array.isArray(items)) return { ok: false };
+    const stmt = db.prepare(
+      'INSERT INTO store_items (id, name, kind, rarity, cost, min_rank, value, owned, equipped) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ' +
+      'ON CONFLICT(id) DO UPDATE SET name = excluded.name, kind = excluded.kind, rarity = excluded.rarity, ' +
+      'cost = excluded.cost, min_rank = excluded.min_rank, value = excluded.value'
+    );
+    const now = Date.now();
+    for (const it of items) {
+      if (!it || !it.id) continue;
+      const owned = isItemOwned(String(it.id)) ? 1 : 0;
+      stmt.run(
+        String(it.id), String(it.name || it.id), String(it.kind || 'wallpaper'),
+        String(it.rarity || 'comun'), Number(it.cost || 0), String(it.min_rank || 'basico'),
+        String(it.value || ''), owned, 0
+      );
+    }
+    return { ok: true };
+  }
+
+  function ipcStorePurchase(itemId, rank) {
+    const item = db.prepare('SELECT * FROM store_items WHERE id = ?').get(String(itemId));
+    if (!item) return { ok: false, error: 'not_found' };
+    if (isItemOwned(String(itemId))) return { ok: false, error: 'owned' };
+
+    const rankOrder = { basico: 0, pro: 1, master: 2, legendario: 3 };
+    const need = rankOrder[String(item.min_rank)] || 0;
+    const have = rankOrder[String(rank)] || 0;
+    if (have < need) return { ok: false, error: 'rank' };
+
+    const coins = db.prepare('SELECT COALESCE(SUM(delta),0) AS total FROM coin_tx').get();
+    const balance = coins ? Number(coins.total) : 0;
+    if (balance < Number(item.cost)) return { ok: false, error: 'coins', balance };
+
+    const now = Date.now();
+    const tx = db.prepare('BEGIN');
+    try {
+      tx.run();
+      db.prepare('INSERT INTO coin_tx (delta, reason, ref_id, created_at) VALUES (?, ?, ?, ?)').run(
+        -Number(item.cost), 'store:' + String(item.id), String(item.id), now
+      );
+      db.prepare(
+        'INSERT INTO inventory (id, item_id, kind, name, value, acquired_at, equipped) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      ).run(String(item.id), String(item.id), String(item.kind), String(item.name), String(item.value || ''), now, 0);
+      db.prepare('UPDATE store_items SET owned = 1 WHERE id = ?').run(String(item.id));
+      db.prepare('COMMIT').run();
+      return { ok: true, balance: balance - Number(item.cost) };
+    } catch (e) {
+      try { db.prepare('ROLLBACK').run(); } catch (e2) { /* noop */ }
+      return { ok: false, error: String(e && e.message) };
+    }
+  }
+
+  function ipcStoreEquip(itemId, on) {
+    const owned = db.prepare('SELECT * FROM inventory WHERE item_id = ?').get(String(itemId));
+    if (!owned) return { ok: false, error: 'not_owned' };
+    db.prepare('UPDATE inventory SET equipped = ? WHERE item_id = ?').run(on ? 1 : 0, String(itemId));
+    db.prepare('UPDATE store_items SET equipped = ? WHERE id = ?').run(on ? 1 : 0, String(itemId));
+    return { ok: true };
+  }
+
+  function ipcStoreInventory() {
+    return db.prepare('SELECT item_id, kind, name, value, equipped FROM inventory ORDER BY acquired_at').all();
+  }
+
   function close() {
     try { db.close(); } catch (e) { /* noop */ }
   }
@@ -329,7 +428,12 @@ function createDB(userDataDir) {
     recordEpisode: ipcRecordEpisode,
     scrobbleHistory: ipcScrobbleHistory,
     coinSummary: ipcCoinSummary,
-    scrobbleStats: ipcScrobbleStats
+    scrobbleStats: ipcScrobbleStats,
+    storeList: ipcStoreList,
+    storeUpsert: ipcStoreUpsert,
+    storePurchase: ipcStorePurchase,
+    storeEquip: ipcStoreEquip,
+    storeInventory: ipcStoreInventory
   };
 }
 

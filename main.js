@@ -264,6 +264,21 @@ ipcMain.handle('game:coin-summary', () => {
 ipcMain.handle('game:scrobble-stats', () => {
   try { return appDB ? appDB.scrobbleStats() : { episodes: 0, animes: 0, best_marathon: 1 }; } catch (e) { return { episodes: 0, animes: 0, best_marathon: 1 }; }
 });
+ipcMain.handle('store:list', () => {
+  try { return appDB ? appDB.storeList() : []; } catch (e) { return []; }
+});
+ipcMain.handle('store:upsert', (e, items) => {
+  try { return appDB ? appDB.storeUpsert(items) : { ok: false }; } catch (e) { return { ok: false }; }
+});
+ipcMain.handle('store:purchase', (e, itemId, rank) => {
+  try { return appDB ? appDB.storePurchase(itemId, rank) : { ok: false }; } catch (e) { return { ok: false, error: String(e && e.message) }; }
+});
+ipcMain.handle('store:equip', (e, itemId, on) => {
+  try { return appDB ? appDB.storeEquip(itemId, on) : { ok: false }; } catch (e) { return { ok: false }; }
+});
+ipcMain.handle('store:inventory', () => {
+  try { return appDB ? appDB.storeInventory() : []; } catch (e) { return []; }
+});
 
 const { createWatcher } = require('./folder-watcher');
 const watcher = createWatcher(fresh => {

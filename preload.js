@@ -37,5 +37,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   gameRecordEpisode: (evt) => ipcRenderer.invoke('game:record-episode', evt),
   gameScrobbleHistory: (limit) => ipcRenderer.invoke('game:scrobble-history', limit),
   gameCoinSummary: () => ipcRenderer.invoke('game:coin-summary'),
-  gameScrobbleStats: () => ipcRenderer.invoke('game:scrobble-stats')
+  gameScrobbleStats: () => ipcRenderer.invoke('game:scrobble-stats'),
+  storeList: () => ipcRenderer.invoke('store:list'),
+  storeUpsert: (items) => ipcRenderer.invoke('store:upsert', items),
+  storePurchase: (itemId, rank) => ipcRenderer.invoke('store:purchase', itemId, rank),
+  storeEquip: (itemId, on) => ipcRenderer.invoke('store:equip', itemId, on),
+  storeInventory: () => ipcRenderer.invoke('store:inventory')
 });
