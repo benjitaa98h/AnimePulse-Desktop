@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AnimePulse Desktop â€” Next-Gen Tracker</title>
+<title>AnimePulse Desktop — Next-Gen Tracker</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a855f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='6 3 20 12 6 21 6 3'/%3E%3C/svg%3E">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
@@ -127,7 +127,7 @@ tailwind.config = {
   <div class="flex items-center gap-2 pl-1">
     <span class="w-2.5 h-2.5 rounded-full accent-gradient"></span>
     <span class="font-display font-bold text-[13px] tracking-wide text-slate-100">AnimePulse <span class="text-slate-500 font-medium">Desktop</span></span>
-    <span class="ml-1 text-[10px] px-1.5 py-0.5 rounded-md bg-white/5 edge text-slate-400 font-medium">v2.0 Â· Next-Gen</span>
+    <span class="ml-1 text-[10px] px-1.5 py-0.5 rounded-md bg-white/5 edge text-slate-400 font-medium">v2.0 · Next-Gen</span>
   </div>
   <div class="flex items-center gap-2 mr-1">
     <span id="apiPill" class="hidden sm:flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-full border border-emerald-400/20 bg-emerald-400/10 text-emerald-300 font-medium">
@@ -180,7 +180,7 @@ tailwind.config = {
       <button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition"
               data-section="calendar">
         <i data-lucide="calendar-days" class="w-[18px] h-[18px]"></i>
-        <span class="flex-1 text-left">Calendario de EmisiÃ³n</span>
+        <span class="flex-1 text-left">Calendario de Emisión</span>
         <span class="nav-ind w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 ml-1"></span>
       </button>
       <button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition"
@@ -192,7 +192,7 @@ tailwind.config = {
       <button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition"
               data-section="stats">
         <i data-lucide="bar-chart-3" class="w-[18px] h-[18px]"></i>
-        <span class="flex-1 text-left">EstadÃ­sticas</span>
+        <span class="flex-1 text-left">Estadísticas</span>
         <span class="nav-ind w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 ml-1"></span>
       </button>
       <button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition"
@@ -215,7 +215,7 @@ tailwind.config = {
           <span class="eq-bar w-[3px] h-full bg-slate-500/60 rounded-sm" style="animation-delay:240ms"></span>
           <span class="eq-bar w-[3px] h-full bg-slate-500/60 rounded-sm" style="animation-delay:360ms"></span>
         </div>
-        <span id="scrobMiniText" class="truncate">Sin reproducciÃ³n detectada</span>
+        <span id="scrobMiniText" class="truncate">Sin reproducción detectada</span>
       </div>
     </div>
 
@@ -224,7 +224,7 @@ tailwind.config = {
         <div class="w-9 h-9 rounded-full accent-gradient flex items-center justify-center font-display font-bold text-sm text-white shrink-0">OT</div>
         <div class="min-w-0 flex-1">
           <div class="text-[13px] font-semibold text-white truncate">Otaku Tracker</div>
-          <div class="text-[10px] text-slate-500">Perfil Pro Â· PC</div>
+          <div class="text-[10px] text-slate-500">Perfil Pro · PC</div>
         </div>
         <i data-lucide="chevrons-up" class="w-4 h-4 text-purple-400"></i>
       </div>
@@ -239,7 +239,7 @@ tailwind.config = {
         </div>
         <div class="glass edge rounded-xl py-2">
           <div id="jqDays" class="font-display font-bold text-white text-sm leading-tight">0</div>
-          <div class="text-[9px] text-slate-500 mt-0.5 uppercase tracking-wide">DÃ­as</div>
+          <div class="text-[9px] text-slate-500 mt-0.5 uppercase tracking-wide">Días</div>
         </div>
       </div>
     </div>
@@ -251,7 +251,7 @@ tailwind.config = {
     <div class="relative z-10 px-6 pt-4">
       <div class="relative max-w-xl">
         <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
-        <input id="globalSearch" type="text" autocomplete="off" spellcheck="false" placeholder="Buscar en el catÃ¡logo de AniListâ€¦"
+        <input id="globalSearch" type="text" autocomplete="off" spellcheck="false" placeholder="Buscar en el catálogo de AniList…"
           class="w-full bg-white/[.04] edge rounded-xl pl-10 pr-4 py-2.5 text-[13px] text-slate-200 placeholder:text-slate-500 focus:bg-white/[.06] transition">
         <div id="searchDropdown" class="hidden absolute top-full mt-2 w-full glass edge rounded-2xl overflow-hidden shadow-2xl shadow-black/50 z-50"></div>
       </div>
@@ -272,7 +272,7 @@ tailwind.config = {
             <span class="text-[11px] text-slate-500 font-medium mr-1 no-select">Vista</span>
             <div class="flex items-center p-1 glass edge rounded-xl">
               <button data-view="grid" id="viewGrid" class="view-btn px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 text-[11px] font-medium transition">
-                <i data-lucide="grid-3x3" class="w-3.5 h-3.5"></i> CuadrÃ­cula
+                <i data-lucide="grid-3x3" class="w-3.5 h-3.5"></i> Cuadrícula
               </button>
               <button data-view="list" id="viewList" class="view-btn px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 text-[11px] font-medium transition">
                 <i data-lucide="list" class="w-3.5 h-3.5"></i> Lista
@@ -289,7 +289,7 @@ tailwind.config = {
           <h2 class="font-display font-bold text-xl text-white">Explorar / Tendencias</h2>
           <div class="ml-auto flex items-center gap-2">
             <div class="relative">
-              <input id="exploreSearch" type="text" placeholder="Buscar animeâ€¦"
+              <input id="exploreSearch" type="text" placeholder="Buscar anime…"
                 class="w-64 bg-white/[.04] edge rounded-xl pl-9 pr-3 py-2 text-[13px] text-slate-200 placeholder:text-slate-500 focus:bg-white/[.06] transition">
               <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500"></i>
             </div>
@@ -301,15 +301,15 @@ tailwind.config = {
             </button>
           </div>
         </div>
-        <p id="exploreHint" class="text-[12px] text-slate-500 mb-4">Resultados en tiempo real desde la API de AniList (respaldo: Jikan/MyAnimeList). Haz clic en cualquier tarjeta para previsualizar y aÃ±adir a tu lista.</p>
+        <p id="exploreHint" class="text-[12px] text-slate-500 mb-4">Resultados en tiempo real desde la API de AniList (respaldo: Jikan/MyAnimeList). Haz clic en cualquier tarjeta para previsualizar y añadir a tu lista.</p>
         <div id="exploreSkeleton" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"></div>
         <div id="exploreResults" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"></div>
       </section>
 
       <section id="section-calendar" class="fade-section hidden">
         <div class="flex flex-wrap items-center gap-3 mb-4">
-          <h2 class="font-display font-bold text-xl text-white">Calendario de EmisiÃ³n</h2>
-          <span class="text-[11px] text-slate-500 edge bg-white/5 px-2 py-1 rounded-lg">Horario JST (JapÃ³n) Â· AniList airingSchedules</span>
+          <h2 class="font-display font-bold text-xl text-white">Calendario de Emisión</h2>
+          <span class="text-[11px] text-slate-500 edge bg-white/5 px-2 py-1 rounded-lg">Horario JST (Japón) · AniList airingSchedules</span>
         </div>
         <div id="calDays" class="flex flex-wrap gap-2 mb-5"></div>
         <div id="calList" class="space-y-2"></div>
@@ -331,22 +331,22 @@ tailwind.config = {
           <div class="flex flex-wrap items-center gap-3 mt-4 pt-4 edge border-x-0 border-b-0">
             <label class="flex items-center gap-2 cursor-pointer">
               <input id="useAnilistNames" type="checkbox" class="accent-purple-500 w-4 h-4">
-              <span class="text-[12px] text-slate-300">Usar el tÃ­tulo oficial de AniList para la serie (mÃ¡s preciso)</span>
+              <span class="text-[12px] text-slate-300">Usar el título oficial de AniList para la serie (más preciso)</span>
             </label>
             <button id="renameAllBtn" class="ml-auto px-4 py-2 rounded-xl text-[12px] font-semibold bg-emerald-400/15 border border-emerald-400/25 text-emerald-300 hover:bg-emerald-400/25 transition items-center gap-1.5 hidden"><i data-lucide="wand-2" class="w-3.5 h-3.5"></i> Renombrar todo</button>
             <label class="flex items-center gap-2 cursor-pointer mt-1">
               <input id="watchToggle" type="checkbox" class="accent-emerald-500 w-4 h-4">
-              <span class="text-[12px] text-slate-300 flex items-center gap-1.5"><i data-lucide="eye" class="w-3.5 h-3.5 text-emerald-400"></i> Vigilar carpeta (renombrar nuevos archivos automÃ¡ticamente)</span>
+              <span class="text-[12px] text-slate-300 flex items-center gap-1.5"><i data-lucide="eye" class="w-3.5 h-3.5 text-emerald-400"></i> Vigilar carpeta (renombrar nuevos archivos automáticamente)</span>
             </label>
           </div>
         </div>
-        <div id="organizerHint" class="text-[12px] text-slate-500 mb-4">Elige una carpeta con tus archivos descargados (.mkv / .mp4 / .aviâ€¦) para analizarlos.</div>
+        <div id="organizerHint" class="text-[12px] text-slate-500 mb-4">Elige una carpeta con tus archivos descargados (.mkv / .mp4 / .avi…) para analizarlos.</div>
         <div id="fileList" class="space-y-1.5"></div>
       </section>
 
       <section id="section-stats" class="fade-section hidden">
         <div class="flex flex-wrap items-center gap-3 mb-4">
-          <h2 class="font-display font-bold text-xl text-white">EstadÃ­sticas Personales</h2>
+          <h2 class="font-display font-bold text-xl text-white">Estadísticas Personales</h2>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div class="glass edge rounded-2xl p-4 flex items-center gap-3">
@@ -359,7 +359,7 @@ tailwind.config = {
           </div>
           <div class="glass edge rounded-2xl p-4 flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl bg-cyan-500/15 flex items-center justify-center text-cyan-400"><i data-lucide="clock" class="w-5 h-5"></i></div>
-            <div><div id="statDays" class="font-display font-bold text-2xl text-white leading-none">0</div><div class="text-[11px] text-slate-500 mt-1">DÃ­as invertidos</div></div>
+            <div><div id="statDays" class="font-display font-bold text-2xl text-white leading-none">0</div><div class="text-[11px] text-slate-500 mt-1">Días invertidos</div></div>
           </div>
           <div class="glass edge rounded-2xl p-4 flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-400"><i data-lucide="star" class="w-5 h-5"></i></div>
@@ -369,13 +369,13 @@ tailwind.config = {
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
           <div class="glass edge rounded-2xl p-5 lg:col-span-2">
             <div class="flex items-center justify-between mb-3">
-              <h3 class="font-display font-semibold text-sm text-white flex items-center gap-2"><i data-lucide="activity" class="w-4 h-4 text-emerald-400"></i> Actividad Â· Ãºltimos 7 dÃ­as</h3>
+              <h3 class="font-display font-semibold text-sm text-white flex items-center gap-2"><i data-lucide="activity" class="w-4 h-4 text-emerald-400"></i> Actividad · últimos 7 días</h3>
               <span id="activityTotal" class="text-[11px] text-slate-500"></span>
             </div>
             <canvas id="activityChart" width="640" height="220" class="w-full"></canvas>
           </div>
           <div class="glass edge rounded-2xl p-5">
-            <h3 class="font-display font-semibold text-sm text-white flex items-center gap-2 mb-4"><i data-lucide="pie-chart" class="w-4 h-4 text-purple-400"></i> DistribuciÃ³n</h3>
+            <h3 class="font-display font-semibold text-sm text-white flex items-center gap-2 mb-4"><i data-lucide="pie-chart" class="w-4 h-4 text-purple-400"></i> Distribución</h3>
             <div class="space-y-3 mb-5">
               <div class="flex justify-between text-[11px]"><span class="text-slate-400">Viendo</span><span id="distWatching" class="font-semibold text-white">0</span></div>
               <div class="flex justify-between text-[11px]"><span class="text-slate-400">Completados</span><span id="distCompleted" class="font-semibold text-white">0</span></div>
@@ -386,7 +386,7 @@ tailwind.config = {
         </div>
         <div class="glass edge rounded-2xl p-5">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="font-display font-semibold text-sm text-white flex items-center gap-2"><i data-lucide="tags" class="w-4 h-4 text-pink-400"></i> GÃ©neros favoritos</h3>
+            <h3 class="font-display font-semibold text-sm text-white flex items-center gap-2"><i data-lucide="tags" class="w-4 h-4 text-pink-400"></i> Géneros favoritos</h3>
           </div>
           <div id="genreDeck" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2.5"></div>
         </div>
@@ -398,19 +398,19 @@ tailwind.config = {
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div class="glass edge rounded-2xl p-5">
-            <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="monitor" class="w-4 h-4 text-cyan-400"></i> DetecciÃ³n de reproductores</h3>
+            <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="monitor" class="w-4 h-4 text-cyan-400"></i> Detección de reproductores</h3>
             <div class="space-y-3">
               <label class="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[.03] hover:bg-white/[.06] transition cursor-pointer">
                 <div class="flex items-center gap-3">
                   <i data-lucide="radio" class="w-4 h-4 text-purple-400"></i>
-                  <div><div class="text-[13px] font-medium text-slate-200">DetecciÃ³n automÃ¡tica de vÃ­deo</div><div class="text-[11px] text-slate-500">Detecta el anime que estÃ¡s viendo en cualquier navegador (Chrome / Edge / Firefoxâ€¦) o reproductor mediante el tÃ­tulo de la ventana</div></div>
+                  <div><div class="text-[13px] font-medium text-slate-200">Detección automática de vídeo</div><div class="text-[11px] text-slate-500">Detecta el anime que estás viendo en cualquier navegador (Chrome / Edge / Firefox…) o reproductor mediante el título de la ventana</div></div>
                 </div>
                 <input type="checkbox" data-setting="detectPlayers" class="accent-purple-500 w-4 h-4">
               </label>
               <label class="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[.03] hover:bg-white/[.06] transition cursor-pointer">
                 <div class="flex items-center gap-3">
                   <i data-lucide="move-vertical" class="w-4 h-4 text-pink-400"></i>
-                  <div><div class="text-[13px] font-medium text-slate-200">Incremento automÃ¡tico</div><div class="text-[11px] text-slate-500">Marca el episodio visto al terminar la reproducciÃ³n</div></div>
+                  <div><div class="text-[13px] font-medium text-slate-200">Incremento automático</div><div class="text-[11px] text-slate-500">Marca el episodio visto al terminar la reproducción</div></div>
                 </div>
                 <input type="checkbox" data-setting="autoIncrement" class="accent-purple-500 w-4 h-4">
               </label>
@@ -438,11 +438,11 @@ tailwind.config = {
               <div>
                 <label class="text-[11px] text-slate-500 font-medium mb-1.5 block">Color de acento</label>
                 <div class="flex items-center gap-2 flex-wrap">
-                  <button data-accent-pick="purple" title="PÃºrpura" class="accent-swatch w-8 h-8 rounded-full transition ring-offset-2 ring-offset-ink-900" style="background:linear-gradient(135deg,#7c3aed,#db2777)"></button>
+                  <button data-accent-pick="purple" title="Púrpura" class="accent-swatch w-8 h-8 rounded-full transition ring-offset-2 ring-offset-ink-900" style="background:linear-gradient(135deg,#7c3aed,#db2777)"></button>
                   <button data-accent-pick="blue" title="Azul" class="accent-swatch w-8 h-8 rounded-full transition ring-offset-2 ring-offset-ink-900" style="background:linear-gradient(135deg,#2563eb,#06b6d4)"></button>
                   <button data-accent-pick="emerald" title="Esmeralda" class="accent-swatch w-8 h-8 rounded-full transition ring-offset-2 ring-offset-ink-900" style="background:linear-gradient(135deg,#059669,#84cc16)"></button>
                   <button data-accent-pick="rose" title="Rosa" class="accent-swatch w-8 h-8 rounded-full transition ring-offset-2 ring-offset-ink-900" style="background:linear-gradient(135deg,#e11d48,#f97316)"></button>
-                  <button data-accent-pick="amber" title="Ãmbar" class="accent-swatch w-8 h-8 rounded-full transition ring-offset-2 ring-offset-ink-900" style="background:linear-gradient(135deg,#d97706,#f59e0b)"></button>
+                  <button data-accent-pick="amber" title="Ámbar" class="accent-swatch w-8 h-8 rounded-full transition ring-offset-2 ring-offset-ink-900" style="background:linear-gradient(135deg,#d97706,#f59e0b)"></button>
                   <button data-accent-pick="cyan" title="Cian" class="accent-swatch w-8 h-8 rounded-full transition ring-offset-2 ring-offset-ink-900" style="background:linear-gradient(135deg,#0891b2,#2563eb)"></button>
                 </div>
               </div>
@@ -450,20 +450,20 @@ tailwind.config = {
           </div>
 
           <div class="glass edge rounded-2xl p-5 lg:col-span-2">
-            <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="plug-zap" class="w-4 h-4 text-purple-400"></i> Integraciones y sincronizaciÃ³n</h3>
+            <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="plug-zap" class="w-4 h-4 text-purple-400"></i> Integraciones y sincronización</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-3">
                 <label class="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[.03] hover:bg-white/[.06] transition cursor-pointer">
                   <div class="flex items-center gap-3">
                     <i data-lucide="message-square-plus" class="w-4 h-4 text-emerald-400"></i>
-                    <div><div class="text-[13px] font-medium text-slate-200">Preguntar al detectar anime</div><div class="text-[11px] text-slate-500">Si el anime que ves no estÃ¡ en tu lista, te pregunta si quieres agregarlo</div></div>
+                    <div><div class="text-[13px] font-medium text-slate-200">Preguntar al detectar anime</div><div class="text-[11px] text-slate-500">Si el anime que ves no está en tu lista, te pregunta si quieres agregarlo</div></div>
                   </div>
                   <input type="checkbox" data-setting="autoAdd" class="accent-purple-500 w-4 h-4">
                 </label>
                 <label class="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[.03] hover:bg-white/[.06] transition cursor-pointer">
                   <div class="flex items-center gap-3">
                     <i data-lucide="cloud-upload" class="w-4 h-4 text-sky-400"></i>
-                    <div><div class="text-[13px] font-medium text-slate-200">Sincronizar con AniList</div><div class="text-[11px] text-slate-500">Sube tu progreso y estado a tu cuenta en lÃ­nea automÃ¡ticamente</div></div>
+                    <div><div class="text-[13px] font-medium text-slate-200">Sincronizar con AniList</div><div class="text-[11px] text-slate-500">Sube tu progreso y estado a tu cuenta en línea automáticamente</div></div>
                   </div>
                   <input type="checkbox" data-setting="syncOn" class="accent-purple-500 w-4 h-4">
                 </label>
@@ -474,24 +474,24 @@ tailwind.config = {
                   <input id="alClientId" type="text" placeholder="Ej: 12345" spellcheck="false" class="flex-1 bg-white/[.05] edge rounded-xl px-3 py-2 text-[12px] text-slate-200 placeholder:text-slate-600">
                   <button id="alAuthBtn" class="px-3 py-2 rounded-xl text-[12px] font-semibold btn-primary text-white flex items-center gap-1.5"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> Autorizar</button>
                 </div>
-                <p class="text-[10px] text-slate-500 leading-relaxed">Crea una app gratis en <b>anilist.co/settings/developer</b> y pega su Client ID. Luego pulsa <b>Autorizar</b>: se abrirÃ¡ tu navegador para iniciar sesiÃ³n y te mostrarÃ¡ un <b>token</b> que pegas abajo.</p>
+                <p class="text-[10px] text-slate-500 leading-relaxed">Crea una app gratis en <b>anilist.co/settings/developer</b> y pega su Client ID. Luego pulsa <b>Autorizar</b>: se abrirá tu navegador para iniciar sesión y te mostrará un <b>token</b> que pegas abajo.</p>
                 <label class="text-[11px] text-slate-500 font-medium mb-1 block">Access Token</label>
                 <div class="flex gap-2">
                   <input id="alToken" type="password" placeholder="Bearer token de AniList" spellcheck="false" class="flex-1 bg-white/[.05] edge rounded-xl px-3 py-2 text-[12px] text-slate-200 placeholder:text-slate-600">
                   <button id="alTestBtn" class="px-3 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">Conectar</button>
                 </div>
                 <div id="alStatus" class="text-[11px] text-slate-500">Sin cuenta vinculada.</div>
-                <button id="alSyncAllBtn" class="mt-2 text-[11px] font-semibold text-sky-300 hover:text-sky-200 transition hidden">â†» Re-sincronizar toda mi lista</button>
-                <p class="text-[10px] text-slate-500 leading-relaxed">Crunchyroll y otras webs se detectan solas mientras las ves en tu navegador (la API de Crunchyroll no permite apps de terceros, por eso la sincronizaciÃ³n en lÃ­nea usa AniList/MyAnimeList).</p>
+                <button id="alSyncAllBtn" class="mt-2 text-[11px] font-semibold text-sky-300 hover:text-sky-200 transition hidden">↻ Re-sincronizar toda mi lista</button>
+                <p class="text-[10px] text-slate-500 leading-relaxed">Crunchyroll y otras webs se detectan solas mientras las ves en tu navegador (la API de Crunchyroll no permite apps de terceros, por eso la sincronización en línea usa AniList/MyAnimeList).</p>
               </div>
             </div>
             <div class="mt-4 pt-4 border-t border-white/5">
-              <h4 class="font-display font-semibold text-[13px] text-white mb-3 flex items-center gap-2"><i data-lucide="git-branch" class="w-4 h-4 text-cyan-400"></i> Sincronizar con Kitsu (clÃ¡sico de MyAnimeList)</h4>
+              <h4 class="font-display font-semibold text-[13px] text-white mb-3 flex items-center gap-2"><i data-lucide="git-branch" class="w-4 h-4 text-cyan-400"></i> Sincronizar con Kitsu (clásico de MyAnimeList)</h4>
               <div class="space-y-3">
                 <label class="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[.03] hover:bg-white/[.06] transition cursor-pointer">
                   <div class="flex items-center gap-3">
                     <i data-lucide="cloud-cog" class="w-4 h-4 text-cyan-400"></i>
-                    <div><div class="text-[13px] font-medium text-slate-200">Sync bidireccional con Kitsu</div><div class="text-[11px] text-slate-500">Trae tu lista a la app y sube tu progreso automÃ¡ticamente (importa, vincula por tÃ­tulo y empuja cambios)</div></div>
+                    <div><div class="text-[13px] font-medium text-slate-200">Sync bidireccional con Kitsu</div><div class="text-[11px] text-slate-500">Trae tu lista a la app y sube tu progreso automáticamente (importa, vincula por título y empuja cambios)</div></div>
                   </div>
                   <input type="checkbox" data-setting="kitsuOn" class="accent-cyan-500 w-4 h-4">
                 </label>
@@ -499,7 +499,7 @@ tailwind.config = {
                   <div><label class="text-[11px] text-slate-500 font-medium mb-1 block">Client ID</label><input id="kitsuClientId" type="text" placeholder="De kitsu.io/settings/apps" spellcheck="false" class="w-full bg-white/[.05] edge rounded-xl px-3 py-2 text-[12px] text-slate-200 placeholder:text-slate-600"></div>
                   <div><label class="text-[11px] text-slate-500 font-medium mb-1 block">Client Secret</label><input id="kitsuSecret" type="password" placeholder="Secreto de tu app" spellcheck="false" class="w-full bg-white/[.05] edge rounded-xl px-3 py-2 text-[12px] text-slate-200 placeholder:text-slate-600"></div>
                   <div><label class="text-[11px] text-slate-500 font-medium mb-1 block">Email</label><input id="kitsuEmail" type="email" placeholder="tu@email.com" spellcheck="false" class="w-full bg-white/[.05] edge rounded-xl px-3 py-2 text-[12px] text-slate-200 placeholder:text-slate-600"></div>
-                  <div><label class="text-[11px] text-slate-500 font-medium mb-1 block">ContraseÃ±a</label><input id="kitsuPass" type="password" placeholder="ContraseÃ±a de tu cuenta" spellcheck="false" class="w-full bg-white/[.05] edge rounded-xl px-3 py-2 text-[12px] text-slate-200 placeholder:text-slate-600"></div>
+                  <div><label class="text-[11px] text-slate-500 font-medium mb-1 block">Contraseña</label><input id="kitsuPass" type="password" placeholder="Contraseña de tu cuenta" spellcheck="false" class="w-full bg-white/[.05] edge rounded-xl px-3 py-2 text-[12px] text-slate-200 placeholder:text-slate-600"></div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                   <button id="kitsuAuthBtn" class="px-3.5 py-2 rounded-xl text-[12px] font-semibold btn-primary text-white flex items-center gap-1.5"><i data-lucide="key-round" class="w-3.5 h-3.5"></i> Conectar</button>
@@ -507,17 +507,17 @@ tailwind.config = {
                   <button id="kitsuPushBtn" class="px-3.5 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition flex items-center gap-1.5"><i data-lucide="cloud-upload" class="w-3.5 h-3.5"></i> Subir progreso</button>
                 </div>
                 <div id="kitsuStatus" class="text-[11px] text-slate-500">Sin cuenta de Kitsu vinculada.</div>
-                <p class="text-[10px] text-slate-500 leading-relaxed">Crea una app gratis en <b>kitsu.io/settings/apps</b> (para uso personal) y pega su Client ID y Secret. Tu contraseÃ±a solo se usa en el momento de conectar; la app guarda Ãºnicamente el token de acceso.</p>
+                <p class="text-[10px] text-slate-500 leading-relaxed">Crea una app gratis en <b>kitsu.io/settings/apps</b> (para uso personal) y pega su Client ID y Secret. Tu contraseña solo se usa en el momento de conectar; la app guarda únicamente el token de acceso.</p>
               </div>
             </div>
             <div class="mt-4 pt-4 border-t border-white/5">
               <h4 class="font-display font-semibold text-[13px] text-white mb-3 flex items-center gap-2"><i data-lucide="calendar-range" class="w-4 h-4 text-fuchsia-400"></i> Calendario con AnimeSchedule.net</h4>
-              <p class="text-[11px] text-slate-500 mb-3 leading-relaxed">Fuente alternativa de horarios semanales con horas exactas. Necesitas una cuenta gratis en <b>animeschedule.net</b>: crea una «Application» en Ajustes → API y pega aquÃ­ su token.</p>
+              <p class="text-[11px] text-slate-500 mb-3 leading-relaxed">Fuente alternativa de horarios semanales con horas exactas. Necesitas una cuenta gratis en <b>animeschedule.net</b>: crea una «Application» en Ajustes → API y pega aquí su token.</p>
               <div class="space-y-3">
                 <label class="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[.03] hover:bg-white/[.06] transition cursor-pointer">
                   <div class="flex items-center gap-3">
                     <i data-lucide="calendar-clock" class="w-4 h-4 text-fuchsia-400"></i>
-                    <div><div class="text-[13px] font-medium text-slate-200">Usar AnimeSchedule en el Calendario</div><div class="text-[11px] text-slate-500">Cuando estÃ© activo y cargado, el Calendario se alimenta de sus horarios (con AniList de respaldo)</div></div>
+                    <div><div class="text-[13px] font-medium text-slate-200">Usar AnimeSchedule en el Calendario</div><div class="text-[11px] text-slate-500">Cuando esté activo y cargado, el Calendario se alimenta de sus horarios (con AniList de respaldo)</div></div>
                   </div>
                   <input type="checkbox" data-setting="asOn" class="accent-fuchsia-500 w-4 h-4">
                 </label>
@@ -533,12 +533,12 @@ tailwind.config = {
 
           <div class="glass edge rounded-2xl p-5">
             <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="gamepad-2" class="w-4 h-4 text-indigo-400"></i> Rich Presence de Discord</h3>
-            <p class="text-[12px] text-slate-500 mb-3">Muestra en tu perfil de Discord lo que estÃ¡s viendo: el tÃ­tulo del anime y el episodio se actualizan solos con el Auto-Scrobbler.</p>
+            <p class="text-[12px] text-slate-500 mb-3">Muestra en tu perfil de Discord lo que estás viendo: el título del anime y el episodio se actualizan solos con el Auto-Scrobbler.</p>
             <div class="space-y-3">
               <label class="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[.03] hover:bg-white/[.06] transition cursor-pointer">
                 <div class="flex items-center gap-3">
                   <i data-lucide="radio" class="w-4 h-4 text-indigo-400"></i>
-                  <div><div class="text-[13px] font-medium text-slate-200">Presencia activa</div><div class="text-[11px] text-slate-500">Conecta con la app de escritorio de Discord si estÃ¡ abierta</div></div>
+                  <div><div class="text-[13px] font-medium text-slate-200">Presencia activa</div><div class="text-[11px] text-slate-500">Conecta con la app de escritorio de Discord si está abierta</div></div>
                 </div>
                 <input type="checkbox" id="dcEnabled" class="accent-indigo-500 w-4 h-4">
               </label>
@@ -553,18 +553,18 @@ tailwind.config = {
           </div>
 
           <div class="glass edge rounded-2xl p-5">
-            <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="flask-conical" class="w-4 h-4 text-emerald-400"></i> Simulador de reproducciÃ³n</h3>
-            <p class="text-[12px] text-slate-500 mb-4">Prueba el flujo completo del Auto-Scrobbler: abre un archivo local ficticio, deja que "se reproduzca" y mira cÃ³mo se incrementan tus episodios automÃ¡ticamente.</p>
+            <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="flask-conical" class="w-4 h-4 text-emerald-400"></i> Simulador de reproducción</h3>
+            <p class="text-[12px] text-slate-500 mb-4">Prueba el flujo completo del Auto-Scrobbler: abre un archivo local ficticio, deja que "se reproduzca" y mira cómo se incrementan tus episodios automáticamente.</p>
             <div class="space-y-3">
               <div>
                 <label class="text-[11px] text-slate-500 font-medium mb-1.5 block">Archivo local simulado (.mkv / .mp4)</label>
                 <select id="simFile" class="native-dark w-full text-[12px]"></select>
               </div>
               <button id="simBtn" class="btn-primary w-full px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2">
-                <i data-lucide="play" class="w-4 h-4"></i> Iniciar reproducciÃ³n simulada
+                <i data-lucide="play" class="w-4 h-4"></i> Iniciar reproducción simulada
               </button>
               <div id="simProgressWrap" class="hidden">
-                <div class="flex justify-between text-[11px] text-slate-500 mb-1"><span id="simFileNow">â€”</span><span id="simPct">0%</span></div>
+                <div class="flex justify-between text-[11px] text-slate-500 mb-1"><span id="simFileNow">—</span><span id="simPct">0%</span></div>
                 <div class="h-1.5 rounded-full bg-white/10 overflow-hidden"><div id="simBar" class="h-full w-0 accent-gradient rounded-full transition-[width] duration-200"></div></div>
               </div>
             </div>
@@ -572,7 +572,7 @@ tailwind.config = {
 
           <div class="glass edge rounded-2xl p-5">
             <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="database" class="w-4 h-4 text-sky-400"></i> Datos locales (localStorage)</h3>
-            <p class="text-[12px] text-slate-500 mb-4">Tu lista, progreso, notas y configuraciÃ³n se guardan automÃ¡ticamente en este dispositivo (localStorage + <b>copia de seguridad en disco</b> que se recupera si el tema caduca o se borra).</p>
+            <p class="text-[12px] text-slate-500 mb-4">Tu lista, progreso, notas y configuración se guardan automáticamente en este dispositivo (localStorage + <b>copia de seguridad en disco</b> que se recupera si el tema caduca o se borra).</p>
             <div class="flex flex-wrap gap-2">
               <button id="exportBtn" class="px-3.5 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition flex items-center gap-1.5"><i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar JSON</button>
               <button id="importBtn" class="px-3.5 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition flex items-center gap-1.5"><i data-lucide="upload" class="w-3.5 h-3.5"></i> Importar JSON</button>
@@ -586,8 +586,8 @@ tailwind.config = {
           <div class="glass edge rounded-2xl p-5">
             <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4 text-slate-400"></i> Acerca de</h3>
             <div class="text-[12px] text-slate-400 space-y-2 leading-relaxed">
-              <p><span class="text-white font-semibold">AnimePulse Desktop v2.0</span> â€” inspirado en la potencia de Taiga con la estÃ©tica de AniList y Netflix.</p>
-              <p>IntegraciÃ³n en tiempo real con la <span class="text-purple-300 font-medium">API GraphQL de AniList</span> (respaldo automÃ¡tico con Jikan/MyAnimeList).</p>
+              <p><span class="text-white font-semibold">AnimePulse Desktop v2.0</span> — inspirado en la potencia de Taiga con la estética de AniList y Netflix.</p>
+              <p>Integración en tiempo real con la <span class="text-purple-300 font-medium">API GraphQL de AniList</span> (respaldo automático con Jikan/MyAnimeList).</p>
               <p>Listo para empaquetar con <span class="text-cyan-300 font-medium">Electron</span> o <span class="text-emerald-300 font-medium">Tauri</span> (.exe).</p>
             </div>
           </div>
@@ -608,8 +608,8 @@ tailwind.config = {
 
 <div id="confirmModal" class="hidden fixed inset-0 z-[70] modal-backdrop flex items-center justify-center p-4">
   <div class="glass edge rounded-2xl w-full max-w-xs p-6 anim-pop">
-    <div class="font-display font-semibold text-white text-sm mb-2">Â¿Eliminar de la lista?</div>
-    <p id="confirmMsg" class="text-[12px] text-slate-400 mb-5 leading-relaxed">Se quitarÃ¡ el anime de tu lista. El progreso guardado se perderÃ¡.</p>
+    <div class="font-display font-semibold text-white text-sm mb-2">¿Eliminar de la lista?</div>
+    <p id="confirmMsg" class="text-[12px] text-slate-400 mb-5 leading-relaxed">Se quitará el anime de tu lista. El progreso guardado se perderá.</p>
     <div class="flex gap-2 justify-end">
       <button id="confirmCancel" class="px-4 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">Cancelar</button>
       <button id="confirmOk" class="px-4 py-2 rounded-xl text-[12px] font-semibold bg-rose-500 text-white hover:bg-rose-400 transition">Eliminar</button>
@@ -662,11 +662,11 @@ const STATUS_ORDER = ['watching','plan','completed','onhold','dropped'];
 
 const MOCK_ANIME = [
   { id:'mal_21', title:'One Piece', studio:'Toei Animation', genres:['Shonen','Adventure','Action','Fantasy'], year:1999, malScore:8.72, malEpisodes:0, airing:true, watched:12, status:'watching', rating:null, trailerId:'', posterHue:null,
-    image:'https://cdn.myanimelist.net/images/anime/1244/138851.jpg', synopsis:'Sigue las aventuras de Monkey D. Luffy y su tripulaciÃ³n pirata en su bÃºsqueda del legendario tesoro One Piece.' },
+    image:'https://cdn.myanimelist.net/images/anime/1244/138851.jpg', synopsis:'Sigue las aventuras de Monkey D. Luffy y su tripulación pirata en su búsqueda del legendario tesoro One Piece.' },
   { id:'mal_40748', title:'Jujutsu Kaisen', studio:'MAPPA', genres:['Shonen','Action','Supernatural'], year:2020, malScore:8.63, malEpisodes:24, airing:false, watched:24, status:'completed', rating:9, trailerId:'pCcZ9M3u2_E', posterHue:null,
-    image:'https://cdn.myanimelist.net/images/anime/1171/109222.jpg', synopsis:'Un estudiante se traga un dedo maldito y se convierte en el anfitriÃ³n de un demonio ancestral.' },
+    image:'https://cdn.myanimelist.net/images/anime/1171/109222.jpg', synopsis:'Un estudiante se traga un dedo maldito y se convierte en el anfitrión de un demonio ancestral.' },
   { id:'mal_52991', title:'Sousou no Frieren', studio:'Madhouse', genres:['Fantasy','Adventure','Drama'], year:2023, malScore:9.33, malEpisodes:28, airing:false, watched:4, status:'watching', rating:10, trailerId:'9kFtxe9Lbso', posterHue:null,
-    image:'https://cdn.myanimelist.net/images/anime/1015/138006.jpg', synopsis:'Tras derrotar al Rey Demonio, la elfa Frieren emprende un viaje para entender la efÃ­mera vida de los humanos.' },
+    image:'https://cdn.myanimelist.net/images/anime/1015/138006.jpg', synopsis:'Tras derrotar al Rey Demonio, la elfa Frieren emprende un viaje para entender la efímera vida de los humanos.' },
   { id:'mal_40028', title:'Shingeki no Kyojin', studio:'MAPPA', genres:['Shonen','Action','Drama','Mystery'], year:2013, malScore:8.55, malEpisodes:25, airing:false, watched:20, status:'watching', rating:8, trailerId:'', posterHue:null,
     image:'https://cdn.myanimelist.net/images/anime/1571/134525.jpg', synopsis:'La humanidad se refugia tras tres murallas para protegerse de los titanes.' },
   { id:'mal_44511', title:'Chainsaw Man', studio:'MAPPA', genres:['Shonen','Action','Horror'], year:2022, malScore:8.51, malEpisodes:12, airing:false, watched:0, status:'plan', rating:null, trailerId:'loT-HX0I7hg', posterHue:null,
@@ -676,15 +676,15 @@ const MOCK_ANIME = [
   { id:'mal_5114', title:'Fullmetal Alchemist: Brotherhood', studio:'Bones', genres:['Shonen','Action','Adventure','Drama','Fantasy'], year:2009, malScore:9.09, malEpisodes:64, airing:false, watched:0, status:'plan', rating:null, trailerId:'', posterHue:null,
     image:'https://cdn.myanimelist.net/images/anime/1223/96541.jpg', synopsis:'Dos hermanos alquimistas buscan la piedra filosofal para restaurar sus cuerpos.' },
   { id:'mal_37999', title:'Kaguya-sama: Love is War', studio:'A-1 Pictures', genres:['Romance','Comedy','School'], year:2019, malScore:8.4, malEpisodes:12, airing:false, watched:12, status:'completed', rating:7, trailerId:'', posterHue:null,
-    image:'https://cdn.myanimelist.net/images/anime/1295/106551.jpg', synopsis:'Dos prodigios del consejo estudiantil libran una guerra romÃ¡ntica de orgullo.' },
+    image:'https://cdn.myanimelist.net/images/anime/1295/106551.jpg', synopsis:'Dos prodigios del consejo estudiantil libran una guerra romántica de orgullo.' },
   { id:'mal_9253', title:'Steins;Gate', studio:'White Fox', genres:['Sci-Fi','Thriller','Drama'], year:2011, malScore:9.03, malEpisodes:24, airing:false, watched:6, status:'watching', rating:null, trailerId:'', posterHue:null,
-    image:'https://cdn.myanimelist.net/images/anime/1935/127974.jpg', synopsis:'Un cientÃ­fico loco descubre que puede enviar mensajes al pasado.' },
+    image:'https://cdn.myanimelist.net/images/anime/1935/127974.jpg', synopsis:'Un científico loco descubre que puede enviar mensajes al pasado.' },
   { id:'mal_33352', title:'Violet Evergarden', studio:'Kyoto Animation', genres:['Drama','Fantasy','Slice of Life'], year:2018, malScore:8.74, malEpisodes:13, airing:false, watched:13, status:'completed', rating:10, trailerId:'', posterHue:null,
     image:'https://cdn.myanimelist.net/images/anime/1795/95088.jpg', synopsis:'Una ex-soldado se convierte en Auto Memories Doll escribiendo cartas para otros.' },
   { id:'mal_4752', title:'Bakemonogatari', studio:'Shaft', genres:['Mystery','Supernatural','Romance'], year:2009, malScore:8.9, malEpisodes:15, airing:false, watched:2, status:'onhold', rating:null, trailerId:'', posterHue:null,
     image:'https://cdn.myanimelist.net/images/anime/1956/94915.jpg', synopsis:'Un estudiante se involucra con chicas afectadas por apariciones sobrenaturales.' },
   { id:'mal_30654', title:'Tokyo Ghoul', studio:'Pierrot', genres:['Seinen','Action','Horror','Drama'], year:2014, malScore:7.82, malEpisodes:12, airing:false, watched:4, status:'dropped', rating:4, trailerId:'', posterHue:null,
-    image:'https://cdn.myanimelist.net/images/anime/1498/101851.jpg', synopsis:'Un universitario se convierte en medio ghoul tras un trasplante de Ã³rganos.' }
+    image:'https://cdn.myanimelist.net/images/anime/1498/101851.jpg', synopsis:'Un universitario se convierte en medio ghoul tras un trasplante de órganos.' }
 ];
 
 let state = {
@@ -718,7 +718,7 @@ function posterHtml(anime, extraCls) {
 }
 
 function airBadge(anime) {
-  if (anime.airing) return '<span class="absolute top-2 left-2 z-[2] flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/90 text-white no-select"><span class="w-1.5 h-1.5 rounded-full bg-white live-dot"></span> EN EMISIÃ“N</span>';
+  if (anime.airing) return '<span class="absolute top-2 left-2 z-[2] flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/90 text-white no-select"><span class="w-1.5 h-1.5 rounded-full bg-white live-dot"></span> EN EMISIÓN</span>';
   return '<span class="absolute top-2 left-2 z-[2] text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-slate-800/90 text-slate-300 no-select">FINALIZADO</span>';
 }
 
@@ -737,8 +737,8 @@ function statusSelect(a) {
 }
 
 function ratingSelect(a, zeroLabel) {
-  let opts = '<option value="0"' + (a.rating == null ? ' selected' : '') + '>' + (zeroLabel || 'â€” Nota â€”') + '</option>';
-  for (let i = 10; i >= 1; i--) opts += '<option value="' + i + '"' + (a.rating === i ? ' selected' : '') + '>' + i + 'â˜…</option>';
+  let opts = '<option value="0"' + (a.rating == null ? ' selected' : '') + '>' + (zeroLabel || '— Nota —') + '</option>';
+  for (let i = 10; i >= 1; i--) opts += '<option value="' + i + '"' + (a.rating === i ? ' selected' : '') + '>' + i + '★</option>';
   return '<select data-role="rating" data-id="' + esc(a.id) + '" class="native-dark" title="Puntuar">' + opts + '</select>';
 }
 
@@ -770,7 +770,7 @@ state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notific
       if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
       if (typeof p.folder === 'string') state.folder = p.folder;
     }
-  } catch (e) { console.warn('Storage corrupto, se usarÃ¡ demo:', e); }
+  } catch (e) { console.warn('Storage corrupto, se usará demo:', e); }
   if (!Array.isArray(state.animeList)) state.animeList = [];
   else {
     const demoIds = new Set(MOCK_ANIME.map(a => a.id));
@@ -794,7 +794,7 @@ async function restoreDisk(force) {
     applyAppearance();
     recomputeStats(); renderDashboard(); renderScrobblerUI(); setupSettings(); icons();
     refreshDiskInfo();
-    toast('Lista restaurada desde la copia en disco âœ“', 'ok');
+    toast('Lista restaurada desde la copia en disco ✓', 'ok');
     return true;
   } catch (e) { return false; }
 }
@@ -803,8 +803,8 @@ async function refreshDiskInfo() {
   const el = document.getElementById('diskBackupInfo');
   if (!el || !window.electronAPI || !window.electronAPI.stateInfo) return;
   const info = await window.electronAPI.stateInfo();
-  if (info) { const kb = Math.max(1, Math.round(info.size / 1024)); const d = new Date(info.mtime); el.textContent = 'Copia en disco: <b>' + kb + ' KB</b> Â· guardada el ' + d.toLocaleString(); }
-  else el.textContent = 'AÃºn no hay copia en disco (se crea a los pocos segundos de guardar).';
+  if (info) { const kb = Math.max(1, Math.round(info.size / 1024)); const d = new Date(info.mtime); el.textContent = 'Copia en disco: <b>' + kb + ' KB</b> · guardada el ' + d.toLocaleString(); }
+  else el.textContent = 'Aún no hay copia en disco (se crea a los pocos segundos de guardar).';
 }
 
 function icons() { if (window.lucide) lucide.createIcons(); }
@@ -841,7 +841,7 @@ function recomputeStats() {
     (a.genres || []).forEach(g => { genres[g] = (genres[g] || 0) + 1; });
   });
   const total = state.animeList.length;
-  const avg = rated.length ? (rated.reduce((x, y) => x + y, 0) / rated.length).toFixed(1) : 'â€”';
+  const avg = rated.length ? (rated.reduce((x, y) => x + y, 0) / rated.length).toFixed(1) : '—';
   const days = (eps * 24) / 60 / 24;
   const dStr = days < 1 ? '<1' : (Math.round(days * 10) / 10);
   document.getElementById('navCount').textContent = total;
@@ -871,13 +871,13 @@ function recomputeStats() {
         '<span class="w-8 h-8 rounded-lg flex items-center justify-center font-display font-bold text-[11px] text-white shrink-0" style="background:hsla(' + hue + ',70%,55%,.22);color:hsl(' + hue + ',80%,70%)">' + initials(g[0]) + '</span>' +
         '<div class="flex-1 min-w-0"><div class="flex justify-between text-[12px] mb-1"><span class="text-slate-300 truncate">' + esc(g[0]) + '</span><span class="font-semibold text-white ml-2">' + g[1] + '</span></div>' +
         '<div class="h-1.5 rounded-full bg-white/10 overflow-hidden"><div style="width:' + Math.round(g[1] / max * 100) + '%;background:linear-gradient(90deg,hsl(' + hue + ',80%,60%),hsl(' + ((hue + 60) % 360) + ',80%,60%))" class="h-full rounded-full"></div></div></div></div>';
-    }).join('') : '<div class="text-[12px] text-slate-500 py-4 text-center col-span-full">Sin datos de gÃ©neros todavÃ­a.</div>';
+    }).join('') : '<div class="text-[12px] text-slate-500 py-4 text-center col-span-full">Sin datos de géneros todavía.</div>';
   }
   drawActivity();
   renderFilterBar();
 }
 
-const DAY_LABELS = { monday:'LUN', tuesday:'MAR', wednesday:'MIÃ‰', thursday:'JUE', friday:'VIE', saturday:'SÃB', sunday:'DOM' };
+const DAY_LABELS = { monday:'LUN', tuesday:'MAR', wednesday:'MIÉ', thursday:'JUE', friday:'VIE', saturday:'SÁB', sunday:'DOM' };
 
 function drawActivity() {
   const c = document.getElementById('activityChart');
@@ -946,7 +946,7 @@ function renderDashboard() {
     wrap.innerHTML = '<div class="glass edge rounded-2xl py-16 flex flex-col items-center justify-center gap-3">' +
       '<div class="w-16 h-16 rounded-2xl bg-white/[.04] flex items-center justify-center"><i data-lucide="package-open" class="w-7 h-7 text-slate-600"></i></div>' +
       '<div class="font-display font-semibold text-sm text-slate-300">No hay animes en ' + STATUS_META[state.filter].label.toLowerCase() + '</div>' +
-      '<div class="text-[12px] text-slate-500 max-w-sm text-center">Busca en Explorar o usa el buscador superior para aÃ±adir tu primer anime.</div></div>';
+      '<div class="text-[12px] text-slate-500 max-w-sm text-center">Busca en Explorar o usa el buscador superior para añadir tu primer anime.</div></div>';
     document.getElementById('listCount').textContent = '0 animes';
     icons();
     return;
@@ -967,7 +967,7 @@ function gridCard(a) {
     '<button data-action="open-detail" data-id="' + esc(a.id) + '" class="absolute inset-0 w-full h-full z-[1]" title="Ver ficha"><span class="sr-only">Detalle</span></button>' +
     '<div class="relative aspect-[2/3]" style="background:linear-gradient(150deg,hsl(' + hue + ',65%,26%),hsl(' + ((hue + 120) % 360) + ',60%,16%))">' +
       posterHtml(a).replace('poster-wrap w-full h-full rounded-xl', 'poster-wrap w-full h-full rounded-none') + airBadge(a) +
-      (a.malScore ? '<span class="absolute top-2 right-2 z-[2] text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-900/80 backdrop-blur text-amber-300 no-select">â˜… ' + a.malScore.toFixed(1) + '</span>' : '') +
+      (a.malScore ? '<span class="absolute top-2 right-2 z-[2] text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-900/80 backdrop-blur text-amber-300 no-select">★ ' + a.malScore.toFixed(1) + '</span>' : '') +
       '<div class="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/95 via-black/60 to-transparent"></div>' +
       '<div class="absolute z-[2] bottom-0 inset-x-0 p-3">' +
         '<div class="font-display font-semibold text-[13px] text-white leading-tight mb-0.5 truncate">' + esc(a.title) + '</div>' +
@@ -978,7 +978,7 @@ function gridCard(a) {
           '<button data-action="inc" data-id="' + esc(a.id) + '" title="+1 Episodio" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-emerald-400/80 text-white backdrop-blur flex items-center justify-center transition shrink-0"><i data-lucide="plus" class="w-4 h-4"></i></button>' +
           '<button data-action="dec" data-id="' + esc(a.id) + '" title="-1 Episodio" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-amber-400/80 text-white backdrop-blur flex items-center justify-center transition shrink-0"><i data-lucide="minus" class="w-4 h-4"></i></button>' +
           statusSelect(a) +
-          ratingSelect(a, '0â˜…') +
+          ratingSelect(a, '0★') +
           '<button data-action="delete" data-id="' + esc(a.id) + '" title="Eliminar" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-rose-500/80 text-white flex items-center justify-center transition shrink-0"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>' +
         '</div>' +
       '</div>' +
@@ -993,7 +993,7 @@ function renderList(list) {
     '<th class="py-3 px-3 font-semibold text-center">Progreso</th><th class="py-3 px-3 font-semibold text-center">Episodios</th>' +
     '<th class="py-3 px-3 font-semibold text-center">Nota</th><th class="py-3 px-3 font-semibold text-right">Acciones</th></tr></thead><tbody>' +
     list.map(listRow).join('') + '</tbody></table></div></div>' +
-    '<div class="mt-3 text-[11px] text-slate-600 text-center no-select">Tip: usa + y âˆ’ para registrar episodios al instante, como en Taiga.</div>';
+    '<div class="mt-3 text-[11px] text-slate-600 text-center no-select">Tip: usa + y − para registrar episodios al instante, como en Taiga.</div>';
 }
 
 function listRow(a) {
@@ -1003,7 +1003,7 @@ function listRow(a) {
     '<td class="py-2.5 px-4"><div class="flex items-center gap-3">' +
       '<button data-action="open-detail" data-id="' + esc(a.id) + '" class="relative w-11 h-[62px] rounded-lg overflow-hidden shrink-0 edge"><span class="sr-only">Detalle</span>' + posterHtml(a).replace('poster-wrap w-full h-full rounded-xl', 'poster-wrap absolute inset-0 rounded-lg') + '</button>' +
       '<div class="min-w-0"><div class="font-display font-semibold text-[13px] text-white truncate max-w-[240px]">' + esc(a.title) + '</div>' +
-      '<div class="text-[11px] text-slate-500 truncate max-w-[240px]">' + (a.studio ? esc(a.studio) : 'â€”') + (a.year ? ' Â· ' + a.year : '') + '</div>' +
+      '<div class="text-[11px] text-slate-500 truncate max-w-[240px]">' + (a.studio ? esc(a.studio) : '—') + (a.year ? ' · ' + a.year : '') + '</div>' +
       '<div class="flex gap-1 mt-0.5 flex-wrap">' + (a.genres || []).slice(0, 3).map(g => '<span class="text-[9px] px-1.5 py-0.5 rounded bg-white/[.06] text-slate-400">' + esc(g) + '</span>').join('') + '</div></div></div></td>' +
     '<td class="py-2.5 px-3">' + statusSelect(a) + '</td>' +
     '<td class="py-2.5 px-3"><div class="flex items-center gap-1.5 min-w-[130px]">' +
@@ -1036,9 +1036,9 @@ function updateProgress(id, delta) {
   }
   if (completedNow) {
     a.status = 'completed';
-    if (state.settings.notifications) toast('<b>' + esc(a.title) + '</b> completado. Â¡Felicidades!', 'ok');
+    if (state.settings.notifications) toast('<b>' + esc(a.title) + '</b> completado. ¡Felicidades!', 'ok');
   } else if (delta > 0 && state.settings.notifications) {
-    toast('+1 episodio Â· <b>' + esc(a.title) + '</b> (' + epText(a) + (t ? ' Â· ' + pct + '%' : '') + ')', 'ok');
+    toast('+1 episodio · <b>' + esc(a.title) + '</b> (' + epText(a) + (t ? ' · ' + pct + '%' : '') + ')', 'ok');
   }
   save();
   renderDashboard();
@@ -1064,12 +1064,12 @@ function setRating(id, rating) {
   a.rating = rating > 0 ? rating : null;
   save();
   renderDashboard(); recomputeStats();
-  if (rating > 0) toast('PuntuaciÃ³n de <b>' + esc(a.title) + '</b> â†’ <b>' + rating + '/10</b>', 'info');
+  if (rating > 0) toast('Puntuación de <b>' + esc(a.title) + '</b> → <b>' + rating + '/10</b>', 'info');
 }
 
 function addAnimeFrom(item, status) {
   const existing = state.animeList.find(a => a.id === item.id);
-  if (existing) { toast('<b>' + esc(item.title) + '</b> ya estÃ¡ en tu lista', 'warn'); return existing; }
+  if (existing) { toast('<b>' + esc(item.title) + '</b> ya está en tu lista', 'warn'); return existing; }
   const entry = {
     id: item.id,
     al_id: item.al_id || null,
@@ -1094,7 +1094,7 @@ function addAnimeFrom(item, status) {
   save();
   state.filter = entry.status;
   renderDashboard(); recomputeStats(); renderScrobblerUI();
-  toast('<b>' + esc(item.title) + '</b> aÃ±adido a <b>' + STATUS_META[entry.status].label + '</b>', 'ok');
+  toast('<b>' + esc(item.title) + '</b> añadido a <b>' + STATUS_META[entry.status].label + '</b>', 'ok');
   alMaybeSync(entry.id);
   return entry;
 }
@@ -1112,12 +1112,12 @@ function askDelete(id) {
   const a = findAnime(id);
   if (!a) return;
   pendingDeleteId = id;
-  document.getElementById('confirmMsg').innerHTML = 'Se eliminarÃ¡ <b class="text-white">' + esc(a.title) + '</b> de tu lista. El progreso guardado se perderÃ¡.';
+  document.getElementById('confirmMsg').innerHTML = 'Se eliminará <b class="text-white">' + esc(a.title) + '</b> de tu lista. El progreso guardado se perderá.';
   document.getElementById('confirmModal').classList.remove('hidden');
 }
 
 function airBadgeChip(a) {
-  if (a.airing) return '<span class="text-[10px] font-bold px-2 py-1 rounded-md bg-emerald-500/15 text-emerald-300 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span> EN EMISIÃ“N</span>';
+  if (a.airing) return '<span class="text-[10px] font-bold px-2 py-1 rounded-md bg-emerald-500/15 text-emerald-300 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span> EN EMISIÓN</span>';
   return '<span class="text-[10px] font-bold px-2 py-1 rounded-md bg-slate-500/10 text-slate-400">FINALIZADO</span>';
 }
 
@@ -1132,8 +1132,8 @@ function detailOfLocal(a) {
         (a.title_english && a.title_english !== a.title ? '<div class="text-[12px] text-slate-500 mt-0.5">' + esc(a.title_english) + '</div>' : '') +
         '<div class="flex items-center gap-3 mt-2 flex-wrap text-[12px]">' +
           '<span class="flex items-center gap-1 text-slate-400"><i data-lucide="building-2" class="w-3.5 h-3.5 text-slate-500"></i>' + (a.studio ? esc(a.studio) : 'Desconocido') + '</span>' +
-          (a.year ? '<span class="text-slate-500">Â·</span><span class="text-slate-400">' + a.year + '</span>' : '') +
-          (a.malScore ? '<span class="text-slate-500">Â·</span><span class="text-amber-300 font-semibold">â˜… ' + a.malScore.toFixed(1) + '</span><span class="text-slate-600">MAL</span>' : '') + '</div>' +
+          (a.year ? '<span class="text-slate-500">·</span><span class="text-slate-400">' + a.year + '</span>' : '') +
+          (a.malScore ? '<span class="text-slate-500">·</span><span class="text-amber-300 font-semibold">★ ' + a.malScore.toFixed(1) + '</span><span class="text-slate-600">MAL</span>' : '') + '</div>' +
         '<div class="flex flex-wrap gap-1.5 mt-2">' + (a.genres || []).map(g => '<span class="text-[10px] px-2 py-0.5 rounded bg-white/[.06] text-slate-300">' + esc(g) + '</span>').join('') + '</div>' +
         '<div class="flex gap-2 mt-4 flex-wrap">' +
           '<div class="px-3 py-2 rounded-xl bg-white/[.04] edge text-center"><div class="font-mono font-bold text-white text-sm leading-none">' + (t ? a.watched + ' / ' + t : a.watched) + '</div><div class="text-[9px] text-slate-500 mt-1 uppercase tracking-wide">Episodios</div></div>' +
@@ -1146,7 +1146,7 @@ function detailOfLocal(a) {
           '<button data-mdl="dec" data-id="' + esc(a.id) + '" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-amber-400/80 text-slate-200 flex items-center justify-center transition"><i data-lucide="minus" class="w-4 h-4"></i></button>' +
           '<input data-mdl="ep" data-id="' + esc(a.id) + '" type="number" min="0" value="' + a.watched + '" class="w-20 text-center bg-white/[.05] edge rounded-xl py-2 font-mono font-bold text-white text-sm">' +
           '<button data-mdl="inc" data-id="' + esc(a.id) + '" class="w-9 h-9 rounded-xl bg-emerald-400/15 hover:bg-emerald-400 text-emerald-300 hover:text-white flex items-center justify-center transition"><i data-lucide="plus" class="w-4 h-4"></i></button>' +
-          '<span class="text-[11px] text-slate-500 ml-1">de ' + (t || 'âˆž') + '</span></div>' +
+          '<span class="text-[11px] text-slate-500 ml-1">de ' + (t || '∞') + '</span></div>' +
         '<div class="h-1.5 rounded-full bg-white/10 overflow-hidden mt-3"><div style="width:' + pct + '%" class="h-full rounded-full accent-gradient transition-[width] duration-300"></div></div>' +
         '<div class="flex items-center gap-3 mt-4 flex-wrap">' +
           '<label class="text-[11px] text-slate-500">Estado</label>' +
@@ -1155,7 +1155,7 @@ function detailOfLocal(a) {
           '<select data-mdl="rating" data-id="' + esc(a.id) + '" class="native-dark">' + (function () { let o = '<option value="0"' + (a.rating == null ? ' selected' : '') + '>Sin nota</option>'; for (let i = 1; i <= 10; i++) o += '<option value="' + i + '"' + (a.rating === i ? ' selected' : '') + '>' + i + '/10</option>'; return o; })() + '</select></div>' +
       '</div>' +
       '<div><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-1.5">Notas personales</div>' +
-        '<textarea data-mdl="notes" data-id="' + esc(a.id) + '" rows="3" placeholder="Tus impresiones, recomendacionesâ€¦" class="w-full bg-white/[.04] edge rounded-xl p-3 text-[12px] text-slate-200 placeholder:text-slate-600 resize-none">' + esc(a.notes || '') + '</textarea>' +
+        '<textarea data-mdl="notes" data-id="' + esc(a.id) + '" rows="3" placeholder="Tus impresiones, recomendaciones…" class="w-full bg-white/[.04] edge rounded-xl p-3 text-[12px] text-slate-200 placeholder:text-slate-600 resize-none">' + esc(a.notes || '') + '</textarea>' +
       '</div></div>' +
     '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Sinopsis</div>' +
       '<p class="text-[12px] text-slate-400 leading-relaxed">' + (a.synopsis ? esc(a.synopsis) : 'Sin sinopsis disponible.') + '</p></div>' +
@@ -1177,10 +1177,10 @@ function detailOfApi(item) {
         (item.title_english && item.title_english !== item.title ? '<div class="text-[12px] text-slate-500 mt-0.5">' + esc(item.title_english) + '</div>' : '') +
         '<div class="flex items-center gap-3 mt-2 flex-wrap text-[12px]">' +
           '<span class="flex items-center gap-1 text-slate-400"><i data-lucide="building-2" class="w-3.5 h-3.5 text-slate-500"></i>' + (item.studio ? esc(item.studio) : 'Desconocido') + '</span>' +
-          (item.year ? '<span class="text-slate-500">Â·</span><span class="text-slate-400">' + item.year + '</span>' : '') +
-          '<span class="text-slate-500">Â·</span><span class="text-amber-300 font-semibold">â˜… ' + (item.malScore ? item.malScore.toFixed(1) : 'â€”') + '</span><span class="text-slate-600">MAL</span></div>' +
+          (item.year ? '<span class="text-slate-500">·</span><span class="text-slate-400">' + item.year + '</span>' : '') +
+          '<span class="text-slate-500">·</span><span class="text-amber-300 font-semibold">★ ' + (item.malScore ? item.malScore.toFixed(1) : '—') + '</span><span class="text-slate-600">MAL</span></div>' +
         '<div class="flex flex-wrap gap-1.5 mt-2">' + (item.genres || []).map(g => '<span class="text-[10px] px-2 py-0.5 rounded bg-white/[.06] text-slate-300">' + esc(g) + '</span>').join('') + '</div>' +
-        '<div class="px-3 py-2 rounded-xl bg-white/[.04] edge inline-block mt-3"><div class="font-mono font-bold text-white text-sm leading-none">' + (item.malEpisodes ? item.malEpisodes + ' episodios' : 'En emisiÃ³n continuada') + '</div><div class="text-[9px] text-slate-500 mt-1 uppercase tracking-wide">Desde MAL</div></div>' +
+        '<div class="px-3 py-2 rounded-xl bg-white/[.04] edge inline-block mt-3"><div class="font-mono font-bold text-white text-sm leading-none">' + (item.malEpisodes ? item.malEpisodes + ' episodios' : 'En emisión continuada') + '</div><div class="text-[9px] text-slate-500 mt-1 uppercase tracking-wide">Desde MAL</div></div>' +
       '</div></div>' +
     '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Sinopsis</div>' +
       '<p class="text-[12px] text-slate-400 leading-relaxed max-h-40 overflow-y-auto pr-1">' + (item.synopsis ? esc(item.synopsis) : 'Sin sinopsis disponible.') + '</p></div>' +
@@ -1188,9 +1188,9 @@ function detailOfApi(item) {
   '<div class="flex flex-wrap gap-2 mt-5">';
     '<div class="flex flex-wrap items-center gap-2 mt-6">' +
       (inList
-        ? '<span class="text-[12px] text-emerald-300 font-semibold flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Ya estÃ¡ en tu lista (' + STATUS_META[inList.status].label + ')</span>'
-        : '<button data-mdl="add" data-id="' + esc(item.id) + '" class="btn-primary px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center gap-2"><i data-lucide="bookmark-plus" class="w-4 h-4"></i> AÃ±adir a Mi Lista</button>') +
-      '<button data-mdl="add-plan" data-id="' + esc(item.id) + '" class="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">AÃ±adir como Pendiente</button>' +
+        ? '<span class="text-[12px] text-emerald-300 font-semibold flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Ya está en tu lista (' + STATUS_META[inList.status].label + ')</span>'
+        : '<button data-mdl="add" data-id="' + esc(item.id) + '" class="btn-primary px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center gap-2"><i data-lucide="bookmark-plus" class="w-4 h-4"></i> Añadir a Mi Lista</button>') +
+      '<button data-mdl="add-plan" data-id="' + esc(item.id) + '" class="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">Añadir como Pendiente</button>' +
       '<button data-mdl="close" class="ml-auto px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">Cerrar</button>' +
     '</div></div>';
 }
@@ -1240,7 +1240,7 @@ function updatePlayerDetection() {
   if (tid && enabled && state.animeList.some(x => x.id === tid)) {
     if (state.scrobbler.running && state.scrobbler.source === 'manual') return;
     if (state.scrobbler.running && state.scrobbler.source === 'trailer' && state.scrobbler.animeId === tid) return;
-    startScrobble({ animeId: tid, player: 'YouTube â€” trÃ¡iler', fileName: 'TrÃ¡iler oficial Â· YouTube (dentro de la app)', source: 'trailer', increment: false });
+    startScrobble({ animeId: tid, player: 'YouTube — tráiler', fileName: 'Tráiler oficial · YouTube (dentro de la app)', source: 'trailer', increment: false });
   } else if (state.scrobbler.running && state.scrobbler.source === 'trailer') {
     stopScrobble();
   }
@@ -1249,7 +1249,7 @@ function updatePlayerDetection() {
 function normTxt(s) { return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
 
 function titleTokens(name) {
-  return normTxt(name).replace(/[^a-z0-9Ã±\s]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+  return normTxt(name).replace(/[^a-z0-9ñ\s]/g, ' ').split(/\s+/).filter(w => w.length > 2);
 }
 
 function watchScore(animeTitle, winTitle) {
@@ -1267,23 +1267,23 @@ function episodeFromTitle(t) {
   if (m) return +m[1];
   m = t.match(/(?:ep|ep\.|episode|episodio)\s*\.?\s*:?\s*(\d{1,3})\b/i);
   if (m) return +m[1];
-  m = t.match(/\bcap[iÃ­]tulo\s*\.?\s*:?\s*(\d{1,3})\b/i);
+  m = t.match(/\bcap[ií]tulo\s*\.?\s*:?\s*(\d{1,3})\b/i);
   if (m) return +m[1];
   return null;
 }
 
-const STREAM_MARK = /\b(animeflv|crunchyroll|myanimelist|mangacrash|animeonline|aniplay|jkanime|zoro\.to|netflix|disney\s*plus|crunchy|hbomax|max\.com|funimation|prime\s*video|hulu|mxplayer|bilibili|animedao|gogoanime)\b|episodio|episode|cap[iÃ­]tulo/i;
+const STREAM_MARK = /\b(animeflv|crunchyroll|myanimelist|mangacrash|animeonline|aniplay|jkanime|zoro\.to|netflix|disney\s*plus|crunchy|hbomax|max\.com|funimation|prime\s*video|hulu|mxplayer|bilibili|animedao|gogoanime)\b|episodio|episode|cap[ií]tulo/i;
 
 let lastPromptName = null;
 let detectSearchBusy = false;
 
 function animeNameFromTitle(t) {
   let s = t;
-  const m = s.match(/\b(?:ep\.?|episode|episodio|cap[iÃ­]tulo)\b.*$/i);
+  const m = s.match(/\b(?:ep\.?|episode|episodio|cap[ií]tulo)\b.*$/i);
   if (m) s = s.slice(0, m.index);
   s = s
-    .replace(/\b(?:sub\s*[Ã©e]spa[nÃ±]ol|sub\s*ingles|lati?no|subtitulado|\d{3,4}p|ver\s*online|hd|animeflv|crunchyroll|jkanime|aniplay|animeonline|gogoanime|mangacrash|mxplayer|bilibili|netflix|hbomax|brave)\b/gi, '')
-    .replace(/\s*[-â€”|]\s*/g, ' ')
+    .replace(/\b(?:sub\s*[ée]spa[nñ]ol|sub\s*ingles|lati?no|subtitulado|\d{3,4}p|ver\s*online|hd|animeflv|crunchyroll|jkanime|aniplay|animeonline|gogoanime|mangacrash|mxplayer|bilibili|netflix|hbomax|brave)\b/gi, '')
+    .replace(/\s*[-—|]\s*/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
   return s;
@@ -1297,7 +1297,7 @@ function detectHint(list) {
     if (name === lastPromptName) continue;
     lastPromptName = name;
     const ep = episodeFromTitle(w.t);
-    toast('Viendo en <b>' + esc(w.n.replace(/\.exe$/i, '')) + '</b>: Â«<b>' + esc(name) + '</b>' + (ep ? ' â€” Ep ' + ep : '') + 'Â» no estÃ¡ en tu lista. Buscando su ficha para que lo agreguesâ€¦', 'info');
+    toast('Viendo en <b>' + esc(w.n.replace(/\.exe$/i, '')) + '</b>: «<b>' + esc(name) + '</b>' + (ep ? ' — Ep ' + ep : '') + '» no está en tu lista. Buscando su ficha para que lo agregues…', 'info');
     resolveDetectedAnime(name);
   }
 }
@@ -1310,7 +1310,7 @@ async function resolveDetectedAnime(name) {
   detectSearchBusy = false;
   if (found && found.length) item = found[0];
   if (!item) {
-    toast('No pude resolver Â«' + esc(name) + 'Â». BÃºscalo en la barra superior para agregarlo.', 'warn');
+    toast('No pude resolver «' + esc(name) + '». Búscalo en la barra superior para agregarlo.', 'warn');
     return;
   }
   apiDetailCache[String(item.mal_id)] = item;
@@ -1318,7 +1318,7 @@ async function resolveDetectedAnime(name) {
     openAddPrompt(item);
   } else {
     openApiDetail(item);
-    toast('Ficha de <b>' + esc(item.title) + '</b>: Ã¡brela para agregarlo a tu lista y que el Auto-Scrobbler lo registre.', 'ok');
+    toast('Ficha de <b>' + esc(item.title) + '</b>: ábrela para agregarlo a tu lista y que el Auto-Scrobbler lo registre.', 'ok');
   }
 }
 
@@ -1367,29 +1367,29 @@ async function apiFetch(url, attempt) {
   } catch (e) {
     clearTimeout(timer);
     if (attempt < 2) { await sleep(900 + attempt * 700); return apiFetch(url, attempt + 1); }
-    toast('Error de red al conectar con Jikan. Verifica tu conexiÃ³n a internet.', 'err');
+    toast('Error de red al conectar con Jikan. Verifica tu conexión a internet.', 'err');
     return null;
   }
   clearTimeout(timer);
   if (res.status === 429) {
     if (attempt < 2) { await sleep(1600); return apiFetch(url, attempt + 1); }
-    toast('LÃ­mite de la API de Jikan alcanzado. Espera unos segundos e intÃ©ntalo otra vez.', 'warn');
+    toast('Límite de la API de Jikan alcanzado. Espera unos segundos e inténtalo otra vez.', 'warn');
     return null;
   }
   if (!res.ok) {
     if (attempt < 2) { await sleep(1200 + attempt * 800); return apiFetch(url, attempt + 1); }
-    toast('La API de Jikan no responde (error ' + res.status + '). Suele ser temporal; intÃ©ntalo en unos segundos.', 'err');
+    toast('La API de Jikan no responde (error ' + res.status + '). Suele ser temporal; inténtalo en unos segundos.', 'err');
     return null;
   }
   try { return await res.json(); }
-  catch (e) { toast('Respuesta invÃ¡lida de la API de Jikan.', 'err'); return null; }
+  catch (e) { toast('Respuesta inválida de la API de Jikan.', 'err'); return null; }
 }
 
 function mapJikanItem(d) {
   return {
     id: 'mal_' + d.mal_id,
     mal_id: d.mal_id,
-    title: d.title || d.title_english || 'Sin tÃ­tulo',
+    title: d.title || d.title_english || 'Sin título',
     title_english: d.title_english || '',
     image: (d.images && (d.images.jpg.large_image_url || d.images.jpg.image_url)) || '',
     studio: (d.studios && d.studios[0] && d.studios[0].name) || 'Desconocido',
@@ -1413,7 +1413,7 @@ function mapAnilistItem(m) {
     id: 'mal_' + m.id,
     mal_id: m.id,
     al_id: m.id,
-    title: t.romaji || t.english || t.native || 'Sin tÃ­tulo',
+    title: t.romaji || t.english || t.native || 'Sin título',
     title_english: t.english || '',
     image: img,
     studio: (st && st.name) || 'Desconocido',
@@ -1502,9 +1502,9 @@ function openExternalUrl(url) {
 }
 
 function ytWrap(id, forId) {
-  return '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">TrÃ¡iler oficial</div>' +
+  return '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Tráiler oficial</div>' +
     '<div class="rounded-xl edge overflow-hidden bg-black/30 aspect-video relative">' +
-    '<iframe data-trailer-of="' + esc(forId || '') + '" class="absolute inset-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/' + esc(id) + '?rel=0&autoplay=1&playsinline=1&color=white" title="TrÃ¡iler" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>' +
+    '<iframe data-trailer-of="' + esc(forId || '') + '" class="absolute inset-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/' + esc(id) + '?rel=0&autoplay=1&playsinline=1&color=white" title="Tráiler" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>' +
     '<button id="ytExternal" class="mt-2 flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 hover:text-white transition"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> Abrir en YouTube</button></div>';
 }
 
@@ -1546,11 +1546,11 @@ async function maybeOfferPrequels(item) {
     (item.image ? '<img src="' + esc(item.image) + '" class="w-full h-full object-cover" onerror="this.remove()">' : '') + '</div>' +
     '<div><div class="font-display font-bold text-white text-sm leading-tight">' + esc(item.title) + '</div>' +
     '<div class="text-[11px] text-slate-500 mt-0.5">Detectamos temporadas anteriores de esta franquicia.</div></div></div>' +
-    '<div class="font-display font-semibold text-[13px] text-white mb-2">Â¿Ya viste las anteriores?</div>' +
+    '<div class="font-display font-semibold text-[13px] text-white mb-2">¿Ya viste las anteriores?</div>' +
     '<div class="space-y-1.5 mb-5">' + rows + '</div>' +
     '<div class="flex gap-2 justify-end flex-wrap">' +
     '<button id="preqNo" class="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">No, solo agregar esta</button>' +
-    '<button id="preqYes" class="btn-primary px-4 py-2.5 rounded-xl text-[12px] font-semibold text-white">SÃ­, marcar las ' + prequels.length + ' como completadas</button></div>';
+    '<button id="preqYes" class="btn-primary px-4 py-2.5 rounded-xl text-[12px] font-semibold text-white">Sí, marcar las ' + prequels.length + ' como completadas</button></div>';
   icons();
   const ok = () => document.getElementById('prequelModal').classList.add('hidden');
   document.getElementById('preqNo').addEventListener('click', () => { ok(); toast('<b>' + esc(item.title) + '</b> agregado. Omitiste las anteriores.', 'info'); });
@@ -1559,7 +1559,7 @@ async function maybeOfferPrequels(item) {
     let added = 0;
     prequels.forEach(p => { const d = mapAnilistItem({ id: p.al_id, title: { romaji: p.title }, coverImage: { medium: p.image }, episodes: p.malEpisodes, studios: { nodes: [] }, genres: [], trailer: null, description: '' }); const e = addAnimeFrom(d, 'completed'); if (e && !e.watched) { e.watched = (p.malEpisodes || 1); e.airing = false; save(); } if (e) added++; });
     renderDashboard(); recomputeStats(); renderScrobblerUI();
-    toast('Agregadas <b>' + added + '</b> temporadas anteriores como completadas âœ“', 'ok');
+    toast('Agregadas <b>' + added + '</b> temporadas anteriores como completadas ✓', 'ok');
   });
   document.getElementById('prequelModal').classList.remove('hidden');
 }
@@ -1577,10 +1577,10 @@ function openAddPrompt(item) {
     (item.title_english && item.title_english !== item.title ? '<div class="text-[12px] text-slate-500 mt-0.5">' + esc(item.title_english) + '</div>' : '') +
     '<div class="flex items-center gap-2 mt-2 text-[12px] text-slate-400">' +
     (item.studio ? '<span class="flex items-center gap-1"><i data-lucide="building-2" class="w-3.5 h-3.5"></i>' + esc(item.studio) + '</span>' : '') +
-    (item.malScore ? '<span>Â·</span><span class="text-amber-300 font-semibold">â˜… ' + item.malScore.toFixed(1) + '</span>' : '') +
-    (item.year ? '<span>Â·</span><span>' + item.year + '</span>' : '') + '</div></div></div>' +
-    '<div class="font-display font-semibold text-[14px] text-white mt-5">Esta anime no estÃ¡ en tu lista.</div>' +
-    '<p class="text-[12px] text-slate-400 mt-1 leading-relaxed">Â¿Quieres agregarlo para que el Auto-Scrobbler registre tu progreso automÃ¡ticamente?</p>' +
+    (item.malScore ? '<span>·</span><span class="text-amber-300 font-semibold">★ ' + item.malScore.toFixed(1) + '</span>' : '') +
+    (item.year ? '<span>·</span><span>' + item.year + '</span>' : '') + '</div></div></div>' +
+    '<div class="font-display font-semibold text-[14px] text-white mt-5">Esta anime no está en tu lista.</div>' +
+    '<p class="text-[12px] text-slate-400 mt-1 leading-relaxed">¿Quieres agregarlo para que el Auto-Scrobbler registre tu progreso automáticamente?</p>' +
     '<div class="flex gap-2 mt-5">' +
     '<button id="addYes" class="btn-primary flex-1 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-1.5"><i data-lucide="bookmark-plus" class="w-4 h-4"></i> Agregar a mi lista</button>' +
     '<button id="addDetail" class="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition flex items-center gap-1.5"><i data-lucide="eye" class="w-3.5 h-3.5"></i> Ver ficha</button></div>' +
@@ -1624,7 +1624,7 @@ function alSilentSyncAll() {
       .then(d => { if (d && d.SaveMediaListEntry) done++; else failed++; })
       .catch(() => failed++);
   });
-  toast('Sincronizando ' + state.animeList.length + ' entradas con AniListâ€¦', 'info');
+  toast('Sincronizando ' + state.animeList.length + ' entradas con AniList…', 'info');
 }
 
 const KITSU_BASE = 'https://kitsu.io/api';
@@ -1654,7 +1654,7 @@ async function kitsuLogin() {
   const cs = (document.getElementById('kitsuSecret').value || '').trim();
   const email = (document.getElementById('kitsuEmail').value || '').trim();
   const pass = document.getElementById('kitsuPass').value || '';
-  if (!cid || !cs || !email || !pass) { toast('Completa Client ID, Secret, email y contraseÃ±a.', 'warn'); return false; }
+  if (!cid || !cs || !email || !pass) { toast('Completa Client ID, Secret, email y contraseña.', 'warn'); return false; }
   try {
     const res = await fetch('https://kitsu.io/api/oauth/token', {
       method: 'POST',
@@ -1662,7 +1662,7 @@ async function kitsuLogin() {
       body: new URLSearchParams({ grant_type: 'password', username: email, password: pass, client_id: cid, client_secret: cs }).toString()
     });
     const j = await res.json().catch(() => null);
-    if (!res.ok || !j || !j.access_token) { toast('Kitsu rechazÃ³ las credenciales (revisa el Client Secret).', 'err'); return false; }
+    if (!res.ok || !j || !j.access_token) { toast('Kitsu rechazó las credenciales (revisa el Client Secret).', 'err'); return false; }
     state.settings.kitsuClientId = cid;
     state.settings.kitsuSecret = cs;
     state.settings.kitsuEmail = email;
@@ -1673,9 +1673,9 @@ async function kitsuLogin() {
     if (me && me.data && me.data.id) { state.settings.kitsuUserId = me.data.id; kitsuProfile = me.data; save(); }
     document.getElementById('kitsuPass').value = '';
     renderKitsuStatus();
-    toast('Conectado a Kitsu sÃ­ncrono âœ“', 'ok');
+    toast('Conectado a Kitsu síncrono ✓', 'ok');
     return true;
-  } catch (e) { toast('No se pudo conectar con Kitsu (Â¿internet?).', 'err'); return false; }
+  } catch (e) { toast('No se pudo conectar con Kitsu (¿internet?).', 'err'); return false; }
 }
 function renderKitsuStatus(user) {
   const el = document.getElementById('kitsuStatus');
@@ -1683,8 +1683,8 @@ function renderKitsuStatus(user) {
   const st = state.settings || {};
   if (st.kitsuToken) {
     const name = (user && user.attributes && user.attributes.name) || (kitsuProfile && kitsuProfile.attributes && kitsuProfile.attributes.name);
-    el.innerHTML = name ? 'Conectado como <b class="text-cyan-300">' + esc(name) + '</b> Â· sync ' + (st.kitsuOn ? '<b class="text-emerald-300">activa</b>' : 'pausada') + '.' :
-      'Token guardado Â· sync ' + (st.kitsuOn ? '<b class="text-emerald-300">activa</b>' : 'pausada') + ' (pulsa <b>Conectar</b> para verificar).';
+    el.innerHTML = name ? 'Conectado como <b class="text-cyan-300">' + esc(name) + '</b> · sync ' + (st.kitsuOn ? '<b class="text-emerald-300">activa</b>' : 'pausada') + '.' :
+      'Token guardado · sync ' + (st.kitsuOn ? '<b class="text-emerald-300">activa</b>' : 'pausada') + ' (pulsa <b>Conectar</b> para verificar).';
   } else el.innerHTML = 'Sin cuenta de Kitsu vinculada.';
 }
 function mapKitsuMedia(m) {
@@ -1692,13 +1692,13 @@ function mapKitsuMedia(m) {
   const t = a.titles || {};
   const img = (a.posterImage && (a.posterImage.large || a.posterImage.original || a.posterImage.medium)) || '';
   const y = parseInt(String(a.startDate || '').slice(0, 4), 10) || null;
-  return { id: 'kitsu_' + m.id, kitsu_id: Number(m.id), title: a.canonicalTitle || t.en || t.en_jp || 'Sin tÃ­tulo', title_english: t.en || '', image: img, studio: '', genres: [], year: y, malScore: a.averageRating ? (parseInt(a.averageRating, 10) || 0) / 10 : null, malEpisodes: a.episodeCount || 0, synopsis: (a.synopsis || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(), trailerId: '', airing: a.status === 'current' };
+  return { id: 'kitsu_' + m.id, kitsu_id: Number(m.id), title: a.canonicalTitle || t.en || t.en_jp || 'Sin título', title_english: t.en || '', image: img, studio: '', genres: [], year: y, malScore: a.averageRating ? (parseInt(a.averageRating, 10) || 0) / 10 : null, malEpisodes: a.episodeCount || 0, synopsis: (a.synopsis || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(), trailerId: '', airing: a.status === 'current' };
 }
 async function kitsuImport() {
   if (!state.settings.kitsuToken) { toast('Conecta tu cuenta de Kitsu primero.', 'warn'); return; }
   const uid = state.settings.kitsuUserId || (kitsuProfile && kitsuProfile.id);
   if (!uid) { toast('No se pudo obtener tu usuario de Kitsu.', 'err'); return; }
-  toast('Trayendo tu lista de Kitsuâ€¦', 'info');
+  toast('Trayendo tu lista de Kitsu…', 'info');
   const normMap = new Map();
   state.animeList.forEach((a, i) => { const n = kitsuNorm(a.title); if (n) normMap.set(n, i); });
   let added = 0, updated = 0, offset = 0;
@@ -1736,7 +1736,7 @@ async function kitsuImport() {
   save();
   state.filter = 'watching';
   renderDashboard(); recomputeStats(); renderScrobblerUI();
-  toast('Kitsu: <b>' + added + '</b> nuevas, <b>' + updated + '</b> actualizadas âœ“', 'ok');
+  toast('Kitsu: <b>' + added + '</b> nuevas, <b>' + updated + '</b> actualizadas ✓', 'ok');
 }
 const kitsuMediaCache = {};
 async function kitsuFindMediaId(title) {
@@ -1773,17 +1773,17 @@ async function kitsuPushOne(a) {
 }
 async function kitsuPushAll() {
   if (!state.settings.kitsuToken) { toast('Conecta tu cuenta de Kitsu primero.', 'warn'); return; }
-  toast('Subiendo tu progreso a Kitsuâ€¦', 'info');
+  toast('Subiendo tu progreso a Kitsu…', 'info');
   let ok = 0, fail = 0, unknown = 0;
   for (const a of state.animeList.slice()) {
     const r = await kitsuPushOne(a);
     if (r === 'ok') ok++;
     else if (r === 'unknown') unknown++;
-    else if (r === 'auth') { toast('Token de Kitsu invÃ¡lido: reconecta.', 'err'); break; }
+    else if (r === 'auth') { toast('Token de Kitsu inválido: reconecta.', 'err'); break; }
     else if (r !== 'skip' && r !== 'no-user') fail++;
   }
   save();
-  toast('Kitsu: <b>' + ok + '</b> subidas âœ“' + (unknown ? ', ' + unknown + ' sin vincular por tÃ­tulo' : '') + (fail ? ', ' + fail + ' con error' : '') + '.', ok ? 'ok' : 'warn');
+  toast('Kitsu: <b>' + ok + '</b> subidas ✓' + (unknown ? ', ' + unknown + ' sin vincular por título' : '') + (fail ? ', ' + fail + ' con error' : '') + '.', ok ? 'ok' : 'warn');
 }
 let kitsuSyncTimer = null;
 function kitsuMaybeSync(id) {
@@ -1800,10 +1800,10 @@ function renderALStatus(user) {
   if (!el) return;
   if (st.alToken) {
     if (user && user.name) {
-      el.innerHTML = 'Conectado como <b class="text-sky-300">' + esc(user.name) + '</b> Â· sync ' + (st.syncOn ? '<b class="text-emerald-300">activa</b>' : 'pausada') + '.';
+      el.innerHTML = 'Conectado como <b class="text-sky-300">' + esc(user.name) + '</b> · sync ' + (st.syncOn ? '<b class="text-emerald-300">activa</b>' : 'pausada') + '.';
       if (btn) btn.classList.remove('hidden');
     } else {
-      el.innerHTML = 'Token guardado Â· sync ' + (st.syncOn ? '<b class="text-emerald-300">activa</b>' : 'pausada') + ' (pulsa <b>Conectar</b> para verificar).';
+      el.innerHTML = 'Token guardado · sync ' + (st.syncOn ? '<b class="text-emerald-300">activa</b>' : 'pausada') + ' (pulsa <b>Conectar</b> para verificar).';
       if (btn) btn.classList.add('hidden');
     }
   } else {
@@ -1836,10 +1836,10 @@ function followedALIds() {
 function nativeNotify(title, body) {
   try {
     if ('Notification' in window && window.Notification) {
-      const n = new window.Notification('AnimePulse Â· ' + title, { body: body });
+      const n = new window.Notification('AnimePulse · ' + title, { body: body });
       n.onclick = () => { if (window.electronAPI && window.electronAPI.focus) window.electronAPI.focus(); };
-    } else toast('<b>' + title + '</b> â€” ' + body, 'info');
-  } catch (e) { toast('<b>' + title + '</b> â€” ' + body, 'info'); }
+    } else toast('<b>' + title + '</b> — ' + body, 'info');
+  } catch (e) { toast('<b>' + title + '</b> — ' + body, 'info'); }
 }
 function markAired(mid, ep) { state.airNotified[String(mid)] = Number(ep) || 1; save(); }
 
@@ -1856,7 +1856,7 @@ async function checkRecentlyAired() {
     if (state.airNotified[String(mid)] >= s.episode) return;
     const t = (s.media.title && (s.media.title.romaji || s.media.title.english)) || 'Anime';
     markAired(mid, s.episode);
-    nativeNotify('Episodio emitido', t + ' â€” Episodio ' + s.episode + ' ya saliÃ³ en JapÃ³n (JST).');
+    nativeNotify('Episodio emitido', t + ' — Episodio ' + s.episode + ' ya salió en Japón (JST).');
   });
 }
 
@@ -1880,7 +1880,7 @@ function scheduleNextAiringTimer() {
     if (delay <= 0 || delay > 33 * 3600 * 1000) return;
     airTimer = setTimeout(() => {
       markAired(next.mid, next.s.episode);
-      nativeNotify('Episodio emitido', next.t + ' â€” Episodio ' + next.s.episode + ' ya saliÃ³ en JapÃ³n (JST).');
+      nativeNotify('Episodio emitido', next.t + ' — Episodio ' + next.s.episode + ' ya salió en Japón (JST).');
       scheduleNextAiringTimer();
     }, delay);
   });
@@ -1898,7 +1898,7 @@ function analyzeFileName(name) {
   const base = String(name).replace(/\.([a-z0-9]+)$/i, '');
   const cleaned = base
     .replace(/\[[^\]]*\]/g, ' ')
-    .replace(/[()ã€ã€‘]/g, ' ')
+    .replace(/[()【】]/g, ' ')
     .replace(/\b(\d{3,4}p|2160p|x26[45]|HEVC|x264|x265|AVC|BluRay|WEB-?DL|WEBRip|HDR10?|DV|10bit|8bit|Hi10P|AAC|AC3|FLAC|EAC3|DD[P+]?5?\.?1?|AAC2\.0|Opus|DTS-HD|H\.?26[45])\b/gi, ' ')
     .replace(/[._]/g, ' ')
     .replace(/\s+/g, ' ').trim();
@@ -1910,7 +1910,7 @@ function analyzeFileName(name) {
   }
   let series = cleaned;
   if (m) series = cleaned.slice(0, m.index);
-  series = series.replace(/[-â€“â€”:]+$/, '').replace(/^\s*[-â€“â€”:]\s*/, '').trim().replace(/\s+/g, ' ');
+  series = series.replace(/[-–—:]+$/, '').replace(/^\s*[-–—:]\s*/, '').trim().replace(/\s+/g, ' ');
   if (!series && !m) series = base.replace(/[._]/g, ' ');
   return { orig: name, ext: ext || 'mkv', series: series, season: season, ep: ep, note: ep ? '' : 'Sin episodio detectable', conflict: false, resolvedSeries: null };
 }
@@ -1963,7 +1963,7 @@ async function renameAllFiles() {
     else skipped++;
   }
   save(); updateConflicts(); renderOrganizer();
-  toast(done + ' archivos renombrados' + (skipped ? ', ' + skipped + ' fallaron' : '') + ' âœ“', done && !skipped ? 'ok' : 'warn');
+  toast(done + ' archivos renombrados' + (skipped ? ', ' + skipped + ' fallaron' : '') + ' ✓', done && !skipped ? 'ok' : 'warn');
 }
 function renderOrganizer() {
   const list = document.getElementById('fileList');
@@ -1971,12 +1971,12 @@ function renderOrganizer() {
   const renameBtn = document.getElementById('renameAllBtn');
   if (!state.folder || !state.files.length) {
     list.innerHTML = '';
-    hint.textContent = state.folder ? 'No se encontraron archivos de video en esa carpeta.' : 'Elige una carpeta con tus archivos descargados (.mkv / .mp4 / .aviâ€¦) para analizarlos.';
+    hint.textContent = state.folder ? 'No se encontraron archivos de video en esa carpeta.' : 'Elige una carpeta con tus archivos descargados (.mkv / .mp4 / .avi…) para analizarlos.';
     renameBtn.classList.add('hidden'); renameBtn.classList.remove('flex');
     icons(); return;
   }
   const okCount = state.files.filter(f => f.ep).length;
-  hint.textContent = state.files.length + ' archivos de videoÂ·' + okCount + ' listos para renombrar. Puedes dejar el nombre oficial de AniList como serie (mÃ¡s preciso) antes de renombrar.';
+  hint.textContent = state.files.length + ' archivos de video·' + okCount + ' listos para renombrar. Puedes dejar el nombre oficial de AniList como serie (más preciso) antes de renombrar.';
   renameBtn.classList.remove('hidden');
   renameBtn.classList.add('flex');
   renameBtn.innerHTML = '<i data-lucide="wand-2" class="w-3.5 h-3.5"></i> Renombrar todo (' + okCount + ')';
@@ -1986,7 +1986,7 @@ function renderOrganizer() {
     return '<div class="glass edge rounded-xl px-4 py-2.5 flex items-center gap-3">' +
       '<div class="min-w-0 flex-1">' +
       '<div class="text-[12px] text-slate-500 font-mono truncate" title="' + esc(f.orig) + '">' + esc(f.orig) + '</div>' +
-      (target ? '<div class="text-[12px] text-emerald-300 font-mono truncate">â†’ ' + esc(target) + (f.conflict ? ' <span class="text-amber-300">(ya existe)</span>' : '') + '</div>' : '<div class="text-[12px] text-amber-300">â†’ ' + esc(f.note || 'sin nombre sugerido') + '</div>') +
+      (target ? '<div class="text-[12px] text-emerald-300 font-mono truncate">→ ' + esc(target) + (f.conflict ? ' <span class="text-amber-300">(ya existe)</span>' : '') + '</div>' : '<div class="text-[12px] text-amber-300">→ ' + esc(f.note || 'sin nombre sugerido') + '</div>') +
       '</div>' +
       (target ? '<button data-orename="' + i + '" class="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-white/5 hover:bg-white/10 text-slate-300 edge transition">Renombrar</button>' : '') +
       '</div>';
@@ -2000,11 +2000,11 @@ async function resolveSeriesTitle(raw) {
   const it = res && res[0];
   const canonical = (it && it.title) ? String(it.title) : raw;
   resolvedCache[raw] = canonical;
-  if (canonical !== raw) toast('Serie detectada: <b>' + esc(raw) + '</b> â†’ <b>' + esc(canonical) + '</b>', 'info');
+  if (canonical !== raw) toast('Serie detectada: <b>' + esc(raw) + '</b> → <b>' + esc(canonical) + '</b>', 'info');
   return canonical;
 }
 async function pickFolder() {
-  if (!window.electronAPI || !window.electronAPI.pickFolder) { toast('El organizador solo estÃ¡ disponible en la app de escritorio.', 'warn'); return; }
+  if (!window.electronAPI || !window.electronAPI.pickFolder) { toast('El organizador solo está disponible en la app de escritorio.', 'warn'); return; }
   const dir = await window.electronAPI.pickFolder();
   if (!dir) return;
   document.getElementById('folderPath').textContent = dir;
@@ -2038,7 +2038,7 @@ function setupOrganizer() {
       }
       if (window.electronAPI && window.electronAPI.watchOrganizer) {
         window.electronAPI.watchOrganizer({ on: true, dir: state.folder }).then(r => {
-          if (r && r.ok) toast('Vigilando la carpeta: los archivos nuevos se renombrarÃ¡n solos âœ“', 'ok');
+          if (r && r.ok) toast('Vigilando la carpeta: los archivos nuevos se renombrarán solos ✓', 'ok');
           else toast('No se pudo activar la vigilancia de la carpeta.', 'err');
         });
       }
@@ -2075,7 +2075,7 @@ function setupWatchListener() {
       state.files.push(f);
     }
     if (state.files.length) { save(); updateConflicts(); renderOrganizer(); }
-    if (renamed) toast(renamed + ' archivo(s) nuevo(s) renombrado(s) automÃ¡ticamente âœ“', 'ok');
+    if (renamed) toast(renamed + ' archivo(s) nuevo(s) renombrado(s) automáticamente ✓', 'ok');
   });
 }
 
@@ -2093,8 +2093,8 @@ function openShareModal(item) {
     (item.image ? '<img src="' + esc(item.image) + '" class="w-full h-full object-cover">' : '<span class="font-display font-bold text-white/70 text-lg">' + initials(item.title) + '</span>') + '</div>' +
     '<div class="min-w-0">' +
     '<div class="font-display font-bold text-white text-[15px] leading-tight">' + esc(item.title) + '</div>' +
-    '<div class="text-[11px] text-white/70 mt-1">' + st.label + (t ? ' Â· ' + (item.watched || 0) + ' / ' + t + ' episodios' : '') + '</div>' +
-    (item.malScore ? '<div class="text-[11px] text-amber-300 mt-1 font-semibold">â˜… ' + item.malScore.toFixed(1) + '</div>' : '') +
+    '<div class="text-[11px] text-white/70 mt-1">' + st.label + (t ? ' · ' + (item.watched || 0) + ' / ' + t + ' episodios' : '') + '</div>' +
+    (item.malScore ? '<div class="text-[11px] text-amber-300 mt-1 font-semibold">★ ' + item.malScore.toFixed(1) + '</div>' : '') +
     '<div class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-white" style="background:hsl(' + hue + ',60%,35%)"><i data-lucide="clapperboard" class="w-3 h-3"></i> AnimePulse Tracker</div></div></div></div>';
   icons();
   const modal = document.getElementById('shareModal');
@@ -2114,7 +2114,7 @@ document.getElementById('shareTextBtn').onclick = () => {
 function shareAsImage(item) {
   const btn = document.getElementById('shareImgBtn');
   btn.disabled = true;
-  btn.textContent = 'Generandoâ€¦';
+  btn.textContent = 'Generando…';
   (async () => {
     try {
       const W = 1000, H = 560;
@@ -2149,11 +2149,11 @@ function shareAsImage(item) {
       ctx.font = '500 20px "Segoe UI", sans-serif';
       const st = STATUS_META[item.status] || STATUS_META.watching;
       const t = totalEps(item);
-      ly = wrapText(ctx, (st.label || '') + (t ? ' Â· ' + (item.watched || 0) + ' / ' + t + ' episodios' : ''), cw + cx + 28, ly + 26, W - (cw + cx + 60), 26, 'rgba(255,255,255,.85)');
-      if (item.malScore) { ctx.font = '600 20px "Segoe UI", sans-serif'; ctx.fillStyle = '#fcd34d'; ctx.fillText('â˜… ' + item.malScore.toFixed(1), cw + cx + 28, ly + 30); }
+      ly = wrapText(ctx, (st.label || '') + (t ? ' · ' + (item.watched || 0) + ' / ' + t + ' episodios' : ''), cw + cx + 28, ly + 26, W - (cw + cx + 60), 26, 'rgba(255,255,255,.85)');
+      if (item.malScore) { ctx.font = '600 20px "Segoe UI", sans-serif'; ctx.fillStyle = '#fcd34d'; ctx.fillText('★ ' + item.malScore.toFixed(1), cw + cx + 28, ly + 30); }
       ctx.font = '700 15px "Segoe UI", sans-serif';
       ctx.fillStyle = 'rgba(255,255,255,.9)';
-      ctx.fillText('ANIMEPULSE Â· TRACKER', 60, H - 24);
+      ctx.fillText('ANIMEPULSE · TRACKER', 60, H - 24);
 const dataUrl = cv.toDataURL('image/png');
       let copied = false, savedPath = null;
       try {
@@ -2196,8 +2196,8 @@ function doDiscordConnect(testOnly) {
   if (!window.electronAPI || !window.electronAPI.discordConnect) { renderDCStatus('Solo disponible en la app de escritorio.'); return; }
   const id = (state.settings.dcClientId || '').trim();
   if (!id) { toast('Pega el <b>Client ID</b> de tu app de Discord primero.', 'warn'); return; }
-  window.electronAPI.discordConnect({ id: id, activity: testOnly ? { state: 'Probando la integraciÃ³n', details: 'AnimePulse Desktop' } : null });
-  renderDCStatus('Conectando con Discordâ€¦', 'text-sky-300');
+  window.electronAPI.discordConnect({ id: id, activity: testOnly ? { state: 'Probando la integración', details: 'AnimePulse Desktop' } : null });
+  renderDCStatus('Conectando con Discord…', 'text-sky-300');
 }
 function setupDiscordUI() {
   const en = document.getElementById('dcEnabled');
@@ -2215,8 +2215,8 @@ function setupDiscordUI() {
   document.getElementById('dcTestBtn').addEventListener('click', () => doDiscordConnect(true));
   if (window.electronAPI.onDiscordStatus) {
     window.electronAPI.onDiscordStatus(s => {
-      if (s && s.ok) { renderDCStatus('Conectado a Discord â€” presencia activa âœ“', 'text-emerald-300'); window.__dcReady = true; }
-      else { renderDCStatus('No se pudo conectar: ' + ((s && s.error) || 'Â¿tienes Discord abierto?'), 'text-rose-300'); window.__dcReady = false; }
+      if (s && s.ok) { renderDCStatus('Conectado a Discord — presencia activa ✓', 'text-emerald-300'); window.__dcReady = true; }
+      else { renderDCStatus('No se pudo conectar: ' + ((s && s.error) || '¿tienes Discord abierto?'), 'text-rose-300'); window.__dcReady = false; }
     });
   }
   if (en.checked) doDiscordConnect(false);
@@ -2275,7 +2275,7 @@ async function runGlobalSearch(q) {
     const found = await searchAnimeFinal(q, 6);
     if (seq !== globalSearchSeq) return;
     if (!found) {
-      dd.innerHTML = '<div class="px-4 py-4 text-[12px] text-slate-500">Sin conexiÃ³n con AniList/Jikan para â€œ' + esc(q) + 'â€.</div>';
+      dd.innerHTML = '<div class="px-4 py-4 text-[12px] text-slate-500">Sin conexión con AniList/Jikan para “' + esc(q) + '”.</div>';
       dd.classList.remove('hidden');
       return;
     }
@@ -2284,7 +2284,7 @@ async function runGlobalSearch(q) {
   }
   if (seq !== globalSearchSeq) return;
   if (!items.length) {
-    dd.innerHTML = '<div class="px-4 py-4 text-[12px] text-slate-500">Sin resultados para â€œ' + esc(q) + 'â€.</div>';
+    dd.innerHTML = '<div class="px-4 py-4 text-[12px] text-slate-500">Sin resultados para “' + esc(q) + '”.</div>';
     dd.classList.remove('hidden');
     return;
   }
@@ -2295,9 +2295,9 @@ async function runGlobalSearch(q) {
       '<span class="poster-fallback" style="font-size:.7rem">' + initials(item.title) + '</span>' +
       (item.image ? '<img src="' + esc(item.image) + '" class="w-full h-full object-cover relative z-[1]" loading="lazy" onerror="this.remove()">' : '') + '</span>' +
       '<span class="min-w-0 flex-1"><span class="block text-[12px] font-semibold text-white truncate">' + esc(item.title) + '</span>' +
-      '<span class="block text-[10px] text-slate-500 truncate">' + (item.studio ? esc(item.studio) : '') + (item.year ? ' Â· ' + item.year : '') + '</span></span>' +
-      (item.malScore ? '<span class="text-[11px] font-bold text-amber-300 shrink-0 no-select">â˜… ' + item.malScore.toFixed(1) + '</span>' : '') + '</button>';
-  }).join('') + '<div class="px-3 py-2 border-t border-white/5 flex items-center justify-between"><button id="openExploreFromDrop" class="text-[11px] font-semibold text-purple-300 hover:text-purple-200 transition">Ver resultados completos en Explorar <i data-lucide="arrow-right" class="inline w-3 h-3"></i></button><span class="text-[10px] text-slate-600">vÃ­a AniList Â· Jikan fallback</span></div>';
+      '<span class="block text-[10px] text-slate-500 truncate">' + (item.studio ? esc(item.studio) : '') + (item.year ? ' · ' + item.year : '') + '</span></span>' +
+      (item.malScore ? '<span class="text-[11px] font-bold text-amber-300 shrink-0 no-select">★ ' + item.malScore.toFixed(1) + '</span>' : '') + '</button>';
+  }).join('') + '<div class="px-3 py-2 border-t border-white/5 flex items-center justify-between"><button id="openExploreFromDrop" class="text-[11px] font-semibold text-purple-300 hover:text-purple-200 transition">Ver resultados completos en Explorar <i data-lucide="arrow-right" class="inline w-3 h-3"></i></button><span class="text-[10px] text-slate-600">vía AniList · Jikan fallback</span></div>';
   dd.classList.remove('hidden');
   icons();
   dd.querySelector('#openExploreFromDrop').addEventListener('click', () => {
@@ -2345,8 +2345,8 @@ function setBodyLoading(on) {
 const exploreKeyCache = {};
 async function runExploreSearch(q, force) {
   q = (q || '').trim();
-  if (!q) { toast('Escribe un tÃ­tulo para buscar.', 'warn'); return; }
-  document.getElementById('exploreHint').textContent = 'Buscando â€œ' + q + 'â€â€¦';
+  if (!q) { toast('Escribe un título para buscar.', 'warn'); return; }
+  document.getElementById('exploreHint').textContent = 'Buscando “' + q + '”…';
   document.getElementById('exploreResults').innerHTML = '';
   showSkeleton(true); setBodyLoading(true);
   const key = 'e_' + q.toLowerCase();
@@ -2357,19 +2357,19 @@ async function runExploreSearch(q, force) {
   }
   showSkeleton(false); setBodyLoading(false);
   if (!raw) {
-    document.getElementById('exploreHint').innerHTML = 'No se pudo conectar con AniList/Jikan (API inestable o sin internet). <button id="retrySearch" class="ml-1 text-purple-300 font-semibold underline underline-offset-2 hover:text-purple-200 transition">Reintentar bÃºsqueda</button>';
+    document.getElementById('exploreHint').innerHTML = 'No se pudo conectar con AniList/Jikan (API inestable o sin internet). <button id="retrySearch" class="ml-1 text-purple-300 font-semibold underline underline-offset-2 hover:text-purple-200 transition">Reintentar búsqueda</button>';
     const rb = document.getElementById('retrySearch');
     if (rb) rb.addEventListener('click', () => runExploreSearch(q, true));
     return;
   }
-  if (!raw.length) { document.getElementById('exploreHint').textContent = 'Sin resultados para â€œ' + q + 'â€. Prueba con otro tÃ­tulo.'; return; }
-  document.getElementById('exploreHint').textContent = raw.length + ' resultados en tiempo real para â€œ' + q + 'â€ (AniList Â· Jikan).';
+  if (!raw.length) { document.getElementById('exploreHint').textContent = 'Sin resultados para “' + q + '”. Prueba con otro título.'; return; }
+  document.getElementById('exploreHint').textContent = raw.length + ' resultados en tiempo real para “' + q + '” (AniList · Jikan).';
   renderExploreItems(raw);
 }
 
 let trendingRaw = null;
 async function loadTrending() {
-  document.getElementById('exploreHint').textContent = 'Cargando tendencias del momentoâ€¦';
+  document.getElementById('exploreHint').textContent = 'Cargando tendencias del momento…';
   document.getElementById('exploreResults').innerHTML = '';
   showSkeleton(true); setBodyLoading(true);
   if (!trendingRaw) {
@@ -2384,7 +2384,7 @@ async function loadTrending() {
   showSkeleton(false); setBodyLoading(false);
   if (!trendingRaw) { document.getElementById('exploreHint').textContent = 'No se pudieron cargar las tendencias.'; return; }
   if (trendingRaw === 'offline') {
-    document.getElementById('exploreHint').innerHTML = 'API sin conexiÃ³n: mostrando <b>tendencias de demostraciÃ³n</b>. Cuando vuelva, reintenta el feed o usa el buscador. <button id="retryTrending" class="ml-1 text-purple-300 font-semibold underline underline-offset-2 hover:text-purple-200 transition">Reintentar</button>';
+    document.getElementById('exploreHint').innerHTML = 'API sin conexión: mostrando <b>tendencias de demostración</b>. Cuando vuelva, reintenta el feed o usa el buscador. <button id="retryTrending" class="ml-1 text-purple-300 font-semibold underline underline-offset-2 hover:text-purple-200 transition">Reintentar</button>';
     renderExploreItems(MOCK_ANIME.map(a => Object.assign({}, a)));
     const rb = document.getElementById('retryTrending');
     if (rb) rb.addEventListener('click', () => { trendingRaw = null; loadTrending(); });
@@ -2403,12 +2403,12 @@ function renderExploreItems(items) {
       '<div class="relative aspect-[2/3]" style="background:linear-gradient(150deg,hsl(' + hue + ',65%,26%),hsl(' + ((hue + 120) % 360) + ',60%,16%))">' +
         posterHtml(it).replace('poster-wrap w-full h-full rounded-xl', 'poster-wrap w-full h-full rounded-none') +
         '<div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/95 via-black/60 to-transparent"></div>' +
-        (it.airing ? '<span class="absolute top-2 left-2 z-[2] flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/90 text-white"><span class="w-1.5 h-1.5 rounded-full bg-white live-dot"></span> EN EMISIÃ“N</span>' : '') +
-        (it.malScore ? '<span class="absolute top-2 right-2 z-[2] text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-900/80 text-amber-300">â˜… ' + it.malScore.toFixed(1) + '</span>' : '') +
+        (it.airing ? '<span class="absolute top-2 left-2 z-[2] flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/90 text-white"><span class="w-1.5 h-1.5 rounded-full bg-white live-dot"></span> EN EMISIÓN</span>' : '') +
+        (it.malScore ? '<span class="absolute top-2 right-2 z-[2] text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-900/80 text-amber-300">★ ' + it.malScore.toFixed(1) + '</span>' : '') +
         '<div class="absolute z-[2] bottom-0 inset-x-0 p-3">' +
           '<div class="font-display font-semibold text-[13px] text-white leading-tight truncate">' + esc(it.title) + '</div>' +
-          '<div class="text-[10px] text-slate-400 truncate mt-0.5">' + (it.studio ? esc(it.studio) : '') + (it.year ? ' Â· ' + it.year : '') + '</div>' +
-          '<div class="text-[10px] text-slate-500 mt-0.5 truncate">' + (it.malEpisodes ? it.malEpisodes + ' ep' : 'En emisiÃ³n') + '</div></div>' +
+          '<div class="text-[10px] text-slate-400 truncate mt-0.5">' + (it.studio ? esc(it.studio) : '') + (it.year ? ' · ' + it.year : '') + '</div>' +
+          '<div class="text-[10px] text-slate-500 mt-0.5 truncate">' + (it.malEpisodes ? it.malEpisodes + ' ep' : 'En emisión') + '</div></div>' +
         '<div class="absolute top-0 left-0 right-0 bottom-0 z-[3] flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/30">' +
           '<span class="px-3 py-1.5 rounded-full glass edge text-[11px] font-semibold text-white backdrop-blur flex items-center gap-1.5"><i data-lucide="eye" class="w-3.5 h-3.5"></i> ' + (inList ? 'En tu lista' : 'Previsualizar') + '</span></div>' +
       '</div></div>';
@@ -2429,14 +2429,14 @@ function openExploreDetail(div) {
     item = all.find(d => d && (d.id === 'mal_' + malId || d.mal_id == malId)) || null;
   }
   if (!item) {
-    if (trendingRaw === 'offline') { toast('EstÃ¡s en modo demo sin conexiÃ³n: la ficha estarÃ¡ disponible cuando la API vuelva.', 'info'); return; }
+    if (trendingRaw === 'offline') { toast('Estás en modo demo sin conexión: la ficha estará disponible cuando la API vuelva.', 'info'); return; }
     openApiDetailById(malId); return;
   }
   openApiDetail(item);
 }
 
 const CAL_DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-const CAL_NAMES = ['Lunes','Martes','MiÃ©rcoles','Jueves','Viernes','SÃ¡bado','Domingo'];
+const CAL_NAMES = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 const CAL_JST_DAY = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: 'Asia/Tokyo' });
 const CAL_JST_TIME = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Tokyo' });
 const CAL_MOCK = {
@@ -2461,7 +2461,7 @@ function renderCalendar() {
   wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
     [
       ...(CAL_MOCK[state.calendarDay] || []).map(m => scheduleCard(m, true)),
-      '<div class="col-span-full text-[11px] text-slate-500 mt-1">Cargando emisiones en tiempo real desde AniListâ€¦</div>'
+      '<div class="col-span-full text-[11px] text-slate-500 mt-1">Cargando emisiones en tiempo real desde AniList…</div>'
     ].join('') + '</div>';
   loadSchedule(state.calendarDay);
 }
@@ -2474,7 +2474,7 @@ function scheduleCard(m, isMock) {
     (m.image ? '<img src="' + esc(m.image) + '" class="w-full h-full object-cover relative z-[1]" loading="lazy" onerror="this.remove()">' : '') + '</div>' +
     '<div class="flex-1 min-w-0"><div class="text-[13px] font-semibold text-white truncate">' + esc(m.title) + '</div>' +
     '<div class="text-[11px] text-slate-500 truncate">' + esc(m.studio || '') + '</div></div>' +
-    '<div class="text-right shrink-0 no-select"><div class="font-mono font-bold text-white text-[13px]">' + m.time + '</div><div class="text-[9px] text-slate-500 uppercase tracking-wide">JST' + (m.ep ? ' Â· Ep ' + m.ep : '') + (isMock ? ' Â· demo' : '') + '</div>' +
+    '<div class="text-right shrink-0 no-select"><div class="font-mono font-bold text-white text-[13px]">' + m.time + '</div><div class="text-[9px] text-slate-500 uppercase tracking-wide">JST' + (m.ep ? ' · Ep ' + m.ep : '') + (isMock ? ' · demo' : '') + '</div>' +
     (m.ts ? '<div class="cal-countdown text-[9px] font-semibold" data-ts="' + m.ts + '"></div>' : '') + '</div></div>';
 }
 
@@ -2501,7 +2501,7 @@ async function loadSchedule(day) {
   if (asSchedLoaded && asSchedCache && state.settings && state.settings.asOn) {
     const items = asSchedCache[day] || [];
     if (!items.length) {
-      wrap.innerHTML = '<div class="col-span-full text-[12px] text-slate-500 py-8 text-center">Sin emisiones programadas para este dÃ­a (JST) segÃºn AnimeSchedule.</div>';
+      wrap.innerHTML = '<div class="col-span-full text-[12px] text-slate-500 py-8 text-center">Sin emisiones programadas para este día (JST) según AnimeSchedule.</div>';
       return;
     }
     wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
@@ -2524,7 +2524,7 @@ async function loadSchedule(day) {
         const t = m.title || {};
         const st = (m.studios && m.studios.nodes && m.studios.nodes[0]) || null;
         return {
-          title: t.romaji || t.english || t.native || 'Sin tÃ­tulo',
+          title: t.romaji || t.english || t.native || 'Sin título',
           studio: (st && st.name) || '',
           time: CAL_JST_TIME.format(new Date(a.airingAt * 1000)),
           image: (m.coverImage && (m.coverImage.large || m.coverImage.medium)) || '',
@@ -2535,7 +2535,7 @@ async function loadSchedule(day) {
       })
       .slice(0, 20);
     if (!items.length) {
-      wrap.innerHTML = '<div class="col-span-full text-[12px] text-slate-500 py-8 text-center">Sin emisiones programadas para este dÃ­a (JST) segÃºn AniList.</div>';
+      wrap.innerHTML = '<div class="col-span-full text-[12px] text-slate-500 py-8 text-center">Sin emisiones programadas para este día (JST) según AniList.</div>';
       return;
     }
     wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
@@ -2567,7 +2567,7 @@ async function asSchedule() {
   const url = 'https://animeschedule.net/api/v3/timetables/all?tz=Asia/Tokyo&year=' + year + '&week=' + week;
   const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' } });
   if (!res.ok) {
-    if (res.status === 401) throw new Error('Token invÃ¡lido o expirado (401). Revisa tu Application token en animeschedule.net.');
+    if (res.status === 401) throw new Error('Token inválido o expirado (401). Revisa tu Application token en animeschedule.net.');
     throw new Error('Error de AnimeSchedule: ' + res.status);
   }
   const data = await res.json();
@@ -2580,7 +2580,7 @@ async function asSchedule() {
     const day = CAL_JST_DAY.format(new Date(ts)).toLowerCase();
     if (!byDay[day]) byDay[day] = [];
     byDay[day].push({
-      title: a.title || a.romaji || a.english || a.native || 'Sin tÃ­tulo',
+      title: a.title || a.romaji || a.english || a.native || 'Sin título',
       studio: (a.mediaTypes && a.mediaTypes[0] && a.mediaTypes[0].name) || '',
       time: CAL_JST_TIME.format(new Date(ts)),
       image: asImg(a.imageVersionRoute),
@@ -2597,15 +2597,15 @@ async function asSchedule() {
 function renderAsStatus(mode) {
   const el = document.getElementById('asStatus');
   if (!el) return;
-  if (mode === 'loading') { el.innerHTML = '<span class="text-sky-300">Cargando horario desde AnimeScheduleâ€¦</span>'; return; }
+  if (mode === 'loading') { el.innerHTML = '<span class="text-sky-300">Cargando horario desde AnimeSchedule…</span>'; return; }
   if (mode === 'ok') {
     const n = Object.keys(asSchedCache || {}).reduce((s, k) => s + (asSchedCache[k] || []).length, 0);
-    el.innerHTML = '<span class="text-emerald-300"><b>' + n + '</b> emisiones cargadas (' + Object.keys(asSchedCache || {}).length + ' dÃ­as). El Calendario ya usa AnimeSchedule.</span>';
+    el.innerHTML = '<span class="text-emerald-300"><b>' + n + '</b> emisiones cargadas (' + Object.keys(asSchedCache || {}).length + ' días). El Calendario ya usa AnimeSchedule.</span>';
     return;
   }
   if (mode === 'err') { el.innerHTML = '<span class="text-rose-300">' + (lastAsErr || 'No se pudo cargar AnimeSchedule.') + '</span>'; return; }
   el.textContent = (state.settings && state.settings.asOn)
-    ? (asSchedLoaded ? 'AnimeSchedule cargado y activo en el Calendario.' : 'Casilla activa pero sin horario cargado todavÃ­a. Pulsa «Probar y cargar».')
+    ? (asSchedLoaded ? 'AnimeSchedule cargado y activo en el Calendario.' : 'Casilla activa pero sin horario cargado todavía. Pulsa «Probar y cargar».')
     : 'Sin token de AnimeSchedule.';
 }
 let lastAsErr = '';
@@ -2615,13 +2615,13 @@ async function asLoadSchedule() {
   renderAsStatus('loading');
   try {
     const byDay = await asSchedule();
-    if (!asSchedLoaded) throw new Error('Ese horario no trae emisiones. Prueba con el aÃ±o/semana actual.');
+    if (!asSchedLoaded) throw new Error('Ese horario no trae emisiones. Prueba con el año/semana actual.');
     state.settings.asOn = true;
     const cb = document.querySelector('[data-setting="asOn"]'); if (cb) cb.checked = true;
     save();
     renderAsStatus('ok');
     renderCalendar();
-    toast('Calendario ahora usa AnimeSchedule âœ“', 'ok');
+    toast('Calendario ahora usa AnimeSchedule ✓', 'ok');
   } catch (e) {
     lastAsErr = (e && e.message) ? e.message : 'No se pudo cargar AnimeSchedule.';
     renderAsStatus('err');
@@ -2632,12 +2632,12 @@ async function asLoadSchedule() {
 function setupScrobblerUI() {
   const sel = document.getElementById('simFile');
   sel.innerHTML = [
-    { file:'VLC Player 3.2 â€” Jujutsu.Kaisen.S01E24.mkv', id:'mal_40748' },
-    { file:'MPV â€” Frieren.E04.mp4', id:'mal_52991' },
-    { file:'VLC Player 3.2 â€” One.Piece.Episode.1100.mkv', id:'mal_21' },
-    { file:'MPV â€” Chainsaw.Man.Part1.mkv', id:'mal_44511' },
-    { file:'PotPlayer â€” Steins.Gate.S01E07.mkv', id:'mal_9253' },
-    { file:'MPV â€” Kimetsu.no.Yaiba.E13.mp4', id:'mal_38000' }
+    { file:'VLC Player 3.2 — Jujutsu.Kaisen.S01E24.mkv', id:'mal_40748' },
+    { file:'MPV — Frieren.E04.mp4', id:'mal_52991' },
+    { file:'VLC Player 3.2 — One.Piece.Episode.1100.mkv', id:'mal_21' },
+    { file:'MPV — Chainsaw.Man.Part1.mkv', id:'mal_44511' },
+    { file:'PotPlayer — Steins.Gate.S01E07.mkv', id:'mal_9253' },
+    { file:'MPV — Kimetsu.no.Yaiba.E13.mp4', id:'mal_38000' }
   ].map(f => '<option value="' + f.id + '" data-file="' + esc(f.file) + '">' + esc(f.file) + '</option>').join('');
   const btn = document.getElementById('simBtn');
   btn.addEventListener('click', () => { if (state.scrobbler.running) stopScrobble(); else startScrobble(); });
@@ -2649,14 +2649,14 @@ function setupScrobblerUI() {
 function startScrobble(opts) {
   opts = opts || {};
   const a = opts.animeId ? findAnime(opts.animeId) : findAnime(state.scrobbler.animeId);
-  if (!a) { toast('Elige un anime vÃ¡lido para simular.', 'warn'); return; }
+  if (!a) { toast('Elige un anime válido para simular.', 'warn'); return; }
   if (state.scrobbler.running) {
     if (state.scrobbler.source === 'trailer') stopScrobble();
     else return;
   }
   const manual = !opts.source;
   const sel = document.getElementById('simFile');
-  const player = opts.player || (sel.selectedOptions[0].textContent.split(' â€” ')[0]);
+  const player = opts.player || (sel.selectedOptions[0].textContent.split(' — ')[0]);
   const fileName = opts.fileName !== undefined ? opts.fileName : state.scrobbler.fileName;
   const animeId = opts.animeId || state.scrobbler.animeId;
   state.scrobbler.running = true;
@@ -2673,9 +2673,9 @@ function startScrobble(opts) {
   const pctF = document.getElementById('simPct');
   const bar = document.getElementById('simBar');
   const btn = document.getElementById('simBtn');
-  if (btn) btn.innerHTML = '<i data-lucide="square" class="w-4 h-4"></i> Detener reproducciÃ³n';
+  if (btn) btn.innerHTML = '<i data-lucide="square" class="w-4 h-4"></i> Detener reproducción';
   icons();
-  toast('<b>' + esc(a.title) + '</b> detectado por el Auto-Scrobbler (Â«' + esc(player) + 'Â»)', 'ok');
+  toast('<b>' + esc(a.title) + '</b> detectado por el Auto-Scrobbler («' + esc(player) + '»)', 'ok');
   state.scrobbler.timer = setInterval(() => {
     state.scrobbler.progress += 2 + Math.random() * 3;
     if (state.scrobbler.progress >= 100) {
@@ -2683,13 +2683,13 @@ function startScrobble(opts) {
       const p = Math.round(state.scrobbler.progress);
       pctF.textContent = p + '%';
       bar.style.width = p + '%';
-      nowF.innerHTML = 'Reproduciendo <b class="text-white">Ep ' + state.scrobbler.episodeNow + '</b> Â· ' + state.scrobbler.fileName;
+      nowF.innerHTML = 'Reproduciendo <b class="text-white">Ep ' + state.scrobbler.episodeNow + '</b> · ' + state.scrobbler.fileName;
       finishEpisode();
     } else {
       const p = Math.round(state.scrobbler.progress);
       pctF.textContent = p + '%';
       bar.style.width = p + '%';
-      nowF.innerHTML = 'Reproduciendo <b class="text-white">Ep ' + state.scrobbler.episodeNow + '</b> Â· ' + state.scrobbler.fileName;
+      nowF.innerHTML = 'Reproduciendo <b class="text-white">Ep ' + state.scrobbler.episodeNow + '</b> · ' + state.scrobbler.fileName;
     }
   }, 700);
   setDiscordPresence(a.title, state.scrobbler.episodeNow);
@@ -2710,14 +2710,14 @@ function finishEpisode() {
       state.activity[6] += 1;
       save();
       renderDashboard(); recomputeStats();
-      if (state.settings.notifications) toast('<b>' + esc(a.title) + '</b> â€” Episodio ' + (a.watched) + ' registrado por Auto-Scrobbler âœ“', 'ok');
+      if (state.settings.notifications) toast('<b>' + esc(a.title) + '</b> — Episodio ' + (a.watched) + ' registrado por Auto-Scrobbler ✓', 'ok');
       alMaybeSync(a.id); kitsuMaybeSync(a.id); kitsuMaybeSync(a.id);
     }
   }
   if (state.scrobbler.running) {
     const a = findAnime(state.scrobbler.animeId);
     const rec = a && totalEps(a) > 0 && a.watched >= totalEps(a);
-    if (rec) { stopScrobble(); toast('<b>' + esc(a.title) + '</b> completado por Auto-Scrobbler. Â¡Felicidades!', 'ok'); return; }
+    if (rec) { stopScrobble(); toast('<b>' + esc(a.title) + '</b> completado por Auto-Scrobbler. ¡Felicidades!', 'ok'); return; }
   }
   state.scrobbler.progress = 5;
   if (state.scrobbler.running) {
@@ -2736,7 +2736,7 @@ function stopScrobble() {
   state.scrobbler.timer = null;
   clearDiscordPresence();
   const btn = document.getElementById('simBtn');
-  if (btn) btn.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Iniciar reproducciÃ³n simulada';
+  if (btn) btn.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Iniciar reproducción simulada';
   const wrap = document.getElementById('simProgressWrap');
   if (wrap) wrap.classList.add('hidden');
   icons();
@@ -2760,9 +2760,9 @@ function renderScrobblerUI() {
     const t = totalEps(a);
     const now = s.episodeNow || (a.watched + 1);
     miniText.innerHTML = s.running
-      ? '<b class="text-emerald-300">' + esc(s.player.split('â€” ')[0].replace('VLC Player 3.2','VLC Player')) + '</b>: ' + esc(a.title) + ' â€” Ep ' + now + (t ? '/' + t : '')
-      : 'Sin reproducciÃ³n detectada';
-  } else if (miniText) miniText.textContent = 'Sin reproducciÃ³n detectada';
+      ? '<b class="text-emerald-300">' + esc(s.player.split('— ')[0].replace('VLC Player 3.2','VLC Player')) + '</b>: ' + esc(a.title) + ' — Ep ' + now + (t ? '/' + t : '')
+      : 'Sin reproducción detectada';
+  } else if (miniText) miniText.textContent = 'Sin reproducción detectada';
 }
 
 function switchSection(section) {
@@ -2786,13 +2786,13 @@ function setupSettings() {
   window.__settingsWired = true;
   document.querySelectorAll('input[data-setting]').forEach(cb => {
     cb.checked = !!state.settings[cb.dataset.setting];
-    cb.addEventListener('change', () => { state.settings[cb.dataset.setting] = cb.checked; save(); if (cb.dataset.setting === 'syncOn') renderALStatus(); if (cb.dataset.setting === 'kitsuOn') renderKitsuStatus(); toast('ConfiguraciÃ³n actualizada', 'info'); });
+    cb.addEventListener('change', () => { state.settings[cb.dataset.setting] = cb.checked; save(); if (cb.dataset.setting === 'syncOn') renderALStatus(); if (cb.dataset.setting === 'kitsuOn') renderKitsuStatus(); toast('Configuración actualizada', 'info'); });
   });
   document.querySelectorAll('[data-theme-pick]').forEach(b => {
     b.addEventListener('click', () => { state.settings.theme = b.getAttribute('data-theme-pick'); save(); applyAppearance(); toast('Tema: <b>' + (b.getAttribute('data-theme-pick') === 'oled' ? 'OLED Negro' : b.getAttribute('data-theme-pick') === 'light' ? 'Claro' : 'Oscuro') + '</b>', 'ok'); });
   });
   document.querySelectorAll('[data-accent-pick]').forEach(b => {
-    b.addEventListener('click', () => { state.settings.accent = b.getAttribute('data-accent-pick'); save(); applyAppearance(); toast('Acento actualizado âœ“', 'ok'); });
+    b.addEventListener('click', () => { state.settings.accent = b.getAttribute('data-accent-pick'); save(); applyAppearance(); toast('Acento actualizado ✓', 'ok'); });
   });
   const cid = document.getElementById('alClientId');
   const tok = document.getElementById('alToken');
@@ -2804,21 +2804,21 @@ function setupSettings() {
     const id = (state.settings.alClientId || '').trim();
     if (!id) { toast('Primero pega tu <b>Client ID</b> de anilist.co/settings/developer.', 'warn'); return; }
     openExternalUrl('https://anilist.co/api/v2/oauth/authorize?client_id=' + encodeURIComponent(id) + '&response_type=token');
-    toast('Si no te pide iniciar sesiÃ³n, usa el flujo de cÃ³digo y pega el <b>token</b> de la pÃ¡gina en el campo de abajo.', 'info');
+    toast('Si no te pide iniciar sesión, usa el flujo de código y pega el <b>token</b> de la página en el campo de abajo.', 'info');
   });
   document.getElementById('alTestBtn').addEventListener('click', async () => {
     const t = (state.settings.alToken || '').trim();
     if (!t) { toast('Pega tu <b>access token</b> de AniList primero.', 'warn'); return; }
     document.getElementById('alTestBtn').disabled = true;
-    document.getElementById('alTestBtn').textContent = 'Verificandoâ€¦';
+    document.getElementById('alTestBtn').textContent = 'Verificando…';
     const d = await anilistQuery(AL_VIEWER, null, t);
     document.getElementById('alTestBtn').disabled = false;
     document.getElementById('alTestBtn').innerHTML = 'Conectar';
     if (d && d.Viewer) {
-      toast('<b>Conectado como ' + esc(d.Viewer.name) + '</b> en AniList âœ“', 'ok');
+      toast('<b>Conectado como ' + esc(d.Viewer.name) + '</b> en AniList ✓', 'ok');
       renderALStatus(d.Viewer);
     } else {
-      toast('Token invÃ¡lido o expirado. Revisa el flujo de <b>Autorizar</b> y vuelve a pegarlo.', 'err');
+      toast('Token inválido o expirado. Revisa el flujo de <b>Autorizar</b> y vuelve a pegarlo.', 'err');
       renderALStatus();
     }
     renderSyncChip();
@@ -2832,7 +2832,7 @@ function setupSettings() {
     const link = document.createElement('a');
     link.href = url; link.download = 'animepulse-backup.json'; link.click();
     URL.revokeObjectURL(url);
-    toast('Datos exportados como JSON âœ“', 'ok');
+    toast('Datos exportados como JSON ✓', 'ok');
   });
   document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
   document.getElementById('importFile').addEventListener('change', e => {
@@ -2846,8 +2846,8 @@ function setupSettings() {
         state.animeList = Array.isArray(p.animeList) ? p.animeList : state.animeList;
         save();
         renderDashboard(); recomputeStats(); renderScrobblerUI(); setupSettings();
-        toast('Datos importados correctamente âœ“', 'ok');
-      } catch (err) { toast('El archivo JSON no es vÃ¡lido.', 'err'); }
+        toast('Datos importados correctamente ✓', 'ok');
+      } catch (err) { toast('El archivo JSON no es válido.', 'err'); }
     };
     reader.readAsText(file);
     e.target.value = '';
@@ -2861,7 +2861,7 @@ function setupSettings() {
     state.settings = { detectPlayers: true, autoIncrement: true, notifications: true, theme: 'dark', accent: 'purple', autoAdd: true, syncOn: false, alClientId: '', alToken: '', dcEnabled: false, dcClientId: '', autoOrganize: false, kitsuOn: false, kitsuClientId: '', kitsuSecret: '', kitsuEmail: '', kitsuToken: '', kitsuUserId: null, asOn: false, asToken: '' };
     stopScrobble();
     renderDashboard(); recomputeStats(); renderFilterBar(); renderScrobblerUI(); setupSettings();
-    toast('Lista borrada. Ahora empiezas desde cero, sin datos de demo âœ“', 'ok');
+    toast('Lista borrada. Ahora empiezas desde cero, sin datos de demo ✓', 'ok');
   });
   document.getElementById('kitsuAuthBtn').addEventListener('click', kitsuLogin);
   document.getElementById('kitsuImportBtn').addEventListener('click', kitsuImport);
@@ -2969,7 +2969,7 @@ function wireActions() {
     const f = document.querySelector('#detailModal [data-trailer-of]');
     const m = f && f.src ? f.src.match(/embed\/([\w-]+)/) : null;
     if (m) openExternalUrl('https://www.youtube.com/watch?v=' + m[1]);
-    else toast('No se pudo localizar el trÃ¡iler.', 'warn');
+    else toast('No se pudo localizar el tráiler.', 'warn');
   });
   document.getElementById('exploreResults').addEventListener('click', e => {
     const card = e.target.closest('.result-card');
@@ -2995,9 +2995,9 @@ function wireActions() {
     document.getElementById('confirmModal').classList.add('hidden');
     pendingDeleteId = null;
   });
-  document.getElementById('btnMin').addEventListener('click', () => { if (window.electronAPI && window.electronAPI.minimize) window.electronAPI.minimize(); else toast('Minimizar (simulado) â€” accede a la bandeja del sistema.', 'info'); });
+  document.getElementById('btnMin').addEventListener('click', () => { if (window.electronAPI && window.electronAPI.minimize) window.electronAPI.minimize(); else toast('Minimizar (simulado) — accede a la bandeja del sistema.', 'info'); });
   document.getElementById('btnMax').addEventListener('click', () => { if (window.electronAPI && window.electronAPI.toggleMaximize) window.electronAPI.toggleMaximize(); else { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => toast('Maximizar disponible al empaquetar como .exe', 'info')); } });
-  document.getElementById('btnClose').addEventListener('click', () => { if (window.electronAPI && window.electronAPI.close) window.electronAPI.close(); else toast('Cerrar (simulado) â€” al empaquetar como .exe con Electron se cerrarÃ¡ la app.', 'info'); });
+  document.getElementById('btnClose').addEventListener('click', () => { if (window.electronAPI && window.electronAPI.close) window.electronAPI.close(); else toast('Cerrar (simulado) — al empaquetar como .exe con Electron se cerrará la app.', 'info'); });
   window.addEventListener('resize', () => { if (state && !document.getElementById('section-stats').classList.contains('hidden')) drawActivity(); });
 }
 
@@ -3042,7 +3042,7 @@ function init() {
   if (navigator.onLine) {
     const pill = document.getElementById('apiPill');
     pill.innerHTML = '<i data-lucide="wifi" class="w-3 h-3"></i> API Anime'; icons();
-    setTimeout(() => anilistQuery(AL_PING).then(d => { if (d && d.Page) { document.getElementById('apiPill').innerHTML = '<i data-lucide="wifi" class="w-3 h-3"></i> API Anime'; icons(); toast('ConexiÃ³n con la API de AniList verificada âœ“', 'ok'); } }), 500);
+    setTimeout(() => anilistQuery(AL_PING).then(d => { if (d && d.Page) { document.getElementById('apiPill').innerHTML = '<i data-lucide="wifi" class="w-3 h-3"></i> API Anime'; icons(); toast('Conexión con la API de AniList verificada ✓', 'ok'); } }), 500);
   } else {
     document.getElementById('apiPill').className = 'hidden sm:flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-full border border-rose-400/20 bg-rose-400/10 text-rose-300 font-medium';
     document.getElementById('apiPill').innerHTML = '<i data-lucide="wifi-off" class="w-3 h-3"></i> Offline'; icons();
