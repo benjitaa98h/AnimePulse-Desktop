@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog, clipboard } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { execFile } = require('child_process');
@@ -122,3 +122,59 @@ ipcMain.handle('fs:rename-file', (e, dir, from, to) => {
     return { ok: true };
   } catch (err) { return { error: String((err && err.message) || err) }; }
 });
+
+ipcMain.handle('clipboard:set-text', async (e, txt) => {
+  try {
+    if (typeof txt !== 'string') return { error: 'formato' };
+    await clipboard.writeText(txt);
+    return { ok: true };
+  } catch (err) { return { error: String((err && err.message) || err) }; }
+});
+
+ipcMain.handle('fs:save-png', async (e, dataUrl, name) => {
+  try {
+    if (typeof dataUrl !== 'string' || !/^data:image\/png/.test(dataUrl)) return { error: 'formato' };
+    const base64 = dataUrl.replace(/^data:image\/png;base64,/, '');
+    const buf = Buffer.from(base64, 'base64');
+    if (!buf.length) return { error: 'vacio' };
+    let outName = String(name || 'animepulse.png').replace(/[\\/:*?"<>|]/g, '_');
+    if (!/\.png$/i.test(outName)) outName += '.png';
+    const dir = app.getPath('downloads');
+    const full = path.join(dir, outName);
+    fs.writeFileSync(full, buf);
+    return { ok: true, path: full };
+  } catch (err) { return { error: String((err && err.message) || err) }; }
+});
+
+const { createWatcher } = require('./folder-watcher');
+const watcher = createWatcher(fresh => {
+  if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents && !mainWindow.webContents.isDestroyed()) mainWindow.webContents.send('organizer:new', fresh);
+});
+ipcMain.handle('organizer:watch', (e, payload) => {
+  try {
+    const p = payload || {};
+    if (!p.on) { watcher.stop(); return { ok: true }; }
+    if (typeof p.dir !== 'string' || !p.dir) return { error: 'dir' };
+    if (!fs.existsSync(p.dir)) return { error: 'no-existe' };
+    watcher.start(p.dir);
+    return { ok: true };
+  } catch (err) { return { error: String((err && err.message) || err) }; }
+});
+app.on('quit', () => watcher.stop());
+app.on('before-quit', () => watcher.stop());
+
+const { createDiscord } = require('./discord-rpc');
+const dc = createDiscord(evt => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('discord:status', evt); });
+ipcMain.handle('discord:connect', (e, p) => {
+  const payload = p || {};
+  dc.connect(payload.id, payload.activity);
+  return { ok: true };
+});
+ipcMain.handle('discord:set', (e, p) => {
+  const payload = p || {};
+  if (!dc.state.clientId) { dc.connect(payload.id); }
+  dc.setActivity(payload, dc.state.clientId);
+  return { ok: true };
+});
+ipcMain.handle('discord:stop', () => { dc.clear(); return { ok: true }; });
+app.on('before-quit', () => dc.destroy());

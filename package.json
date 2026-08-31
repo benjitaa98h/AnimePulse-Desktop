@@ -16,7 +16,9 @@
     "files": [
       "main.js",
       "preload.js",
-      "index.html"
+      "index.html",
+      "discord-rpc.js",
+      "folder-watcher.js"
     ],
     "directories": {
       "output": "dist"

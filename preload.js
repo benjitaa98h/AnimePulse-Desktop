@@ -12,5 +12,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   focus: () => ipcRenderer.invoke('win:focus'),
   pickFolder: () => ipcRenderer.invoke('fs:pick-folder'),
   listFolder: (dir) => ipcRenderer.invoke('fs:list-files', String(dir)),
-  renameFile: (dir, from, to) => ipcRenderer.invoke('fs:rename-file', String(dir), String(from), String(to))
+  renameFile: (dir, from, to) => ipcRenderer.invoke('fs:rename-file', String(dir), String(from), String(to)),
+  copyText: (txt) => ipcRenderer.invoke('clipboard:set-text', String(txt)),
+  savePng: (dataUrl, name) => ipcRenderer.invoke('fs:save-png', String(dataUrl), String(name)),
+  watchOrganizer: (p) => ipcRenderer.invoke('organizer:watch', p),
+  onOrganizerNew: (cb) => ipcRenderer.on('organizer:new', (_e, names) => cb(names)),
+  discordConnect: (p) => ipcRenderer.invoke('discord:connect', p),
+  setPresence: (p) => ipcRenderer.invoke('discord:set', p),
+  clearPresence: () => ipcRenderer.invoke('discord:stop'),
+  onDiscordStatus: (cb) => ipcRenderer.on('discord:status', (_e, s) => cb(s))
 });
