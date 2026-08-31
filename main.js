@@ -1,5 +1,6 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const { execFile } = require('child_process');
 
 let mainWindow = null;
@@ -90,4 +91,34 @@ ipcMain.handle('win:is-maximized', () => (mainWindow ? mainWindow.isMaximized() 
 
 ipcMain.handle('external:open', (e, url) => {
   if (typeof url === 'string' && /^https?:\/\//i.test(url)) shell.openExternal(url);
+});
+
+ipcMain.handle('win:focus', () => {
+  if (mainWindow && !mainWindow.isDestroyed()) { if (mainWindow.isMinimized()) mainWindow.restore(); mainWindow.show(); mainWindow.focus(); }
+});
+
+const FOLDER_VIDEO_RE = /\.(mkv|mp4|avi|m4v|mpg|mpeg|webm|flv|wmv)$/i;
+ipcMain.handle('fs:pick-folder', async () => {
+  if (!mainWindow) return null;
+  const r = await dialog.showOpenDialog(mainWindow, { title: 'Elegir carpeta con tus episodios', properties: ['openDirectory'] });
+  return r.canceled ? null : (r.filePaths[0] || null);
+});
+ipcMain.handle('fs:list-files', (e, dir) => {
+  try {
+    if (typeof dir !== 'string' || !dir) return { error: 'dir-invalido' };
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    return entries.filter(x => x.isFile() && FOLDER_VIDEO_RE.test(x.name)).map(x => x.name).slice(0, 600);
+  } catch (err) { return { error: String((err && err.message) || err) }; }
+});
+ipcMain.handle('fs:rename-file', (e, dir, from, to) => {
+  try {
+    if (typeof dir !== 'string' || !dir || typeof from !== 'string' || !from || typeof to !== 'string' || !to) return { error: 'parametros' };
+    if (/[\\/]/m.test(to) || /^\.+$/.test(to) || to.indexOf('\0') >= 0) return { error: 'nombre-no-permitido' };
+    const src = path.join(dir, from);
+    const dst = path.join(dir, to);
+    if (path.dirname(src) !== path.dirname(dst)) return { error: 'ruta-invalida' };
+    if (!fs.existsSync(src)) return { error: 'no-existe' };
+    fs.renameSync(src, dst);
+    return { ok: true };
+  } catch (err) { return { error: String((err && err.message) || err) }; }
 });

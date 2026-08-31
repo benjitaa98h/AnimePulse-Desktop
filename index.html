@@ -184,6 +184,12 @@ tailwind.config = {
         <span class="nav-ind w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 ml-1"></span>
       </button>
       <button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition"
+              data-section="organizer">
+        <i data-lucide="folder-open" class="w-[18px] h-[18px]"></i>
+        <span class="flex-1 text-left">Organizador de Archivos</span>
+        <span class="nav-ind w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 ml-1"></span>
+      </button>
+      <button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition"
               data-section="stats">
         <i data-lucide="bar-chart-3" class="w-[18px] h-[18px]"></i>
         <span class="flex-1 text-left">Estadísticas</span>
@@ -260,6 +266,9 @@ tailwind.config = {
             <span id="listCount" class="text-[11px] font-semibold px-2 py-1 rounded-lg bg-white/5 text-slate-400 edge"></span>
           </h2>
           <div class="ml-auto flex items-center gap-2">
+            <button id="syncChip" title="Sincronizar progreso con AniList" class="hidden items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold bg-sky-400/10 border border-sky-400/25 text-sky-300 hover:bg-sky-400/20 transition">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sync AniList
+            </button>
             <span class="text-[11px] text-slate-500 font-medium mr-1 no-select">Vista</span>
             <div class="flex items-center p-1 glass edge rounded-xl">
               <button data-view="grid" id="viewGrid" class="view-btn px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 text-[11px] font-medium transition">
@@ -304,6 +313,31 @@ tailwind.config = {
         </div>
         <div id="calDays" class="flex flex-wrap gap-2 mb-5"></div>
         <div id="calList" class="space-y-2"></div>
+      </section>
+
+      <section id="section-organizer" class="fade-section hidden">
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+          <h2 class="font-display font-bold text-xl text-white">Organizador de Archivos</h2>
+          <span class="text-[11px] text-slate-500 font-medium">Renombra lote de episodios descargados con formato limpio: <b class="text-slate-300">Anime - S01E01.mkv</b></span>
+        </div>
+        <div class="glass edge rounded-2xl p-5 mb-5">
+          <div class="flex flex-wrap items-center gap-3">
+            <button id="pickFolderBtn" class="btn-primary px-4 py-2.5 rounded-xl text-[12px] font-semibold text-white flex items-center gap-1.5"><i data-lucide="folder-open" class="w-4 h-4"></i> Elegir carpeta</button>
+            <div class="flex items-center gap-2 min-w-0 flex-1">
+              <i data-lucide="folder" class="w-4 h-4 text-slate-500 shrink-0"></i>
+              <span id="folderPath" class="text-[12px] text-slate-400 truncate">Sin carpeta seleccionada</span>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-3 mt-4 pt-4 edge border-x-0 border-b-0">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input id="useAnilistNames" type="checkbox" class="accent-purple-500 w-4 h-4">
+              <span class="text-[12px] text-slate-300">Usar el título oficial de AniList para la serie (más preciso)</span>
+            </label>
+            <button id="renameAllBtn" class="ml-auto px-4 py-2 rounded-xl text-[12px] font-semibold bg-emerald-400/15 border border-emerald-400/25 text-emerald-300 hover:bg-emerald-400/25 transition items-center gap-1.5 hidden"><i data-lucide="wand-2" class="w-3.5 h-3.5"></i> Renombrar todo</button>
+          </div>
+        </div>
+        <div id="organizerHint" class="text-[12px] text-slate-500 mb-4">Elige una carpeta con tus archivos descargados (.mkv / .mp4 / .avi…) para analizarlos.</div>
+        <div id="fileList" class="space-y-1.5"></div>
       </section>
 
       <section id="section-stats" class="fade-section hidden">
@@ -575,7 +609,10 @@ let state = {
   calendarDay: 'monday',
   scrobbler: { running: false, player: 'VLC Player', animeId: null, episodeNow: 0, progress: 0, fileName: null, timer: null, source: 'manual', increment: true },
   searchCache: {},
-  lastSearch: ''
+  lastSearch: '',
+  airNotified: {},
+  folder: null,
+  files: []
 };
 
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
@@ -631,6 +668,8 @@ function load() {
       state.scrobbler.timer = null;
       if (Array.isArray(p.animeList)) state.animeList = p.animeList;
       if (Array.isArray(p.activity)) state.activity = p.activity.slice(0, 7);
+      if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
+      if (typeof p.folder === 'string') state.folder = p.folder;
     }
   } catch (e) { console.warn('Storage corrupto, se usará demo:', e); }
   if (!Array.isArray(state.animeList)) state.animeList = [];
@@ -1479,6 +1518,227 @@ function renderALStatus(user) {
   }
 }
 
+function renderSyncChip() {
+  const chip = document.getElementById('syncChip');
+  if (!chip) return;
+  const st = state.settings || {};
+  if (st.syncOn && st.alToken) {
+    chip.classList.remove('hidden');
+    chip.classList.add('flex');
+  } else {
+    chip.classList.add('hidden');
+    chip.classList.remove('flex');
+  }
+}
+
+let airTimer = null;
+function followedALIds() {
+  const s = new Set();
+  state.animeList.forEach(a => {
+    if ((a.status === 'watching' || a.status === 'onhold') && a.al_id) s.add(Number(a.al_id));
+  });
+  return s;
+}
+function nativeNotify(title, body) {
+  try {
+    if ('Notification' in window && window.Notification) {
+      const n = new window.Notification('AnimePulse · ' + title, { body: body });
+      n.onclick = () => { if (window.electronAPI && window.electronAPI.focus) window.electronAPI.focus(); };
+    } else toast('<b>' + title + '</b> — ' + body, 'info');
+  } catch (e) { toast('<b>' + title + '</b> — ' + body, 'info'); }
+}
+function markAired(mid, ep) { state.airNotified[String(mid)] = Number(ep) || 1; save(); }
+
+async function checkRecentlyAired() {
+  if (!state.settings || state.settings.notifications !== true) return;
+  const watching = followedALIds();
+  if (!watching.size) return;
+  const nowS = Math.floor(Date.now() / 1000);
+  const data = await anilistQuery(AL_SCHED, { g: nowS - 24 * 3600, l: nowS });
+  const arr = (data && data.Page && data.Page.airingSchedules) || [];
+  arr.forEach(s => {
+    const mid = Number(s.media && s.media.id);
+    if (!watching.has(mid) || !s.episode) return;
+    if (state.airNotified[String(mid)] >= s.episode) return;
+    const t = (s.media.title && (s.media.title.romaji || s.media.title.english)) || 'Anime';
+    markAired(mid, s.episode);
+    nativeNotify('Episodio emitido', t + ' — Episodio ' + s.episode + ' ya salió en Japón (JST).');
+  });
+}
+
+function scheduleNextAiringTimer() {
+  if (airTimer) { clearTimeout(airTimer); airTimer = null; }
+  if (!state.settings || state.settings.notifications !== true) return;
+  const watching = followedALIds();
+  if (!watching.size) return;
+  const nowS = Math.floor(Date.now() / 1000);
+  anilistQuery(AL_SCHED, { g: nowS, l: nowS + 32 * 3600 }).then(data => {
+    const arr = (data && data.Page && data.Page.airingSchedules) || [];
+    let next = null;
+    arr.forEach(s => {
+      const mid = Number(s.media && s.media.id);
+      if (!s.episode || !watching.has(mid) || s.airingAt <= nowS) return;
+      if (state.airNotified[String(mid)] >= s.episode) return;
+      if (!next || s.airingAt < next.airingAt) next = { s, mid, t: (s.media.title && (s.media.title.romaji || s.media.title.english)) || 'Anime' };
+    });
+    if (!next) return;
+    const delay = (next.s.airingAt - nowS + 30 * 60) * 1000;
+    if (delay <= 0 || delay > 33 * 3600 * 1000) return;
+    airTimer = setTimeout(() => {
+      markAired(next.mid, next.s.episode);
+      nativeNotify('Episodio emitido', next.t + ' — Episodio ' + next.s.episode + ' ya salió en Japón (JST).');
+      scheduleNextAiringTimer();
+    }, delay);
+  });
+}
+function checkAiringNow() {
+  if (!state.settings || state.settings.notifications !== true) return;
+  checkRecentlyAired();
+  scheduleNextAiringTimer();
+}
+
+let resolvedCache = {};
+const VIDEO_RE = /\.(mkv|mp4|avi|m4v|mpg|mpeg|webm|flv|wmv)$/i;
+function analyzeFileName(name) {
+  const ext = (String(name).match(/\.([a-z0-9]+)$/i) || ['', ''])[1].toLowerCase();
+  const base = String(name).replace(/\.([a-z0-9]+)$/i, '');
+  const cleaned = base
+    .replace(/\[[^\]]*\]/g, ' ')
+    .replace(/[()【】]/g, ' ')
+    .replace(/\b(\d{3,4}p|2160p|x26[45]|HEVC|x264|x265|AVC|BluRay|WEB-?DL|WEBRip|HDR10?|DV|10bit|8bit|Hi10P|AAC|AC3|FLAC|EAC3|DD[P+]?5?\.?1?|AAC2\.0|Opus|DTS-HD|H\.?26[45])\b/gi, ' ')
+    .replace(/[._]/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+  const m = cleaned.match(/\b(?:S(\d{1,2})\s*E(\d{1,3})|E(\d{1,3})|Episode\s+(\d{1,3})|Episodio\s+(\d{1,3})|Ep[\.:\s]*(\d{1,3})|第\s*(\d{1,3})\s*话)\b/i);
+  let season = null, ep = null;
+  if (m) {
+    if (m[1]) { season = parseInt(m[1], 10); ep = parseInt(m[2], 10); }
+    else ep = parseInt(m[3] || m[4] || m[5] || m[6] || m[7], 10);
+  }
+  let series = cleaned;
+  if (m) series = cleaned.slice(0, m.index);
+  series = series.replace(/[-–—:]+$/, '').replace(/^\s*[-–—:]\s*/, '').trim().replace(/\s+/g, ' ');
+  if (!series && !m) series = base.replace(/[._]/g, ' ');
+  return { orig: name, ext: ext || 'mkv', series: series, season: season, ep: ep, note: ep ? '' : 'Sin episodio detectable', conflict: false, resolvedSeries: null };
+}
+function suggestName(f, canonical) {
+  const series = (canonical || f.series || 'Anime').trim();
+  const s = 'S' + String(f.season || 1).padStart(2, '0');
+  const e = 'E' + String(f.ep).padStart(3, '0');
+  return series + ' - ' + s + e + '.' + f.ext;
+}
+function updateConflicts() {
+  const names = new Set(state.files.map(f => String(f.orig).toLowerCase()));
+  state.files.forEach(f => {
+    if (!f.ep) { f.conflict = false; return; }
+    const target = suggestName(f, f.resolvedSeries || f.series).toLowerCase();
+    f.conflict = target !== String(f.orig).toLowerCase() && names.has(target);
+  });
+}
+async function renameOne(i) {
+  const f = state.files[i];
+  if (!f || !f.ep) return;
+  let series = f.resolvedSeries;
+  if (!series && document.getElementById('useAnilistNames').checked) series = await resolveSeriesTitle(f.series);
+  const target = suggestName(f, series);
+  if (f.conflict) { toast('El nombre destino ya existe en la carpeta.', 'warn'); return; }
+  const r = await window.electronAPI.renameFile(state.folder, f.orig, target);
+  if (r && r.ok) {
+    f.orig = target;
+    if (series) f.resolvedSeries = series;
+    toast('Renombrado: <b>' + esc(target) + '</b>', 'ok');
+  } else {
+    toast('Error al renombrar: ' + esc((r && r.error) || 'desconocido'), 'err');
+  }
+  save(); updateConflicts(); renderOrganizer();
+}
+async function renameAllFiles() {
+  const useAL = document.getElementById('useAnilistNames').checked;
+  const targets = state.files.filter(f => f.ep && !f.conflict);
+  if (!targets.length) { toast('No hay archivos listos para renombrar.', 'warn'); return; }
+  if (useAL) {
+    const unique = [...new Set(targets.map(f => f.series).filter(Boolean))];
+    await Promise.all(unique.map(s => resolveSeriesTitle(s)));
+  }
+  let done = 0, skipped = 0;
+  for (let i = 0; i < state.files.length; i++) {
+    const f = state.files[i];
+    if (!f.ep || f.conflict) continue;
+    const target = suggestName(f, f.resolvedSeries || f.series);
+    const r = await window.electronAPI.renameFile(state.folder, f.orig, target);
+    if (r && r.ok) { f.orig = target; done++; }
+    else skipped++;
+  }
+  save(); updateConflicts(); renderOrganizer();
+  toast(done + ' archivos renombrados' + (skipped ? ', ' + skipped + ' fallaron' : '') + ' ✓', done && !skipped ? 'ok' : 'warn');
+}
+function renderOrganizer() {
+  const list = document.getElementById('fileList');
+  const hint = document.getElementById('organizerHint');
+  const renameBtn = document.getElementById('renameAllBtn');
+  if (!state.folder || !state.files.length) {
+    list.innerHTML = '';
+    hint.textContent = state.folder ? 'No se encontraron archivos de video en esa carpeta.' : 'Elige una carpeta con tus archivos descargados (.mkv / .mp4 / .avi…) para analizarlos.';
+    renameBtn.classList.add('hidden'); renameBtn.classList.remove('flex');
+    icons(); return;
+  }
+  const okCount = state.files.filter(f => f.ep).length;
+  hint.textContent = state.files.length + ' archivos de video·' + okCount + ' listos para renombrar. Puedes dejar el nombre oficial de AniList como serie (más preciso) antes de renombrar.';
+  renameBtn.classList.remove('hidden');
+  renameBtn.classList.add('flex');
+  renameBtn.innerHTML = '<i data-lucide="wand-2" class="w-3.5 h-3.5"></i> Renombrar todo (' + okCount + ')';
+  list.innerHTML = state.files.map((f, i) => {
+    let target = '';
+    if (f.ep) target = suggestName(f, f.resolvedSeries || f.series);
+    return '<div class="glass edge rounded-xl px-4 py-2.5 flex items-center gap-3">' +
+      '<div class="min-w-0 flex-1">' +
+      '<div class="text-[12px] text-slate-500 font-mono truncate" title="' + esc(f.orig) + '">' + esc(f.orig) + '</div>' +
+      (target ? '<div class="text-[12px] text-emerald-300 font-mono truncate">→ ' + esc(target) + (f.conflict ? ' <span class="text-amber-300">(ya existe)</span>' : '') + '</div>' : '<div class="text-[12px] text-amber-300">→ ' + esc(f.note || 'sin nombre sugerido') + '</div>') +
+      '</div>' +
+      (target ? '<button data-orename="' + i + '" class="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-white/5 hover:bg-white/10 text-slate-300 edge transition">Renombrar</button>' : '') +
+      '</div>';
+  }).join('');
+  icons();
+}
+async function resolveSeriesTitle(raw) {
+  if (!raw) return raw || '';
+  if (resolvedCache[raw]) return resolvedCache[raw];
+  const res = await searchAnimeFinal(raw, 1);
+  const it = res && res[0];
+  const canonical = (it && it.title) ? String(it.title) : raw;
+  resolvedCache[raw] = canonical;
+  if (canonical !== raw) toast('Serie detectada: <b>' + esc(raw) + '</b> → <b>' + esc(canonical) + '</b>', 'info');
+  return canonical;
+}
+async function pickFolder() {
+  if (!window.electronAPI || !window.electronAPI.pickFolder) { toast('El organizador solo está disponible en la app de escritorio.', 'warn'); return; }
+  const dir = await window.electronAPI.pickFolder();
+  if (!dir) return;
+  document.getElementById('folderPath').textContent = dir;
+  const files = await window.electronAPI.listFolder(dir);
+  if (!files || files.error) { toast('No se pudo leer la carpeta.', 'err'); return; }
+  state.folder = dir;
+  state.files = files.map(analyzeFileName);
+  save(); updateConflicts(); renderOrganizer();
+  toast('Carpeta cargada: <b>' + files.length + '</b> archivos de video', 'ok');
+}
+function setupOrganizer() {
+  document.getElementById('pickFolderBtn').addEventListener('click', pickFolder);
+  document.getElementById('renameAllBtn').addEventListener('click', renameAllFiles);
+  document.getElementById('useAnilistNames').addEventListener('change', async () => {
+    if (!document.getElementById('useAnilistNames').checked) return;
+    await Promise.all([...new Set(state.files.map(f => f.series).filter(Boolean))].map(s => resolveSeriesTitle(s)));
+    updateConflicts(); renderOrganizer();
+  });
+  document.getElementById('fileList').addEventListener('click', e => {
+    const btn = e.target.closest('[data-orename]');
+    if (btn) renameOne(parseInt(btn.getAttribute('data-orename'), 10));
+  });
+  if (state.folder) {
+    document.getElementById('folderPath').textContent = state.folder;
+    if (state.files && state.files.length) renderOrganizer();
+  }
+}
+
 let globalSearchTimer = null;
 let globalSearchSeq = 0;
 
@@ -1903,6 +2163,7 @@ function switchSection(section) {
   if (target) target.classList.remove('hidden');
   if (section === 'stats') drawActivity();
   if (section === 'calendar') renderCalendar();
+  if (section === 'organizer') renderOrganizer();
   if (section === 'explore') {
     const q = (document.getElementById('globalSearch').value || '').trim();
     if (q && !exploreKeyCache['e_' + q.toLowerCase()]) { document.getElementById('exploreSearch').value = q; runExploreSearch(q, true); }
@@ -1949,8 +2210,10 @@ function setupSettings() {
       toast('Token inválido o expirado. Revisa el flujo de <b>Autorizar</b> y vuelve a pegarlo.', 'err');
       renderALStatus();
     }
+    renderSyncChip();
   });
   document.getElementById('alSyncAllBtn').addEventListener('click', alSilentSyncAll);
+  document.querySelectorAll('input[data-setting="syncOn"]').forEach(cb => cb.addEventListener('change', renderSyncChip));
   renderALStatus();
   document.getElementById('exportBtn').addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
@@ -2107,6 +2370,10 @@ function init() {
     v.classList.toggle('text-white', on);
   });
   wireActions();
+  renderSyncChip();
+  document.getElementById('syncChip').addEventListener('click', alSilentSyncAll);
+  setupOrganizer();
+  if (state.settings.notifications === true) { checkAiringNow(); setInterval(checkAiringNow, 3600000); }
   icons();
   if (window.electronAPI && window.electronAPI.onMaximized) {
     window.electronAPI.onMaximized(max => {
