@@ -103,6 +103,43 @@ tailwind.config = {
   html[data-theme="light"] .shadow-black\/50, html[data-theme="light"] .shadow-black\/60 { box-shadow: 0 20px 60px -20px rgba(15,23,42,.45); }
   html[data-theme="light"] .hover\:text-white:hover { color: #0f1424 !important; }
 
+  /* ===== Temas de perfil desbloqueables (estilo Steam) ===== */
+  html[data-theme="cyberpunk"] body { background: #0a0f1e; }
+  html[data-theme="cyberpunk"] .glass { background: rgba(10,16,34,.62); border-color: rgba(0,229,255,.18); }
+  html[data-theme="cyberpunk"] .edge { border-color: rgba(0,229,255,.16); }
+  html[data-theme="cyberpunk"] .accent-gradient { background: linear-gradient(110deg,#00e5ff,#7c5cff) !important; box-shadow: 0 0 22px -6px rgba(0,229,255,.6); }
+  html[data-theme="cyberpunk"] .nav-item.active { background: rgba(0,229,255,.10); box-shadow: inset 0 0 0 1px rgba(0,229,255,.3); }
+  html[data-theme="cyberpunk"] .text-slate-300 { color: #b9e6f7 !important; }
+  html[data-theme="cyberpunk"] .text-slate-400 { color: #7fb6cf !important; }
+  html[data-theme="cyberpunk"] .text-slate-500 { color: #5f8aa0 !important; }
+
+  html[data-theme="synthwave"] body { background: #1a0933; }
+  html[data-theme="synthwave"] .glass { background: rgba(26,9,51,.58); border-color: rgba(255,0,229,.22); }
+  html[data-theme="synthwave"] .edge { border-color: rgba(255,0,229,.18); }
+  html[data-theme="synthwave"] .accent-gradient { background: linear-gradient(110deg,#ff2ec4,#7a2cff) !important; box-shadow: 0 0 22px -6px rgba(255,46,196,.6); }
+  html[data-theme="synthwave"] .nav-item.active { background: rgba(255,46,196,.10); box-shadow: inset 0 0 0 1px rgba(255,46,196,.3); }
+  html[data-theme="synthwave"] .text-slate-300 { color: #f0bdf0 !important; }
+  html[data-theme="synthwave"] .text-slate-400 { color: #d48bd8 !important; }
+  html[data-theme="synthwave"] .text-slate-500 { color: #a76bb0 !important; }
+
+  html[data-theme="sakura"] body { background: #2a1622; }
+  html[data-theme="sakura"] .glass { background: rgba(42,22,34,.58); border-color: rgba(255,174,201,.22); }
+  html[data-theme="sakura"] .edge { border-color: rgba(255,174,201,.18); }
+  html[data-theme="sakura"] .accent-gradient { background: linear-gradient(110deg,#ff9ecb,#d45db6) !important; box-shadow: 0 0 22px -6px rgba(255,158,203,.6); }
+  html[data-theme="sakura"] .nav-item.active { background: rgba(255,158,203,.10); box-shadow: inset 0 0 0 1px rgba(255,158,203,.3); }
+  html[data-theme="sakura"] .text-slate-300 { color: #f5d5e6 !important; }
+  html[data-theme="sakura"] .text-slate-400 { color: #e3aec6 !important; }
+  html[data-theme="sakura"] .text-slate-500 { color: #bf8aa4 !important; }
+
+  html[data-theme="cerezo"] body { background: #18241a; }
+  html[data-theme="cerezo"] .glass { background: rgba(24,36,26,.58); border-color: rgba(163,230,53,.2); }
+  html[data-theme="cerezo"] .edge { border-color: rgba(163,230,53,.16); }
+  html[data-theme="cerezo"] .accent-gradient { background: linear-gradient(110deg,#a3e635,#34d399) !important; box-shadow: 0 0 22px -6px rgba(163,230,53,.6); }
+  html[data-theme="cerezo"] .nav-item.active { background: rgba(163,230,53,.10); box-shadow: inset 0 0 0 1px rgba(163,230,53,.3); }
+  html[data-theme="cerezo"] .text-slate-300 { color: #d6f2bd !important; }
+  html[data-theme="cerezo"] .text-slate-400 { color: #a9cf8a !important; }
+  html[data-theme="cerezo"] .text-slate-500 { color: #7fa56b !important; }
+
   html[data-accent="blue"] .text-purple-300 { color: #93c5fd; }
   html[data-accent="blue"] .text-purple-400 { color: #60a5fa; }
   html[data-accent="blue"] .accent-purple-500 { accent-color: #3b82f6; }
@@ -221,14 +258,14 @@ tailwind.config = {
     </div>
 
     <div class="mt-auto p-4">
-      <div class="p-3 rounded-xl glass edge flex items-center gap-3">
-        <div class="w-9 h-9 rounded-full accent-gradient flex items-center justify-center font-display font-bold text-sm text-white shrink-0">OT</div>
+      <button id="profileBtn" class="w-full p-3 rounded-xl glass edge flex items-center gap-3 hover:bg-white/[.04] transition text-left cursor-pointer">
+        <div id="profileAvatar" class="w-9 h-9 rounded-full accent-gradient flex items-center justify-center font-display font-bold text-sm text-white shrink-0">OT</div>
         <div class="min-w-0 flex-1">
-          <div class="text-[13px] font-semibold text-white truncate">Otaku Tracker</div>
-          <div class="text-[10px] text-slate-500">Perfil Pro · PC</div>
+          <div id="profileNameLabel" class="text-[13px] font-semibold text-white truncate">Otaku Tracker</div>
+          <div id="profileRankLabel" class="text-[10px] text-slate-500">Perfil Pro · PC</div>
         </div>
-        <i data-lucide="chevrons-up" class="w-4 h-4 text-purple-400"></i>
-      </div>
+        <i data-lucide="chevrons-up" class="w-4 h-4 text-purple-400 shrink-0"></i>
+      </button>
       <div class="grid grid-cols-3 gap-2 mt-3 text-center">
         <div class="glass edge rounded-xl py-2">
           <div id="jqTotal" class="font-display font-bold text-white text-sm leading-tight">0</div>
@@ -467,6 +504,10 @@ tailwind.config = {
                   <button data-theme-pick="dark" class="theme-btn px-3 py-1.5 rounded-lg text-[12px] font-semibold transition">Oscuro</button>
                   <button data-theme-pick="oled" class="theme-btn px-3 py-1.5 rounded-lg text-[12px] font-semibold transition">OLED Negro</button>
                   <button data-theme-pick="light" class="theme-btn px-3 py-1.5 rounded-lg text-[12px] font-semibold transition">Claro</button>
+                  <button data-theme-pick="cyberpunk" class="theme-btn px-3 py-1.5 rounded-lg text-[12px] font-semibold transition">Cyberpunk</button>
+                  <button data-theme-pick="synthwave" class="theme-btn px-3 py-1.5 rounded-lg text-[12px] font-semibold transition">Synthwave</button>
+                  <button data-theme-pick="sakura" class="theme-btn px-3 py-1.5 rounded-lg text-[12px] font-semibold transition">Sakura</button>
+                  <button data-theme-pick="cerezo" class="theme-btn px-3 py-1.5 rounded-lg text-[12px] font-semibold transition">Cerezo</button>
                 </div>
               </div>
               <div>
@@ -679,6 +720,62 @@ tailwind.config = {
   </div>
 </div>
 
+<div id="profileModal" class="hidden fixed inset-0 z-[65] modal-backdrop flex items-center justify-center p-4">
+  <div class="glass edge rounded-3xl w-full max-w-md p-6 anim-pop">
+    <div class="flex items-center justify-between mb-5">
+      <div class="font-display font-semibold text-white text-sm flex items-center gap-2"><i data-lucide="user-cog" class="w-4 h-4 text-purple-400"></i> Tu Perfil Otaku</div>
+      <button id="profileClose" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 flex items-center justify-center transition"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+
+    <div id="profileRankCard" class="rounded-2xl p-5 mb-5 text-center edge"></div>
+
+    <div class="space-y-4">
+      <label class="block">
+        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5 block">Nombre de perfil</span>
+        <input id="profileName" type="text" maxlength="24" placeholder="Tu nombre"
+          class="w-full px-3 py-2.5 rounded-xl bg-white/5 edge text-white text-[13px] outline-none focus:ring-2 focus:ring-purple-400/40 transition">
+      </label>
+      <label class="block">
+        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5 block">Biografía</span>
+        <textarea id="profileBio" rows="3" maxlength="140" placeholder="Cuéntanos qué andas viendo…"
+          class="w-full px-3 py-2.5 rounded-xl bg-white/5 edge text-white text-[13px] outline-none focus:ring-2 focus:ring-purple-400/40 transition resize-none"></textarea>
+      </label>
+      <label class="block">
+        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-2 block">Color de acento del perfil</span>
+        <div id="profileAccents" class="flex items-center gap-2"></div>
+      </label>
+      <label class="block">
+        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-2 block">Foto de perfil</span>
+        <div class="flex items-center gap-3">
+          <div id="profilePicPreview" class="w-16 h-16 rounded-xl overflow-hidden bg-white/[.05] edge flex items-center justify-center text-xl font-display font-bold text-slate-500">+</div>
+          <div class="flex flex-col gap-2 flex-1">
+            <label class="flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-200 hover:bg-white/10 transition cursor-pointer">
+              <i data-lucide="image-plus" class="w-4 h-4"></i> Subir imagen
+              <input id="profilePicInput" type="file" accept="image/*" class="hidden">
+            </label>
+            <button id="profilePicClear" class="text-[11px] text-slate-500 hover:text-rose-400 transition text-left">Quitar foto</button>
+          </div>
+        </div>
+      </label>
+      <label class="block">
+        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-2 block">Tema visual</span>
+        <div class="grid grid-cols-2 gap-2">
+          <button data-profile-theme="dark" class="profile-theme px-3 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge transition">Oscuro</button>
+          <button data-profile-theme="oled" class="profile-theme px-3 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge transition">OLED Negro</button>
+          <button data-profile-theme="cyberpunk" class="profile-theme px-3 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge transition">Cyberpunk</button>
+          <button data-profile-theme="synthwave" class="profile-theme px-3 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge transition">Synthwave</button>
+          <button data-profile-theme="sakura" class="profile-theme px-3 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge transition">Sakura</button>
+          <button data-profile-theme="cerezo" class="profile-theme px-3 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge transition">Cerezo</button>
+        </div>
+      </label>
+    </div>
+
+    <div class="text-[11px] text-slate-500 mt-4 mb-4 leading-relaxed" id="profileRankHint"></div>
+
+    <button id="profileSave" class="w-full mt-1 px-4 py-2.5 rounded-xl text-[13px] font-semibold accent-gradient text-white hover:opacity-90 transition flex items-center justify-center gap-2"><i data-lucide="check" class="w-4 h-4"></i> Guardar perfil</button>
+  </div>
+</div>
+
 <script>'use strict';
 
 const LS_KEY = 'animepulse.v2.state';
@@ -734,7 +831,8 @@ let state = {
   airNotified: {},
   folder: null,
   files: [],
-  gamification: { level: 1, xp: 0, coins: 0, marathon: 0, totalEpisodes: 0, totalCompleted: 0, lastAnimeId: null }
+  gamification: { level: 1, xp: 0, coins: 0, marathon: 0, totalEpisodes: 0, totalCompleted: 0, lastAnimeId: null },
+  profile: { name: 'Otaku Tracker', rank: 'novato', bio: '', accent: 'purple', avatar: '' }
 };
 
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
@@ -805,6 +903,7 @@ state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notific
       if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
       if (typeof p.folder === 'string') state.folder = p.folder;
       state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null }, p.gamification || {});
+      state.profile = Object.assign({ name: 'Otaku Tracker', rank: 'novato', bio: '', accent: 'purple', avatar: '' }, p.profile || {});
     }
   } catch (e) { console.warn('Storage corrupto, se usará demo:', e); }
   if (!Array.isArray(state.animeList)) state.animeList = [];
@@ -828,6 +927,7 @@ async function restoreDisk(force) {
     if (typeof p.folder === 'string') state.folder = p.folder;
     if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
     state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null }, p.gamification || {});
+    state.profile = Object.assign({ name: 'Otaku Tracker', rank: 'novato', bio: '', accent: 'purple', avatar: '' }, p.profile || {});
     applyAppearance();
     recomputeStats(); renderDashboard(); renderScrobblerUI(); setupSettings(); icons();
     refreshDiskInfo();
@@ -2843,6 +2943,23 @@ function finishEpisode() {
 }
 
 const RARITY = { comun: { color: '#94a3b8' }, raro: { color: '#38bdf8' }, epico: { color: '#a855f7' }, legendario: { color: '#fbbf24' } };
+
+const PROFILE_RANKS = {
+  novato: { label: 'Novato', desc: 'Perfil básico. Empieza a registrar episodios para ganar EXP y subir de rango.', color: '#94a3b8', minLevel: 1, icon: '🌱' },
+  pro:    { label: 'Otaku Dedicado (Pro)', desc: 'Desbloquea estadísticas avanzadas, colores personalizados y acceso a la tienda. Requiere nivel 5.', color: '#38bdf8', minLevel: 5, icon: '🔥' },
+  master: { label: 'Anime Master', desc: 'Marco animado, medallas exclusivas y almacenamiento expandido. Requiere completar hitos complejos (nivel 15).', color: '#fbbf24', minLevel: 15, icon: '👑' }
+};
+function computeRank(level) {
+  if (level >= 15) return 'master';
+  if (level >= 5) return 'pro';
+  return 'novato';
+}
+function currentRank() {
+  const r = state.profile && state.profile.rank ? state.profile.rank : 'novato';
+  const computed = computeRank(state.gamification.level || 1);
+  return r === 'master' && computed !== 'master' && (state.gamification.level || 1) < 15 ? 'novato' : r;
+}
+const PROFILE_ACCENTS = ['purple', 'pink', 'cyan', 'amber', 'emerald', 'sky', 'rose'];
 const TROPHY_DEFS = [
   { id: 'first_episode', name: 'Primer Paso', description: 'Registra tu primer episodio', rarity: 'comun' },
   { id: 'ep10', name: 'Veterano', description: 'Registra 10 episodios', rarity: 'comun' },
@@ -3029,6 +3146,7 @@ function renderGamification() {
   if (epTextG) epTextG.textContent = g.totalEpisodes + ' ep';
   renderTrophies();
   renderScrobbleHistory();
+  renderProfileSidebar();
 }
 
 function renderScrobbleHistory() {
@@ -3056,6 +3174,164 @@ function renderScrobbleHistory() {
       })
       .catch(() => {});
   }
+}
+
+const THEME_UNLOCK = { cyberpunk: 'pro', synthwave: 'pro', sakura: 'master', cerezo: 'pro' };
+function themeLabel(t) {
+  return ({ dark: 'Oscuro', oled: 'OLED Negro', light: 'Claro', cyberpunk: 'Cyberpunk', synthwave: 'Synthwave', sakura: 'Sakura', cerezo: 'Cerezo' })[t] || t;
+}
+function rankOfUser() {
+  return currentRank();
+}
+function renderProfileSidebar() {
+  const name = state.profile.name || 'Otaku Tracker';
+  const rk = rankOfUser();
+  const meta = PROFILE_RANKS[rk] || PROFILE_RANKS.novato;
+  const labelName = document.getElementById('profileNameLabel');
+  const labelRank = document.getElementById('profileRankLabel');
+  const avatarEl = document.getElementById('profileAvatar');
+  if (labelRank) labelRank.innerHTML = '<span style="color:' + meta.color + '">' + meta.icon + ' ' + meta.label + '</span>';
+  if (avatarEl) {
+    avatarEl.innerHTML = state.profile.avatar
+      ? '<img src="' + state.profile.avatar + '" class="w-9 h-9 rounded-full object-cover" alt="">'
+      : initials(name);
+    avatarEl.classList.toggle('p-0', !!state.profile.avatar);
+  }
+  if (labelName) labelName.textContent = name;
+  if (labelName && labelName.parentElement) labelName.parentElement.classList.toggle('overflow-hidden', !!state.profile.avatar);
+}
+
+function openProfileModal() {
+  renderProfileModal();
+  const el = document.getElementById('profileModal');
+  if (el) el.classList.remove('hidden');
+}
+
+function closeProfileModal() {
+  const el = document.getElementById('profileModal');
+  if (el) el.classList.add('hidden');
+}
+
+function renderProfileModal() {
+  const p = state.profile || {};
+  const g = state.gamification || {};
+  const rk = rankOfUser();
+  const meta = PROFILE_RANKS[rk] || PROFILE_RANKS.novato;
+  const a = p.accent || 'purple';
+
+  const card = document.getElementById('profileRankCard');
+  if (card) {
+    const bannerGrad = { purple: 'linear-gradient(135deg,#7c3aed,#db2777)', pink: 'linear-gradient(135deg,#db2777,#f59e0b)', cyan: 'linear-gradient(135deg,#0891b2,#2563eb)', amber: 'linear-gradient(135deg,#d97706,#f59e0b)', emerald: 'linear-gradient(135deg,#059669,#84cc16)', sky: 'linear-gradient(135deg,#0284c7,#22d3ee)', rose: 'linear-gradient(135deg,#e11d48,#f97316)' }[a] || 'linear-gradient(135deg,#7c3aed,#db2777)';
+    card.innerHTML =
+      '<div class="h-20 rounded-xl mb-[-36px] relative overflow-hidden" style="background:' + bannerGrad + '"></div>' +
+      '<div class="relative">' +
+        '<div class="w-20 h-20 mx-auto rounded-2xl border-4 edge overflow-hidden bg-ink-900 flex items-center justify-center text-2xl font-display font-bold ' + (p.avatar ? 'p-0' : '') + '">' +
+          (p.avatar ? '<img src="' + p.avatar + '" class="w-full h-full object-cover">' : initials(p.name || 'Otaku Tracker')) +
+        '</div>' +
+        '<div class="font-display font-bold text-lg text-white mt-2">' + esc(p.name || 'Otaku Tracker') + '</div>' +
+        '<div class="text-[11px] font-semibold mt-0.5" style="color:' + meta.color + '">' + meta.icon + ' ' + meta.label + '</div>' +
+        '<div class="text-[11px] text-slate-500 mt-1 max-h-10 overflow-y-auto">' + esc(p.bio || 'Sin biografía todavía…') + '</div>' +
+      '</div>' +
+      '<div class="grid grid-cols-3 gap-2 mt-4 text-center">' +
+        '<div class="rounded-xl bg-white/[.04] edge py-2"><div class="font-display font-bold text-white text-sm leading-tight">Nv ' + g.level + '</div><div class="text-[9px] text-slate-500 mt-0.5 uppercase tracking-wide">Nivel</div></div>' +
+        '<div class="rounded-xl bg-white/[.04] edge py-2"><div class="font-display font-bold text-amber-300 text-sm leading-tight">' + (g.xp || 0) + '</div><div class="text-[9px] text-slate-500 mt-0.5 uppercase tracking-wide">XP</div></div>' +
+        '<div class="rounded-xl bg-white/[.04] edge py-2"><div class="font-display font-bold text-amber-300 text-sm leading-tight">' + (g.coins || 0) + '</div><div class="text-[9px] text-slate-500 mt-0.5 uppercase tracking-wide">Coins</div></div>' +
+      '</div>';
+  }
+
+  const nameInput = document.getElementById('profileName');
+  const bioInput = document.getElementById('profileBio');
+  if (nameInput) nameInput.value = p.name || '';
+  if (bioInput) bioInput.value = p.bio || '';
+
+  const accWrap = document.getElementById('profileAccents');
+  if (accWrap) {
+    accWrap.innerHTML = PROFILE_ACCENTS.map(c =>
+      '<button data-pacc="' + c + '" class="w-8 h-8 rounded-full transition ' + (c === a ? 'ring-2 ring-white scale-110' : 'opacity-70 hover:opacity-100') + '" style="background:' +
+      ({ purple: '#7c3aed', pink: '#db2777', cyan: '#0891b2', amber: '#d97706', emerald: '#059669', sky: '#0284c7', rose: '#e11d48' }[c]) + '"></button>'
+    ).join('');
+    accWrap.querySelectorAll('[data-pacc]').forEach(btn => {
+      btn.onclick = () => { state.profile.accent = btn.getAttribute('data-pacc'); state.settings.accent = btn.getAttribute('data-pacc'); save(); applyAppearance(); renderProfileModal(); };
+    });
+  }
+
+  const hint = document.getElementById('profileRankHint');
+  if (hint) {
+    const list = ['dark', 'oled', 'light'];
+    const unlocked = Object.keys(THEME_UNLOCK).filter(t => {
+      const need = THEME_UNLOCK[t];
+      const lvl = g.level || 1;
+      return need === 'pro' ? lvl >= 5 : need === 'master' ? lvl >= 15 : false;
+    });
+    hint.innerHTML = 'Rango actual: <b style="color:' + meta.color + '">' + meta.label + '</b>. Temas desbloqueados: <b>' + unlocked.concat(list).map(themeLabel).join(' · ') + '</b>.';
+  }
+
+  const picPrev = document.getElementById('profilePicPreview');
+  if (picPrev) {
+    if (p.avatar) {
+      picPrev.innerHTML = '<img src="' + p.avatar + '" class="w-full h-full object-cover">';
+      picPrev.classList.remove('text-slate-500');
+    } else {
+      picPrev.innerHTML = '+';
+      picPrev.classList.add('text-slate-500');
+    }
+  }
+
+  const curTheme = state.settings.theme || 'dark';
+  document.querySelectorAll('[data-profile-theme]').forEach(btn => {
+    const active = btn.getAttribute('data-profile-theme') === curTheme;
+    btn.classList.toggle('tab-active', active);
+    btn.classList.toggle('accent-gradient', active);
+  });
+}
+
+function setupProfileUI() {
+  const btn = document.getElementById('profileBtn');
+  if (btn) btn.addEventListener('click', openProfileModal);
+  const close = document.getElementById('profileClose');
+  if (close) close.addEventListener('click', closeProfileModal);
+  const saveBtn = document.getElementById('profileSave');
+  if (saveBtn) saveBtn.addEventListener('click', () => {
+    const name = document.getElementById('profileName').value.trim();
+    const bio = document.getElementById('profileBio').value.trim();
+    if (name) state.profile.name = name;
+    state.profile.bio = bio;
+    save();
+    renderProfileSidebar();
+    renderProfileModal();
+    closeProfileModal();
+    toast('Perfil guardado ✔', 'ok');
+  });
+  const picInput = document.getElementById('profilePicInput');
+  if (picInput) picInput.addEventListener('change', () => {
+    const f = picInput.files && picInput.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string' && reader.result.length > 5000000) { toast('Imagen muy grande (máx 5 MB)', 'err'); return; }
+      state.profile.avatar = reader.result;
+      renderProfileModal();
+      toast('Foto cargada ✔', 'ok');
+    };
+    reader.readAsDataURL(f);
+  });
+  const picClear = document.getElementById('profilePicClear');
+  if (picClear) picClear.addEventListener('click', () => {
+    state.profile.avatar = '';
+    if (picInput) picInput.value = '';
+    renderProfileModal();
+  });
+  document.querySelectorAll('[data-profile-theme]').forEach(btnTh => {
+    btnTh.addEventListener('click', () => {
+      state.settings.theme = btnTh.getAttribute('data-profile-theme');
+      save();
+      applyAppearance();
+      renderProfileModal();
+      toast('Tema aplicado: ' + themeLabel(state.settings.theme) + ' ✔', 'ok');
+    });
+  });
+  document.getElementById('profileModal').addEventListener('click', e => { if (e.target.id === 'profileModal') closeProfileModal(); });
+  renderProfileSidebar();
 }
 
 function stopScrobble() {
@@ -3368,6 +3644,7 @@ function init() {
   setupOrganizer();
   setupWatchListener();
   setupDiscordUI();
+  setupProfileUI();
   if (state.settings.notifications === true) { checkAiringNow(); setInterval(checkAiringNow, 3600000); }
   setInterval(updateCalCountdowns, 30000);
   updateCalCountdowns();
