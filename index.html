@@ -84,7 +84,7 @@ tailwind.config = {
   </div>
   <div class="flex items-center gap-2 mr-1">
     <span id="apiPill" class="hidden sm:flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-full border border-emerald-400/20 bg-emerald-400/10 text-emerald-300 font-medium">
-      <i data-lucide="wifi" class="w-3 h-3"></i> Jikan API
+      <i data-lucide="wifi" class="w-3 h-3"></i> API Anime
     </span>
     <div class="flex items-center gap-0.5">
       <button id="btnMin" title="Minimizar" class="w-10 h-7 rounded-lg flex items-center justify-center hover:bg-white/10 text-slate-400 hover:text-white transition">
@@ -198,7 +198,7 @@ tailwind.config = {
     <div class="relative z-10 px-6 pt-4">
       <div class="relative max-w-xl">
         <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
-        <input id="globalSearch" type="text" autocomplete="off" spellcheck="false" placeholder="Buscar en el catálogo de MyAnimeList…"
+        <input id="globalSearch" type="text" autocomplete="off" spellcheck="false" placeholder="Buscar en el catálogo de AniList…"
           class="w-full bg-white/[.04] edge rounded-xl pl-10 pr-4 py-2.5 text-[13px] text-slate-200 placeholder:text-slate-500 focus:bg-white/[.06] transition">
         <div id="searchDropdown" class="hidden absolute top-full mt-2 w-full glass edge rounded-2xl overflow-hidden shadow-2xl shadow-black/50 z-50"></div>
       </div>
@@ -245,7 +245,7 @@ tailwind.config = {
             </button>
           </div>
         </div>
-        <p id="exploreHint" class="text-[12px] text-slate-500 mb-4">Resultados en tiempo real desde la API pública de Jikan (MyAnimeList). Haz clic en cualquier tarjeta para previsualizar y añadir a tu lista.</p>
+        <p id="exploreHint" class="text-[12px] text-slate-500 mb-4">Resultados en tiempo real desde la API de AniList (respaldo: Jikan/MyAnimeList). Haz clic en cualquier tarjeta para previsualizar y añadir a tu lista.</p>
         <div id="exploreSkeleton" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"></div>
         <div id="exploreResults" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"></div>
       </section>
@@ -253,7 +253,7 @@ tailwind.config = {
       <section id="section-calendar" class="fade-section hidden">
         <div class="flex flex-wrap items-center gap-3 mb-4">
           <h2 class="font-display font-bold text-xl text-white">Calendario de Emisión</h2>
-          <span class="text-[11px] text-slate-500 edge bg-white/5 px-2 py-1 rounded-lg">Horario JST (Japón) · Jikan /schedules</span>
+          <span class="text-[11px] text-slate-500 edge bg-white/5 px-2 py-1 rounded-lg">Horario JST (Japón) · AniList airingSchedules</span>
         </div>
         <div id="calDays" class="flex flex-wrap gap-2 mb-5"></div>
         <div id="calList" class="space-y-2"></div>
@@ -372,7 +372,7 @@ tailwind.config = {
             <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4 text-slate-400"></i> Acerca de</h3>
             <div class="text-[12px] text-slate-400 space-y-2 leading-relaxed">
               <p><span class="text-white font-semibold">AnimePulse Desktop v2.0</span> — inspirado en la potencia de Taiga con la estética de AniList y Netflix.</p>
-              <p>Integración en tiempo real con la <span class="text-purple-300 font-medium">API pública de Jikan (MyAnimeList)</span>.</p>
+              <p>Integración en tiempo real con la <span class="text-purple-300 font-medium">API GraphQL de AniList</span> (respaldo automático con Jikan/MyAnimeList).</p>
               <p>Listo para empaquetar con <span class="text-cyan-300 font-medium">Electron</span> o <span class="text-emerald-300 font-medium">Tauri</span> (.exe).</p>
             </div>
           </div>
@@ -406,6 +406,7 @@ tailwind.config = {
 
 const LS_KEY = 'animepulse.v2.state';
 const JIKAN = 'https://api.jikan.moe/v4';
+const ANILIST = 'https://graphql.anilist.co';
 
 const STATUS_META = {
   watching:  { label: 'Viendo',      color: '#34d399' },
@@ -1013,15 +1014,15 @@ function detectHint(list) {
 async function resolveDetectedAnime(name) {
   if (detectSearchBusy) return;
   detectSearchBusy = true;
-  const json = await apiFetch(JIKAN + '/anime?q=' + encodeURIComponent(name) + '&limit=3&sfw=true');
+  let item = null;
+  const found = await searchAnimeFinal(name, 3);
   detectSearchBusy = false;
-  if (!json || !Array.isArray(json.data) || !json.data.length) {
-    toast('No pude resolver «' + esc(name) + '» por la API. Búscalo en la barra superior para agregarlo.', 'warn');
+  if (found && found.length) item = found[0];
+  if (!item) {
+    toast('No pude resolver «' + esc(name) + '». Búscalo en la barra superior para agregarlo.', 'warn');
     return;
   }
-  const item = mapJikanItem(json.data[0]);
-  const malId = item.id.replace('mal_', '');
-  apiDetailCache[malId] = item;
+  apiDetailCache[item.mal_id] = item;
   openApiDetail(item);
   toast('Ficha de <b>' + esc(item.title) + '</b>: ábrela para agregarlo a tu lista y que el Auto-Scrobbler lo registre.', 'ok');
 }
@@ -1092,6 +1093,7 @@ async function apiFetch(url, attempt) {
 function mapJikanItem(d) {
   return {
     id: 'mal_' + d.mal_id,
+    mal_id: d.mal_id,
     title: d.title || d.title_english || 'Sin título',
     title_english: d.title_english || '',
     image: (d.images && (d.images.jpg.large_image_url || d.images.jpg.image_url)) || '',
@@ -1104,6 +1106,76 @@ function mapJikanItem(d) {
     trailerId: (d.trailer && d.trailer.youtube_id) || '',
     airing: !!d.airing
   };
+}
+
+function mapAnilistItem(m) {
+  const t = m.title || {};
+  const img = (m.coverImage && (m.coverImage.extraLarge || m.coverImage.large)) || '';
+  const studios = (m.studios && m.studios.nodes) || [];
+  const st = studios.find(s => s.isAnimationStudio) || studios[0];
+  const tr = (m.trailer && m.trailer.site === 'youtube') ? m.trailer.id : '';
+  return {
+    id: 'mal_' + m.id,
+    mal_id: m.id,
+    title: t.romaji || t.english || t.native || 'Sin título',
+    title_english: t.english || '',
+    image: img,
+    studio: (st && st.name) || 'Desconocido',
+    genres: m.genres || [],
+    year: m.seasonYear || null,
+    malScore: m.averageScore ? m.averageScore / 10 : null,
+    malEpisodes: m.episodes || 0,
+    synopsis: (m.description || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(),
+    trailerId: tr,
+    airing: m.status === 'RELEASING'
+  };
+}
+
+const AL_FIELDS = 'id title { romaji english native } coverImage { extraLarge large } studios { nodes { name isAnimationStudio } } genres averageScore episodes seasonYear season format status trailer { id site } description';
+const AL_SEARCH = 'query($s: String, $n: Int) { Page(page: 1, perPage: $n) { media(search: $s, type: ANIME, isAdult: false) { ' + AL_FIELDS + ' } } }';
+const AL_MEDIA = 'query($id: Int) { Media(id: $id, type: ANIME) { ' + AL_FIELDS + ' } }';
+const AL_TRENDING = 'query($n: Int) { Page(page: 1, perPage: $n) { media(type: ANIME, sort: POPULARITY_DESC, isAdult: false) { ' + AL_FIELDS + ' } } }';
+const AL_SCHED = 'query($g: Int, $l: Int) { Page(page: 1, perPage: 50) { airingSchedules(airingAt_greater: $g, airingAt_lesser: $l) { airingAt episode media { id title { romaji english native } coverImage { large medium } studios { nodes { name } } } } } }';
+const AL_PING = 'query { Page(page: 1, perPage: 1) { media(type: ANIME, sort: POPULARITY_DESC) { id } } }';
+
+async function anilistQuery(query, variables) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
+    try {
+      const res = await fetch(ANILIST, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ query: query, variables: variables || {} }),
+        signal: ctrl.signal
+      });
+      clearTimeout(timer);
+      if (res.status === 429) { await sleep(1300); continue; }
+      if (!res.ok) {
+        if (attempt < 2) { await sleep(1000 + attempt * 600); continue; }
+        return null;
+      }
+      const body = await res.json();
+      if (body && body.errors) {
+        if (attempt < 2) { await sleep(800); continue; }
+        return null;
+      }
+      return body.data || null;
+    } catch (e) {
+      clearTimeout(timer);
+      if (attempt < 2) { await sleep(900 + attempt * 700); continue; }
+      return null;
+    }
+  }
+  return null;
+}
+
+async function searchAnimeFinal(q, limit) {
+  const data = await anilistQuery(AL_SEARCH, { s: q, n: limit });
+  if (data && data.Page && data.Page.media && data.Page.media.length) return data.Page.media.map(mapAnilistItem);
+  const json = await apiFetch(JIKAN + '/anime?q=' + encodeURIComponent(q) + '&limit=' + limit + '&sfw=true');
+  if (json && Array.isArray(json.data) && json.data.length) return json.data.map(mapJikanItem);
+  return null;
 }
 
 let globalSearchTimer = null;
@@ -1139,38 +1211,41 @@ function setupGlobalSearch() {
     const cached = state.searchCache['id_' + malId] || apiDetailCache[malId];
     dd.classList.add('hidden');
     if (cached) { openApiDetail(cached); return; }
-    openApiDetailFromJikan(malId);
+    openApiDetailById(malId);
   });
 }
 
 async function runGlobalSearch(q) {
   const seq = ++globalSearchSeq;
   const dd = document.getElementById('searchDropdown');
-  let raw = state.searchCache['g_' + q.toLowerCase()];
-  if (!raw) {
-    const json = await apiFetch(JIKAN + '/anime?q=' + encodeURIComponent(q) + '&limit=6&sfw=true');
+  let items = state.searchCache['g_' + q.toLowerCase()];
+  if (!items) {
+    const found = await searchAnimeFinal(q, 6);
     if (seq !== globalSearchSeq) return;
-    if (!json) return;
-    raw = json.data || [];
-    state.searchCache['g_' + q.toLowerCase()] = raw;
+    if (!found) {
+      dd.innerHTML = '<div class="px-4 py-4 text-[12px] text-slate-500">Sin conexión con AniList/Jikan para “' + esc(q) + '”.</div>';
+      dd.classList.remove('hidden');
+      return;
+    }
+    items = found;
+    state.searchCache['g_' + q.toLowerCase()] = items;
   }
   if (seq !== globalSearchSeq) return;
-  if (!raw.length) {
+  if (!items.length) {
     dd.innerHTML = '<div class="px-4 py-4 text-[12px] text-slate-500">Sin resultados para “' + esc(q) + '”.</div>';
     dd.classList.remove('hidden');
     return;
   }
-  dd.innerHTML = raw.map(d => {
-    const item = mapJikanItem(d);
+  dd.innerHTML = items.map(item => {
     const hue = hashHue(item.title);
-    return '<button data-jikan="' + d.mal_id + '" class="search-res-item w-full flex items-center gap-3 px-3 py-2.5 text-left transition">' +
+    return '<button data-jikan="' + item.mal_id + '" class="search-res-item w-full flex items-center gap-3 px-3 py-2.5 text-left transition">' +
       '<span class="relative w-8 h-11 rounded-md overflow-hidden shrink-0" style="background:linear-gradient(150deg,hsl(' + hue + ',65%,28%),hsl(' + ((hue + 120) % 360) + ',60%,16%))">' +
       '<span class="poster-fallback" style="font-size:.7rem">' + initials(item.title) + '</span>' +
       (item.image ? '<img src="' + esc(item.image) + '" class="w-full h-full object-cover relative z-[1]" loading="lazy" onerror="this.remove()">' : '') + '</span>' +
       '<span class="min-w-0 flex-1"><span class="block text-[12px] font-semibold text-white truncate">' + esc(item.title) + '</span>' +
       '<span class="block text-[10px] text-slate-500 truncate">' + (item.studio ? esc(item.studio) : '') + (item.year ? ' · ' + item.year : '') + '</span></span>' +
       (item.malScore ? '<span class="text-[11px] font-bold text-amber-300 shrink-0 no-select">★ ' + item.malScore.toFixed(1) + '</span>' : '') + '</button>';
-  }).join('') + '<div class="px-3 py-2 border-t border-white/5 flex items-center justify-between"><button id="openExploreFromDrop" class="text-[11px] font-semibold text-purple-300 hover:text-purple-200 transition">Ver resultados completos en Explorar <i data-lucide="arrow-right" class="inline w-3 h-3"></i></button><span class="text-[10px] text-slate-600">vía api.jikan.moe</span></div>';
+  }).join('') + '<div class="px-3 py-2 border-t border-white/5 flex items-center justify-between"><button id="openExploreFromDrop" class="text-[11px] font-semibold text-purple-300 hover:text-purple-200 transition">Ver resultados completos en Explorar <i data-lucide="arrow-right" class="inline w-3 h-3"></i></button><span class="text-[10px] text-slate-600">vía AniList · Jikan fallback</span></div>';
   dd.classList.remove('hidden');
   icons();
   dd.querySelector('#openExploreFromDrop').addEventListener('click', () => {
@@ -1179,18 +1254,22 @@ async function runGlobalSearch(q) {
     document.getElementById('exploreSearch').value = q;
     runExploreSearch(q, true);
   });
-  raw.forEach(d => { if (!apiDetailCache[d.mal_id] && !state.searchCache['id_' + d.mal_id]) state.searchCache['id_' + d.mal_id] = mapJikanItem(d); });
+  items.forEach(item => { if (!apiDetailCache[item.mal_id] && !state.searchCache['id_' + item.mal_id]) state.searchCache['id_' + item.mal_id] = item; });
 }
 
-async function openApiDetailFromJikan(malId) {
-  let item = state.searchCache['id_' + malId] || apiDetailCache[malId];
+async function openApiDetailById(malId) {
+  const num = String(malId).replace('mal_', '');
+  let item = state.searchCache['id_' + num] || apiDetailCache[num];
   if (!item) {
-    const json = await apiFetch(JIKAN + '/anime/' + malId);
-    if (!json || !json.data) { toast('No se pudo cargar la ficha.', 'err'); return; }
-    item = mapJikanItem(json.data);
-    state.searchCache['id_' + malId] = item;
+    const data = await anilistQuery(AL_MEDIA, { id: +num });
+    if (data && data.Media) item = mapAnilistItem(data.Media);
+    if (!item) {
+      const json = await apiFetch(JIKAN + '/anime/' + num);
+      if (json && json.data) item = mapJikanItem(json.data);
+    }
   }
-  apiDetailCache[malId] = item;
+  if (!item) { toast('No se pudo cargar la ficha.', 'err'); return; }
+  apiDetailCache[num] = item;
   openApiDetail(item);
 }
 
@@ -1221,19 +1300,19 @@ async function runExploreSearch(q, force) {
   const key = 'e_' + q.toLowerCase();
   let raw = force ? null : exploreKeyCache[key];
   if (!raw) {
-    const json = await apiFetch(JIKAN + '/anime?q=' + encodeURIComponent(q) + '&limit=24&sfw=true');
-    if (json) { raw = json.data || []; exploreKeyCache[key] = raw; }
+    const items = await searchAnimeFinal(q, 24);
+    if (items) raw = exploreKeyCache[key] = items;
   }
   showSkeleton(false); setBodyLoading(false);
   if (!raw) {
-    document.getElementById('exploreHint').innerHTML = 'No se pudo conectar con la API de Jikan (suele estar saturada o no hay internet). <button id="retrySearch" class="ml-1 text-purple-300 font-semibold underline underline-offset-2 hover:text-purple-200 transition">Reintentar búsqueda</button>';
+    document.getElementById('exploreHint').innerHTML = 'No se pudo conectar con AniList/Jikan (API inestable o sin internet). <button id="retrySearch" class="ml-1 text-purple-300 font-semibold underline underline-offset-2 hover:text-purple-200 transition">Reintentar búsqueda</button>';
     const rb = document.getElementById('retrySearch');
     if (rb) rb.addEventListener('click', () => runExploreSearch(q, true));
     return;
   }
   if (!raw.length) { document.getElementById('exploreHint').textContent = 'Sin resultados para “' + q + '”. Prueba con otro título.'; return; }
-  document.getElementById('exploreHint').textContent = raw.length + ' resultados en tiempo real para “' + q + '” desde MyAnimeList.';
-  renderExploreItems(raw.map(mapJikanItem));
+  document.getElementById('exploreHint').textContent = raw.length + ' resultados en tiempo real para “' + q + '” (AniList · Jikan).';
+  renderExploreItems(raw);
 }
 
 let trendingRaw = null;
@@ -1242,21 +1321,25 @@ async function loadTrending() {
   document.getElementById('exploreResults').innerHTML = '';
   showSkeleton(true); setBodyLoading(true);
   if (!trendingRaw) {
-    const json = await apiFetch(JIKAN + '/top/anime?filter=bypopularity&limit=24&sfw=true');
-    if (json && Array.isArray(json.data) && json.data.length) trendingRaw = json.data;
-    else trendingRaw = 'offline';
+    const data = await anilistQuery(AL_TRENDING, { n: 24 });
+    if (data && data.Page && data.Page.media && data.Page.media.length) trendingRaw = data.Page.media.map(mapAnilistItem);
+    else {
+      const json = await apiFetch(JIKAN + '/top/anime?filter=bypopularity&limit=24&sfw=true');
+      if (json && Array.isArray(json.data) && json.data.length) trendingRaw = json.data.map(mapJikanItem);
+      else trendingRaw = 'offline';
+    }
   }
   showSkeleton(false); setBodyLoading(false);
   if (!trendingRaw) { document.getElementById('exploreHint').textContent = 'No se pudieron cargar las tendencias.'; return; }
   if (trendingRaw === 'offline') {
-    document.getElementById('exploreHint').innerHTML = 'Jikan sin conexión: mostrando <b>tendencias de demostración</b>. Cuando vuelva, reintenta el feed o usa el buscador. <button id="retryTrending" class="ml-1 text-purple-300 font-semibold underline underline-offset-2 hover:text-purple-200 transition">Reintentar</button>';
+    document.getElementById('exploreHint').innerHTML = 'API sin conexión: mostrando <b>tendencias de demostración</b>. Cuando vuelva, reintenta el feed o usa el buscador. <button id="retryTrending" class="ml-1 text-purple-300 font-semibold underline underline-offset-2 hover:text-purple-200 transition">Reintentar</button>';
     renderExploreItems(MOCK_ANIME.map(a => Object.assign({}, a)));
     const rb = document.getElementById('retryTrending');
     if (rb) rb.addEventListener('click', () => { trendingRaw = null; loadTrending(); });
     return;
   }
-  document.getElementById('exploreHint').textContent = 'Tendencias actuales según la popularidad en MyAnimeList. Haz clic en cualquier tarjeta para previsualizar.';
-  renderExploreItems(trendingRaw.map(mapJikanItem));
+  document.getElementById('exploreHint').textContent = 'Tendencias actuales por popularidad (AniList, con respaldo de Jikan). Haz clic en cualquier tarjeta para previsualizar.';
+  renderExploreItems(trendingRaw);
 }
 
 function renderExploreItems(items) {
@@ -1284,23 +1367,26 @@ function renderExploreItems(items) {
 function openExploreDetail(div) {
   const malId = div.getAttribute('data-jikan');
   if (!malId) return;
-  const rr = exploreKeyCache ? Object.values(exploreKeyCache) : [];
   let item = apiDetailCache[malId] || state.searchCache['id_' + malId] || null;
   if (!item) {
-    const idx = trendingRaw ? trendingRaw.findIndex(d => d.mal_id == malId) : -1;
-    if (idx >= 0) item = mapJikanItem(trendingRaw[idx]);
+    const all = [].concat(
+      Array.isArray(trendingRaw) ? trendingRaw : [],
+      ...Object.values(exploreKeyCache),
+      ...Object.values(state.searchCache)
+    ).filter(Boolean);
+    item = all.find(d => d && (d.id === 'mal_' + malId || d.mal_id == malId)) || null;
   }
   if (!item) {
-    const all = [].concat(trendingRaw || [], ...Object.values(exploreKeyCache), ...Object.values(state.searchCache)).filter(Boolean);
-    const found = all.find(d => d.mal_id == malId || (d.id && d.id === 'mal_' + malId));
-    if (found) item = found.mal_id ? mapJikanItem(found) : found;
+    if (trendingRaw === 'offline') { toast('Estás en modo demo sin conexión: la ficha estará disponible cuando la API vuelva.', 'info'); return; }
+    openApiDetailById(malId); return;
   }
-  if (!item) { openApiDetailFromJikan(malId); return; }
   openApiDetail(item);
 }
 
 const CAL_DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
 const CAL_NAMES = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const CAL_JST_DAY = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: 'Asia/Tokyo' });
+const CAL_JST_TIME = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Tokyo' });
 const CAL_MOCK = {
   monday:    [{ title:'Kimetsu no Yaiba', studio:'ufotable', time:'21:00' }],
   tuesday:   [{ title:'One Piece', studio:'Toei Animation', time:'09:30' }],
@@ -1308,6 +1394,7 @@ const CAL_MOCK = {
   saturday:  [{ title:'Jujutsu Kaisen 2', studio:'MAPPA', time:'23:00' }],
   sunday:    [{ title:'Chainsaw Man', studio:'MAPPA', time:'23:00' }]
 };
+let sched7Cache = null;
 
 function renderCalendar() {
   const tabs = document.getElementById('calDays');
@@ -1320,7 +1407,7 @@ function renderCalendar() {
   wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
     [
       ...(CAL_MOCK[state.calendarDay] || []).map(m => scheduleCard(m, true)),
-      '<div class="col-span-full text-[11px] text-slate-500 mt-1">Cargando emisiones en tiempo real desde Jikan…</div>'
+      '<div class="col-span-full text-[11px] text-slate-500 mt-1">Cargando emisiones en tiempo real desde AniList…</div>'
     ].join('') + '</div>';
   loadSchedule(state.calendarDay);
 }
@@ -1333,28 +1420,48 @@ function scheduleCard(m, isMock) {
     (m.image ? '<img src="' + esc(m.image) + '" class="w-full h-full object-cover relative z-[1]" loading="lazy" onerror="this.remove()">' : '') + '</div>' +
     '<div class="flex-1 min-w-0"><div class="text-[13px] font-semibold text-white truncate">' + esc(m.title) + '</div>' +
     '<div class="text-[11px] text-slate-500 truncate">' + esc(m.studio || '') + '</div></div>' +
-    '<div class="text-right shrink-0 no-select"><div class="font-mono font-bold text-white text-[13px]">' + m.time + '</div><div class="text-[9px] text-slate-500 uppercase tracking-wide">JST' + (isMock ? ' · demo' : '') + '</div></div></div>';
+    '<div class="text-right shrink-0 no-select"><div class="font-mono font-bold text-white text-[13px]">' + m.time + '</div><div class="text-[9px] text-slate-500 uppercase tracking-wide">JST' + (m.ep ? ' · Ep ' + m.ep : '') + (isMock ? ' · demo' : '') + '</div></div></div>';
 }
 
 async function loadSchedule(day) {
-  let items = CAL_MOCK[day] || [];
   const wrap = document.getElementById('calList');
   if (!wrap) return;
   wrap.dataset.day = day;
-  const json = await apiFetch(JIKAN + '/schedules/' + day);
-  if (wrap.dataset.day !== day) return;
-  const gotApi = json && Array.isArray(json.data) && json.data.length;
-  if (gotApi) {
-    items = json.data.slice(0, 20).map(d => ({
-      title: d.title || d.title_english || 'Sin título',
-      studio: (d.studios && d.studios[0] && d.studios[0].name) || '',
-      time: d.broadcast ? (d.broadcast.string || '').split(' at ')[1] || 'TBD' : 'TBD',
-      image: (d.images && d.images.jpg.small_image_url) || '',
-      mal_id: d.mal_id
-    }));
+  if (sched7Cache === null) {
+    const start = Math.floor(Date.now() / 1000) - 12 * 3600;
+    const end = start + 8 * 24 * 3600;
+    const data = await anilistQuery(AL_SCHED, { g: start, l: end });
+    sched7Cache = (data && data.Page && data.Page.airingSchedules) ? data.Page.airingSchedules : null;
   }
+  if (wrap.dataset.day !== day) return;
+  if (sched7Cache) {
+    const items = sched7Cache
+      .filter(a => CAL_JST_DAY.format(new Date(a.airingAt * 1000)).toLowerCase() === day)
+      .map(a => {
+        const m = a.media || {};
+        const t = m.title || {};
+        const st = (m.studios && m.studios.nodes && m.studios.nodes[0]) || null;
+        return {
+          title: t.romaji || t.english || t.native || 'Sin título',
+          studio: (st && st.name) || '',
+          time: CAL_JST_TIME.format(new Date(a.airingAt * 1000)),
+          image: (m.coverImage && (m.coverImage.large || m.coverImage.medium)) || '',
+          mal_id: m.id,
+          ep: a.episode
+        };
+      })
+      .slice(0, 20);
+    if (!items.length) {
+      wrap.innerHTML = '<div class="col-span-full text-[12px] text-slate-500 py-8 text-center">Sin emisiones programadas para este día (JST) según AniList.</div>';
+      return;
+    }
+    wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
+      items.map(m => scheduleCard(m, false)).join('') + '</div>';
+    return;
+  }
+  const items = CAL_MOCK[day] || [];
   wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
-    items.map(m => scheduleCard(m, !gotApi)).join('') + '</div>';
+    items.map(m => scheduleCard(m, true)).join('') + '</div>';
 }
 
 function setupScrobblerUI() {
@@ -1659,8 +1766,8 @@ function init() {
   }
   if (navigator.onLine) {
     const pill = document.getElementById('apiPill');
-    pill.innerHTML = '<i data-lucide="wifi" class="w-3 h-3"></i> Jikan API'; icons();
-    setTimeout(() => apiFetch(JIKAN + '/random/anime').then(j => { if (j && j.data) { document.getElementById('apiPill').querySelector('i').className = 'w-3 h-3'; toast('Conexión con la API de Jikan verificada ✓', 'ok'); } }), 500);
+    pill.innerHTML = '<i data-lucide="wifi" class="w-3 h-3"></i> API Anime'; icons();
+    setTimeout(() => anilistQuery(AL_PING).then(d => { if (d && d.Page) { document.getElementById('apiPill').querySelector('i').className = 'w-3 h-3'; toast('Conexión con la API de AniList verificada ✓', 'ok'); } }), 500);
   } else {
     document.getElementById('apiPill').className = 'hidden sm:flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-full border border-rose-400/20 bg-rose-400/10 text-rose-300 font-medium';
     document.getElementById('apiPill').innerHTML = '<i data-lucide="wifi-off" class="w-3 h-3"></i> Offline'; icons();
