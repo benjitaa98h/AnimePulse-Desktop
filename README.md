@@ -2,7 +2,7 @@
 
 App de escritorio para el seguimiento de anime inspirada en la potencia de **Taiga** con la estética moderna de **AniList / Netflix**.
 
-![Stack](https://img.shields.io/badge/Electron-33-blue) ![Stack](https://img.shields.io/badge/HTML5-Tailwind%20CSS%20v3-purple) ![Stack](https://img.shields.io/badge/API-AniList%20%2B%20Jikan-orange)
+![Stack](https://img.shields.io/badge/Electron-33-blue) ![Stack](https://img.shields.io/badge/HTML5-Tailwind%20CSS%20v3-purple) ![Stack](https://img.shields.io/badge/API-AniList%20%2B%20Jikan%20%2B%20AnimeSchedule-orange)
 
 **Catalogo/búsqueda:** **AniList (GraphQL)** como API primaria con **Jikan (MyAnimeList)** de respaldo automático (fallback transparente si AniList no responde).
 
@@ -21,7 +21,7 @@ App de escritorio para el seguimiento de anime inspirada en la potencia de **Tai
 - **Rich Presence de Discord**: conecta tu perfil con una app gratuita de `discord.com/developers/applications` para mostrar qué estás viendo (título + episodio) en tiempo real mientras el Auto-Scrobbler está activo. Cliente IPC propio (sin dependencias nativas).
 - **Ajustes del Tracker**: temas («Oscuro», «OLED Negro», «Claro») y 6 colores de acento, además de los interruptores del Auto-Scrobbler (detección, incremento, notificaciones, prompt automático y sincronización).
 - **Estadísticas personales**: métricas globales, género favoritos, distribución por estado y gráfico de actividad de los últimos 7 días.
-- **Calendario de emisión** horario JST con datos en vivo desde el `airingSchedules` de AniList (sábados-completos) con respaldo de demo. Cada episodio muestra un **contador regresivo** en tiempo real (en 2h 15m / hace 1h 30m) que se actualiza solo.
+- **Calendario de emisión** horario JST con datos en vivo desde el `airingSchedules` de AniList (sábados-completos) con respaldo de demo. Cada episodio muestra un **contador regresivo** en tiempo real (en 2h 15m / hace 1h 30m) que se actualiza solo. Puedes cambiarlo a la fuente **AnimeSchedule.net** (API v3, cuenta gratuita + application token en `Ajustes → API`): en Ajustes → Calendario con AnimeSchedule.net pega tu token y pulsa «Probar y cargar»; el horario semanal (con horas JST) pasa a alimentar el Calendario, manteniendo AniList como respaldo.
 - **Persistencia total** en `localStorage` con exportación/importación de respaldo JSON **y una copia de seguridad atómica en disco** (que se restaura automáticamente si el almacenamiento local se borra o caduca; también puedes restaurarla a mano desde Ajustes). Arranca con la lista vacía (sin datos de demo).
 
 ## Requisitos

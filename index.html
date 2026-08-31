@@ -510,6 +510,25 @@ tailwind.config = {
                 <p class="text-[10px] text-slate-500 leading-relaxed">Crea una app gratis en <b>kitsu.io/settings/apps</b> (para uso personal) y pega su Client ID y Secret. Tu contraseÃ±a solo se usa en el momento de conectar; la app guarda Ãºnicamente el token de acceso.</p>
               </div>
             </div>
+            <div class="mt-4 pt-4 border-t border-white/5">
+              <h4 class="font-display font-semibold text-[13px] text-white mb-3 flex items-center gap-2"><i data-lucide="calendar-range" class="w-4 h-4 text-fuchsia-400"></i> Calendario con AnimeSchedule.net</h4>
+              <p class="text-[11px] text-slate-500 mb-3 leading-relaxed">Fuente alternativa de horarios semanales con horas exactas. Necesitas una cuenta gratis en <b>animeschedule.net</b>: crea una «Application» en Ajustes → API y pega aquÃ­ su token.</p>
+              <div class="space-y-3">
+                <label class="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[.03] hover:bg-white/[.06] transition cursor-pointer">
+                  <div class="flex items-center gap-3">
+                    <i data-lucide="calendar-clock" class="w-4 h-4 text-fuchsia-400"></i>
+                    <div><div class="text-[13px] font-medium text-slate-200">Usar AnimeSchedule en el Calendario</div><div class="text-[11px] text-slate-500">Cuando estÃ© activo y cargado, el Calendario se alimenta de sus horarios (con AniList de respaldo)</div></div>
+                  </div>
+                  <input type="checkbox" data-setting="asOn" class="accent-fuchsia-500 w-4 h-4">
+                </label>
+                <label class="text-[11px] text-slate-500 font-medium mb-1 block">Token de la API</label>
+                <div class="flex gap-2">
+                  <input id="asToken" type="password" placeholder="Pega tu application token" spellcheck="false" class="flex-1 bg-white/[.05] edge rounded-xl px-3 py-2 text-[12px] text-slate-200 placeholder:text-slate-600">
+                  <button id="asLoadBtn" class="px-3 py-2 rounded-xl text-[12px] font-semibold btn-primary text-white flex items-center gap-1.5"><i data-lucide="download-cloud" class="w-3.5 h-3.5"></i> Probar y cargar</button>
+                </div>
+                <div id="asStatus" class="text-[11px] text-slate-500">Sin token de AnimeSchedule.</div>
+              </div>
+            </div>
           </div>
 
           <div class="glass edge rounded-2xl p-5">
@@ -671,7 +690,7 @@ const MOCK_ANIME = [
 let state = {
   filter: 'watching',
   view: 'grid',
-  settings: { detectPlayers: true, autoIncrement: true, notifications: true, theme: 'dark', accent: 'purple', autoAdd: true, syncOn: false, alClientId: '', alToken: '', dcEnabled: false, dcClientId: '', autoOrganize: false, kitsuOn: false, kitsuClientId: '', kitsuSecret: '', kitsuEmail: '', kitsuToken: '', kitsuUserId: null },
+  settings: { detectPlayers: true, autoIncrement: true, notifications: true, theme: 'dark', accent: 'purple', autoAdd: true, syncOn: false, alClientId: '', alToken: '', dcEnabled: false, dcClientId: '', autoOrganize: false, kitsuOn: false, kitsuClientId: '', kitsuSecret: '', kitsuEmail: '', kitsuToken: '', kitsuUserId: null, asOn: false, asToken: '' },
   animeList: [],
   activity: [2,3,1,4,2,5,3],
   calendarDay: 'monday',
@@ -743,7 +762,7 @@ function load() {
       const p = JSON.parse(raw);
       lsHadState = true;
       state = Object.assign(state, p);
-      state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notifications:true, theme:'dark', accent:'purple', autoAdd:true, syncOn:false, alClientId:'', alToken:'', dcEnabled:false, dcClientId:'', autoOrganize:false, kitsuOn:false, kitsuClientId:'', kitsuSecret:'', kitsuEmail:'', kitsuToken:'', kitsuUserId:null }, p.settings || {});
+state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notifications:true, theme:'dark', accent:'purple', autoAdd:true, syncOn:false, alClientId:'', alToken:'', dcEnabled:false, dcClientId:'', autoOrganize:false, kitsuOn:false, kitsuClientId:'', kitsuSecret:'', kitsuEmail:'', kitsuToken:'', kitsuUserId:null, asOn:false, asToken:'' }, p.settings || {});
       state.scrobbler = Object.assign({ running:false, player:'VLC Player', animeId:null, episodeNow:0, progress:0, fileName:null, timer:null, source:'manual', increment:true }, p.scrobbler || {});
       state.scrobbler.timer = null;
       if (Array.isArray(p.animeList)) state.animeList = p.animeList;
@@ -766,7 +785,7 @@ async function restoreDisk(force) {
     const p = await window.electronAPI.loadState();
     if (!p || !Array.isArray(p.animeList)) return false;
     state = Object.assign(state, p);
-    state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notifications:true, theme:'dark', accent:'purple', autoAdd:true, syncOn:false, alClientId:'', alToken:'', dcEnabled:false, dcClientId:'', autoOrganize:false, kitsuOn:false, kitsuClientId:'', kitsuSecret:'', kitsuEmail:'', kitsuToken:'', kitsuUserId:null }, p.settings || {});
+    state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notifications:true, theme:'dark', accent:'purple', autoAdd:true, syncOn:false, alClientId:'', alToken:'', dcEnabled:false, dcClientId:'', autoOrganize:false, kitsuOn:false, kitsuClientId:'', kitsuSecret:'', kitsuEmail:'', kitsuToken:'', kitsuUserId:null, asOn:false, asToken:'' }, p.settings || {});
     state.scrobbler = Object.assign({ running:false, player:'VLC Player', animeId:null, episodeNow:0, progress:0, fileName:null, timer:null, source:'manual', increment:true }, p.scrobbler || {});
     state.scrobbler.timer = null;
     if (Array.isArray(p.activity) && p.activity.length === 7) state.activity = p.activity;
@@ -2428,6 +2447,8 @@ const CAL_MOCK = {
   sunday:    [{ title:'Chainsaw Man', studio:'MAPPA', time:'23:00' }]
 };
 let sched7Cache = null;
+let asSchedCache = null;
+let asSchedLoaded = false;
 
 function renderCalendar() {
   const tabs = document.getElementById('calDays');
@@ -2477,6 +2498,17 @@ async function loadSchedule(day) {
   const wrap = document.getElementById('calList');
   if (!wrap) return;
   wrap.dataset.day = day;
+  if (asSchedLoaded && asSchedCache && state.settings && state.settings.asOn) {
+    const items = asSchedCache[day] || [];
+    if (!items.length) {
+      wrap.innerHTML = '<div class="col-span-full text-[12px] text-slate-500 py-8 text-center">Sin emisiones programadas para este dÃ­a (JST) segÃºn AnimeSchedule.</div>';
+      return;
+    }
+    wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
+      items.map(m => scheduleCard(m, false)).join('') + '</div>';
+    updateCalCountdowns();
+    return;
+  }
   if (sched7Cache === null) {
     const start = Math.floor(Date.now() / 1000) - 12 * 3600;
     const end = start + 8 * 24 * 3600;
@@ -2515,6 +2547,86 @@ async function loadSchedule(day) {
   wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
     items.map(m => scheduleCard(m, true)).join('') + '</div>';
   updateCalCountdowns();
+}
+
+function asWeek(d) {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = (t.getUTCDay() + 6) % 7;
+  t.setUTCDate(t.getUTCDate() - dayNum + 3);
+  const ft = new Date(Date.UTC(t.getUTCFullYear(), 0, 4));
+  const fdn = (ft.getUTCDay() + 6) % 7;
+  ft.setUTCDate(ft.getUTCDate() - fdn + 3);
+  return { year: t.getUTCFullYear(), week: 1 + Math.round((t - ft) / (7 * 24 * 3600 * 1000)) };
+}
+function asImg(route) {
+  return (route && route !== '0001-01-01T00:00:00Z') ? 'https://img.animeschedule.net/production/assets/public/img/' + route : '';
+}
+async function asSchedule() {
+  const token = ((state.settings && state.settings.asToken) || '').trim();
+  const { year, week } = asWeek(new Date());
+  const url = 'https://animeschedule.net/api/v3/timetables/all?tz=Asia/Tokyo&year=' + year + '&week=' + week;
+  const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' } });
+  if (!res.ok) {
+    if (res.status === 401) throw new Error('Token invÃ¡lido o expirado (401). Revisa tu Application token en animeschedule.net.');
+    throw new Error('Error de AnimeSchedule: ' + res.status);
+  }
+  const data = await res.json();
+  if (!Array.isArray(data)) throw new Error('Respuesta inesperada de AnimeSchedule.');
+  const byDay = {};
+  data.forEach(a => {
+    if (!a || !a.episodeDate) return;
+    const ts = Date.parse(a.episodeDate);
+    if (isNaN(ts)) return;
+    const day = CAL_JST_DAY.format(new Date(ts)).toLowerCase();
+    if (!byDay[day]) byDay[day] = [];
+    byDay[day].push({
+      title: a.title || a.romaji || a.english || a.native || 'Sin tÃ­tulo',
+      studio: (a.mediaTypes && a.mediaTypes[0] && a.mediaTypes[0].name) || '',
+      time: CAL_JST_TIME.format(new Date(ts)),
+      image: asImg(a.imageVersionRoute),
+      mal_id: a.id || '',
+      ep: a.episodeNumber,
+      ts: ts
+    });
+  });
+  for (const k in byDay) byDay[k].sort((x, y) => x.ts - y.ts).forEach(c => { c.time = CAL_JST_TIME.format(new Date(c.ts)); });
+  asSchedCache = byDay;
+  asSchedLoaded = Object.keys(byDay).length > 0;
+  return byDay;
+}
+function renderAsStatus(mode) {
+  const el = document.getElementById('asStatus');
+  if (!el) return;
+  if (mode === 'loading') { el.innerHTML = '<span class="text-sky-300">Cargando horario desde AnimeScheduleâ€¦</span>'; return; }
+  if (mode === 'ok') {
+    const n = Object.keys(asSchedCache || {}).reduce((s, k) => s + (asSchedCache[k] || []).length, 0);
+    el.innerHTML = '<span class="text-emerald-300"><b>' + n + '</b> emisiones cargadas (' + Object.keys(asSchedCache || {}).length + ' dÃ­as). El Calendario ya usa AnimeSchedule.</span>';
+    return;
+  }
+  if (mode === 'err') { el.innerHTML = '<span class="text-rose-300">' + (lastAsErr || 'No se pudo cargar AnimeSchedule.') + '</span>'; return; }
+  el.textContent = (state.settings && state.settings.asOn)
+    ? (asSchedLoaded ? 'AnimeSchedule cargado y activo en el Calendario.' : 'Casilla activa pero sin horario cargado todavÃ­a. Pulsa «Probar y cargar».')
+    : 'Sin token de AnimeSchedule.';
+}
+let lastAsErr = '';
+async function asLoadSchedule() {
+  const token = ((state.settings && state.settings.asToken) || '').trim();
+  if (!token) { lastAsErr = 'Pega primero tu Application token de AnimeSchedule.'; renderAsStatus('err'); return; }
+  renderAsStatus('loading');
+  try {
+    const byDay = await asSchedule();
+    if (!asSchedLoaded) throw new Error('Ese horario no trae emisiones. Prueba con el aÃ±o/semana actual.');
+    state.settings.asOn = true;
+    const cb = document.querySelector('[data-setting="asOn"]'); if (cb) cb.checked = true;
+    save();
+    renderAsStatus('ok');
+    renderCalendar();
+    toast('Calendario ahora usa AnimeSchedule âœ“', 'ok');
+  } catch (e) {
+    lastAsErr = (e && e.message) ? e.message : 'No se pudo cargar AnimeSchedule.';
+    renderAsStatus('err');
+    toast('No se pudo cargar AnimeSchedule', 'warn');
+  }
 }
 
 function setupScrobblerUI() {
@@ -2746,7 +2858,7 @@ function setupSettings() {
     if (window.electronAPI && window.electronAPI.stateWipe) { try { window.electronAPI.stateWipe(); } catch (e) { /* noop */ } }
     state.animeList = [];
     state.activity = [0,0,0,0,0,0,0];
-    state.settings = { detectPlayers: true, autoIncrement: true, notifications: true, theme: 'dark', accent: 'purple', autoAdd: true, syncOn: false, alClientId: '', alToken: '', dcEnabled: false, dcClientId: '', autoOrganize: false, kitsuOn: false, kitsuClientId: '', kitsuSecret: '', kitsuEmail: '', kitsuToken: '', kitsuUserId: null };
+    state.settings = { detectPlayers: true, autoIncrement: true, notifications: true, theme: 'dark', accent: 'purple', autoAdd: true, syncOn: false, alClientId: '', alToken: '', dcEnabled: false, dcClientId: '', autoOrganize: false, kitsuOn: false, kitsuClientId: '', kitsuSecret: '', kitsuEmail: '', kitsuToken: '', kitsuUserId: null, asOn: false, asToken: '' };
     stopScrobble();
     renderDashboard(); recomputeStats(); renderFilterBar(); renderScrobblerUI(); setupSettings();
     toast('Lista borrada. Ahora empiezas desde cero, sin datos de demo âœ“', 'ok');
@@ -2762,6 +2874,17 @@ function setupSettings() {
   if (ke) { ke.value = state.settings.kitsuEmail || ''; ke.addEventListener('input', () => { state.settings.kitsuEmail = ke.value.trim(); save(); }); }
   const rdb = document.getElementById('restoreDiskBtn');
   if (rdb) rdb.addEventListener('click', () => restoreDisk(true));
+  const asBtn = document.getElementById('asLoadBtn');
+  if (asBtn) asBtn.addEventListener('click', asLoadSchedule);
+  const at = document.getElementById('asToken');
+  if (at) { at.value = state.settings.asToken || ''; at.addEventListener('input', () => { state.settings.asToken = at.value.trim(); save(); }); }
+  const asCb = document.querySelector('[data-setting="asOn"]');
+  if (asCb) asCb.addEventListener('change', () => {
+    state.settings.asOn = asCb.checked;
+    save();
+    if (state.settings.asOn && asSchedCache) { renderAsStatus('ok'); renderCalendar(); }
+    else { renderAsStatus(); }
+  });
   refreshSettingsValues();
 }
 function refreshSettingsValues() {
@@ -2773,8 +2896,11 @@ function refreshSettingsValues() {
   if (kc) kc.value = state.settings.kitsuClientId || '';
   if (ks) ks.value = state.settings.kitsuSecret || '';
   if (ke) ke.value = state.settings.kitsuEmail || '';
+  const at = document.getElementById('asToken');
+  if (at) at.value = state.settings.asToken || '';
   renderALStatus();
   renderKitsuStatus();
+  renderAsStatus();
 }
 
 function wireActions() {
