@@ -119,6 +119,9 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  appDB = createDB(app.getPath('userData'));
+  const migrated = appDB.migrateLegacy();
+  if (migrated) console.log('[animepulse] Copia de seguridad JSON migrada a SQLite.');
   createWindow();
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 });
@@ -194,35 +197,32 @@ ipcMain.handle('fs:save-png', async (e, dataUrl, name) => {
   } catch (err) { return { error: String((err && err.message) || err) }; }
 });
 
-const stateFilePath = () => path.join(app.getPath('userData'), 'animepulse-state.json');
+const { createDB } = require('./src/db');
+let appDB = null;
+
 ipcMain.handle('state:save', (e, data) => {
   try {
     if (typeof data !== 'string' || !data) return { error: 'formato' };
-    const full = stateFilePath();
-    fs.mkdirSync(path.dirname(full), { recursive: true });
-    const tmp = full + '.tmp';
-    fs.writeFileSync(tmp, data, 'utf8');
-    fs.renameSync(tmp, full);
+    if (!appDB) return { error: 'db-no-iniciado' };
+    const state = JSON.parse(data);
+    appDB.saveFull(state);
     return { ok: true };
   } catch (err) { return { error: String((err && err.message) || err) }; }
 });
 ipcMain.handle('state:load', () => {
   try {
-    const full = stateFilePath();
-    if (!fs.existsSync(full)) return null;
-    return JSON.parse(fs.readFileSync(full, 'utf8'));
+    if (!appDB) return null;
+    return appDB.loadFull();
   } catch (e) { return null; }
 });
 ipcMain.handle('state:info', () => {
   try {
-    const full = stateFilePath();
-    if (!fs.existsSync(full)) return null;
-    const st = fs.statSync(full);
-    return { size: st.size, mtime: st.mtimeMs };
+    if (!appDB) return null;
+    return appDB.info();
   } catch (e) { return null; }
 });
 ipcMain.handle('state:wipe', () => {
-  try { const full = stateFilePath(); if (fs.existsSync(full)) fs.rmSync(full); } catch (e) { /* noop */ }
+  try { if (appDB) appDB.wipe(); } catch (e) { /* noop */ }
   return { ok: true };
 });
 
@@ -258,3 +258,4 @@ ipcMain.handle('discord:set', (e, p) => {
 });
 ipcMain.handle('discord:stop', () => { dc.clear(); return { ok: true }; });
 app.on('before-quit', () => dc.destroy());
+app.on('before-quit', () => { if (appDB) { appDB.close(); appDB = null; } });

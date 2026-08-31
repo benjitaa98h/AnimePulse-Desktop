@@ -18,7 +18,8 @@
       "preload.js",
       "index.html",
       "discord-rpc.js",
-      "folder-watcher.js"
+      "folder-watcher.js",
+      "src/db.js"
     ],
     "directories": {
       "output": "dist"
