@@ -87,3 +87,7 @@ ipcMain.on('win:toggle-maximize', () => {
 });
 ipcMain.on('win:close', () => { if (mainWindow) mainWindow.close(); });
 ipcMain.handle('win:is-maximized', () => (mainWindow ? mainWindow.isMaximized() : false));
+
+ipcMain.handle('external:open', (e, url) => {
+  if (typeof url === 'string' && /^https?:\/\//i.test(url)) shell.openExternal(url);
+});

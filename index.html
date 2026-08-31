@@ -45,33 +45,80 @@ tailwind.config = {
   .eq-bar { transform-origin: bottom; animation: bars 1s ease-in-out infinite; }
   @keyframes shimmerMove { to { background-position: -200% 0; } }
   .shimmer { background: linear-gradient(110deg, rgba(255,255,255,.03) 25%, rgba(255,255,255,.09) 50%, rgba(255,255,255,.03) 75%); background-size: 200% 100%; animation: shimmerMove 1.4s linear infinite; }
-  .grad-text { background: linear-gradient(110deg,#c084fc,#ec4899 45%,#22d3ee); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .accent-gradient { background: linear-gradient(110deg,#7c3aed,#db2777 50%,#0891b2); }
-  .btn-primary { background: linear-gradient(110deg,#7c3aed,#db2777); transition: filter .15s ease, transform .1s ease, box-shadow .2s ease; }
-  .btn-primary:hover { filter: brightness(1.15); box-shadow: 0 8px 28px -8px rgba(168,85,247,.55); }
+  html[data-accent="purple"] { --a1:#7c3aed; --a2:#db2777; --a1-r:124; --a1-g:58; --a1-b:237; --a2-r:219; --a2-g:39; --a2-b:119; --ag3:#22d3ee; --tint:#a855f7; }
+  html[data-accent="blue"]   { --a1:#2563eb; --a2:#06b6d4; --a1-r:37; --a1-g:99; --a1-b:235; --a2-r:6; --a2-g:182; --a2-b:212; --ag3:#22d3ee; --tint:#3b82f6; }
+  html[data-accent="emerald"]{ --a1:#059669; --a2:#84cc16; --a1-r:5; --a1-g:150; --a1-b:105; --a2-r:132; --a2-g:204; --a2-b:22; --ag3:#22d3ee; --tint:#34d399; }
+  html[data-accent="rose"]   { --a1:#e11d48; --a2:#f97316; --a1-r:225; --a1-g:29; --a1-b:72; --a2-r:249; --a2-g:115; --a2-b:22; --ag3:#22d3ee; --tint:#fb7185; }
+  html[data-accent="amber"]  { --a1:#d97706; --a2:#f59e0b; --a1-r:217; --a1-g:119; --a1-b:6; --a2-r:245; --a2-g:158; --a2-b:11; --ag3:#22d3ee; --tint:#fbbf24; }
+  html[data-accent="cyan"]   { --a1:#0891b2; --a2:#2563eb; --a1-r:8; --a1-g:145; --a1-b:178; --a2-r:37; --a2-g:99; --a2-b:235; --ag3:#22d3ee; --tint:#22d3ee; }
+  :root { --a1:#7c3aed; --a2:#db2777; --a1-r:124; --a1-g:58; --a1-b:237; --a2-r:219; --a2-g:39; --a2-b:119; --ag3:#22d3ee; --tint:#a855f7; }
+  .grad-text { background: linear-gradient(110deg,var(--tint),var(--a2) 45%,var(--ag3)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .accent-gradient { background: linear-gradient(110deg,var(--a1),var(--a2) 50%,var(--ag3)); }
+  .btn-primary { background: linear-gradient(110deg,var(--a1),var(--a2)); transition: filter .15s ease, transform .1s ease, box-shadow .2s ease; }
+  .btn-primary:hover { filter: brightness(1.15); box-shadow: 0 8px 28px -8px rgba(var(--a1-r),var(--a1-g),var(--a1-b),.55); }
   .btn-primary:active { transform: scale(.97); }
   .poster-wrap { position: relative; overflow: hidden; }
   .poster-wrap .poster-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.6rem; letter-spacing: .02em; color: rgba(255,255,255,.9); z-index: 0; }
   .poster-wrap img { position: relative; z-index: 1; transition: transform .4s cubic-bezier(.2,.8,.2,1); }
   .card-hover:hover img { transform: scale(1.06); }
-  .tab-active { background: linear-gradient(110deg,#7c3aed,#db2777); color:#fff; box-shadow: 0 6px 20px -6px rgba(168,85,247,.5); border-color: transparent !important; }
-  .nav-item.active { background: rgba(168,85,247,.12); color: #fff; box-shadow: inset 0 0 0 1px rgba(168,85,247,.25); }
+  .tab-active { background: linear-gradient(110deg,var(--a1),var(--a2)); color:#fff; box-shadow: 0 6px 20px -6px rgba(var(--a1-r),var(--a1-g),var(--a1-b),.5); border-color: transparent !important; }
+  .nav-item.active { background: rgba(var(--a1-r),var(--a1-g),var(--a1-b),.12); color: #fff; box-shadow: inset 0 0 0 1px rgba(var(--a1-r),var(--a1-g),var(--a1-b),.25); }
   .nav-item.active .nav-ind { opacity: 1; transform: scale(1); }
   .nav-ind { opacity: 0; transform: scale(0); transition: all .2s ease; }
   select, input[type="number"] { color-scheme: dark; }
   select.native-dark { background-color: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: .5rem; color: #e5e7eb; font-size: .75rem; padding: .28rem .6rem; outline: none; }
-  select.native-dark:focus { border-color: rgba(168,85,247,.5); }
-  .modal-backdrop { background: radial-gradient(1200px 600px at 50% 0%, rgba(124,58,237,.12), transparent 60%), rgba(5,5,10,.72); }
+  select.native-dark:focus { border-color: rgba(var(--a1-r),var(--a1-g),var(--a1-b),.5); }
+  .modal-backdrop { background: radial-gradient(1200px 600px at 50% 0%, rgba(var(--a1-r),var(--a1-g),var(--a1-b),.12), transparent 60%), rgba(5,5,10,.72); }
   @keyframes toastIn { from { opacity:0; transform: translateX(24px); } to { opacity:1; transform:none; } }
   .toast-in { animation: toastIn .3s cubic-bezier(.2,.8,.2,1) both; }
-  .search-res-item:hover { background: rgba(168,85,247,.10); }
+  .search-res-item:hover { background: rgba(var(--a1-r),var(--a1-g),var(--a1-b),.10); }
   .result-card { transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
-  .result-card:hover { transform: translateY(-4px); border-color: rgba(168,85,247,.4); box-shadow: 0 16px 40px -18px rgba(168,85,247,.4); }
+  .result-card:hover { transform: translateY(-4px); border-color: rgba(var(--a2-r),var(--a2-g),var(--a2-b),.4); box-shadow: 0 16px 40px -18px rgba(var(--a1-r),var(--a1-g),var(--a1-b),.4); }
   .row-hover:hover { background: rgba(255,255,255,.04); }
   textarea, input { outline: none; }
-  input:focus, textarea:focus { border-color: rgba(168,85,247,.55) !important; box-shadow: 0 0 0 3px rgba(168,85,247,.15); }
+  input:focus, textarea:focus { border-color: rgba(var(--a1-r),var(--a1-g),var(--a1-b),.55) !important; box-shadow: 0 0 0 3px rgba(var(--a1-r),var(--a1-g),var(--a1-b),.15); }
   .fade-section { transition: opacity .18s ease; }
   body.section-loading .fade-section { opacity: .55; pointer-events: none; }
+
+  html[data-theme="oled"] body { background: #000; }
+  html[data-theme="oled"] .glass { background: rgba(9,9,14,.78); }
+
+  html[data-theme="light"] body { background: #f2f3f8; color: #23283a; }
+  html[data-theme="light"] .glass { background: rgba(255,255,255,.78); }
+  html[data-theme="light"] .glass-soft { background: rgba(0,0,0,.035); }
+  html[data-theme="light"] .edge { border-color: rgba(15,23,42,.09); }
+  html[data-theme="light"] .text-white { color: #161b2e !important; }
+  html[data-theme="light"] .text-slate-100 { color: #1e2436 !important; }
+  html[data-theme="light"] .text-slate-200 { color: #262c40 !important; }
+  html[data-theme="light"] .text-slate-300 { color: #39415c !important; }
+  html[data-theme="light"] .text-slate-400 { color: #5a6280 !important; }
+  html[data-theme="light"] .text-slate-500 { color: #6b7392 !important; }
+  html[data-theme="light"] .text-slate-600 { color: #7e86a3 !important; }
+  html[data-theme="light"] .bg-ink-950, html[data-theme="light"] .bg-ink-900, html[data-theme="light"] .bg-ink-850, html[data-theme="light"] .bg-ink-800, html[data-theme="light"] .bg-ink-700 { background-color: #f7f8fc; }
+  html[data-theme="light"] .bg-ink-900\/70, html[data-theme="light"] .bg-ink-900\/90, html[data-theme="light"] .bg-ink-900\/95 { background-color: rgba(247,248,252,.9); }
+  html[data-theme="light"] .bg-white\/\[\.02\], html[data-theme="light"] .bg-white\/\[\.03\], html[data-theme="light"] .bg-white\/5, html[data-theme="light"] .bg-white\/10, html[data-theme="light"] .bg-white\/15, html[data-theme="light"] .bg-white\/\[\.04\], html[data-theme="light"] .bg-white\/\[\.05\], html[data-theme="light"] .bg-white\/\[\.06\], html[data-theme="light"] .bg-white\/\[\.07\] { background-color: rgba(15,23,42,.05); }
+  html[data-theme="light"] .placeholder\:text-slate-600::placeholder { color: #8d94ad; }
+  html[data-theme="light"] .native-dark { background-color: rgba(15,23,42,.06); border-color: rgba(15,23,42,.12); color: #23283a; }
+  html[data-theme="light"] .shadow-black\/50, html[data-theme="light"] .shadow-black\/60 { box-shadow: 0 20px 60px -20px rgba(15,23,42,.45); }
+  html[data-theme="light"] .hover\:text-white:hover { color: #0f1424 !important; }
+
+  html[data-accent="blue"] .text-purple-300 { color: #93c5fd; }
+  html[data-accent="blue"] .text-purple-400 { color: #60a5fa; }
+  html[data-accent="blue"] .accent-purple-500 { accent-color: #3b82f6; }
+  html[data-accent="emerald"] .text-purple-300 { color: #86efac; }
+  html[data-accent="emerald"] .text-purple-400 { color: #4ade80; }
+  html[data-accent="emerald"] .accent-purple-500 { accent-color: #10b981; }
+  html[data-accent="rose"] .text-purple-300 { color: #fda4af; }
+  html[data-accent="rose"] .text-purple-400 { color: #fb7185; }
+  html[data-accent="rose"] .accent-purple-500 { accent-color: #f43f5e; }
+  html[data-accent="amber"] .text-purple-300 { color: #fcd34d; }
+  html[data-accent="amber"] .text-purple-400 { color: #fbbf24; }
+  html[data-accent="amber"] .accent-purple-500 { accent-color: #f59e0b; }
+  html[data-accent="cyan"] .text-purple-300 { color: #67e8f9; }
+  html[data-accent="cyan"] .text-purple-400 { color: #22d3ee; }
+  html[data-accent="cyan"] .accent-purple-500 { accent-color: #06b6d4; }
+  [data-accent="blue"] .nav-ind, [data-accent="emerald"] .nav-ind, [data-accent="rose"] .nav-ind, [data-accent="amber"] .nav-ind, [data-accent="cyan"] .nav-ind,
+  [data-accent="blue"] .from-purple-400, [data-accent="emerald"] .from-purple-400, [data-accent="rose"] .from-purple-400, [data-accent="amber"] .from-purple-400, [data-accent="cyan"] .from-purple-400 { background-image: linear-gradient(to right, var(--a1), var(--a2)); }
 </style>
 </head>
 <body class="bg-ink-950 text-slate-200 antialiased">
@@ -340,6 +387,69 @@ tailwind.config = {
           </div>
 
           <div class="glass edge rounded-2xl p-5">
+            <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="palette" class="w-4 h-4 text-fuchsia-400"></i> Apariencia</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="text-[11px] text-slate-500 font-medium mb-1.5 block">Tema de la app</label>
+                <div class="flex gap-1.5 p-1 rounded-xl bg-white/[.05] edge w-fit">
+                  <button data-theme-pick="dark" class="theme-btn px-3 py-1.5 rounded-lg text-[12px] font-semibold transition">Oscuro</button>
+                  <button data-theme-pick="oled" class="theme-btn px-3 py-1.5 rounded-lg text-[12px] font-semibold transition">OLED Negro</button>
+                  <button data-theme-pick="light" class="theme-btn px-3 py-1.5 rounded-lg text-[12px] font-semibold transition">Claro</button>
+                </div>
+              </div>
+              <div>
+                <label class="text-[11px] text-slate-500 font-medium mb-1.5 block">Color de acento</label>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <button data-accent-pick="purple" title="Púrpura" class="accent-swatch w-8 h-8 rounded-full transition ring-offset-2 ring-offset-ink-900" style="background:linear-gradient(135deg,#7c3aed,#db2777)"></button>
+                  <button data-accent-pick="blue" title="Azul" class="accent-swatch w-8 h-8 rounded-full transition ring-offset-2 ring-offset-ink-900" style="background:linear-gradient(135deg,#2563eb,#06b6d4)"></button>
+                  <button data-accent-pick="emerald" title="Esmeralda" class="accent-swatch w-8 h-8 rounded-full transition ring-offset-2 ring-offset-ink-900" style="background:linear-gradient(135deg,#059669,#84cc16)"></button>
+                  <button data-accent-pick="rose" title="Rosa" class="accent-swatch w-8 h-8 rounded-full transition ring-offset-2 ring-offset-ink-900" style="background:linear-gradient(135deg,#e11d48,#f97316)"></button>
+                  <button data-accent-pick="amber" title="Ámbar" class="accent-swatch w-8 h-8 rounded-full transition ring-offset-2 ring-offset-ink-900" style="background:linear-gradient(135deg,#d97706,#f59e0b)"></button>
+                  <button data-accent-pick="cyan" title="Cian" class="accent-swatch w-8 h-8 rounded-full transition ring-offset-2 ring-offset-ink-900" style="background:linear-gradient(135deg,#0891b2,#2563eb)"></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass edge rounded-2xl p-5 lg:col-span-2">
+            <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="plug-zap" class="w-4 h-4 text-purple-400"></i> Integraciones y sincronización</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-3">
+                <label class="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[.03] hover:bg-white/[.06] transition cursor-pointer">
+                  <div class="flex items-center gap-3">
+                    <i data-lucide="message-square-plus" class="w-4 h-4 text-emerald-400"></i>
+                    <div><div class="text-[13px] font-medium text-slate-200">Preguntar al detectar anime</div><div class="text-[11px] text-slate-500">Si el anime que ves no está en tu lista, te pregunta si quieres agregarlo</div></div>
+                  </div>
+                  <input type="checkbox" data-setting="autoAdd" class="accent-purple-500 w-4 h-4">
+                </label>
+                <label class="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[.03] hover:bg-white/[.06] transition cursor-pointer">
+                  <div class="flex items-center gap-3">
+                    <i data-lucide="cloud-upload" class="w-4 h-4 text-sky-400"></i>
+                    <div><div class="text-[13px] font-medium text-slate-200">Sincronizar con AniList</div><div class="text-[11px] text-slate-500">Sube tu progreso y estado a tu cuenta en línea automáticamente</div></div>
+                  </div>
+                  <input type="checkbox" data-setting="syncOn" class="accent-purple-500 w-4 h-4">
+                </label>
+              </div>
+              <div class="space-y-3">
+                <label class="text-[11px] text-slate-500 font-medium mb-1 block">Client ID de AniList</label>
+                <div class="flex gap-2">
+                  <input id="alClientId" type="text" placeholder="Ej: 12345" spellcheck="false" class="flex-1 bg-white/[.05] edge rounded-xl px-3 py-2 text-[12px] text-slate-200 placeholder:text-slate-600">
+                  <button id="alAuthBtn" class="px-3 py-2 rounded-xl text-[12px] font-semibold btn-primary text-white flex items-center gap-1.5"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> Autorizar</button>
+                </div>
+                <p class="text-[10px] text-slate-500 leading-relaxed">Crea una app gratis en <b>anilist.co/settings/developer</b> y pega su Client ID. Luego pulsa <b>Autorizar</b>: se abrirá tu navegador para iniciar sesión y te mostrará un <b>token</b> que pegas abajo.</p>
+                <label class="text-[11px] text-slate-500 font-medium mb-1 block">Access Token</label>
+                <div class="flex gap-2">
+                  <input id="alToken" type="password" placeholder="Bearer token de AniList" spellcheck="false" class="flex-1 bg-white/[.05] edge rounded-xl px-3 py-2 text-[12px] text-slate-200 placeholder:text-slate-600">
+                  <button id="alTestBtn" class="px-3 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">Conectar</button>
+                </div>
+                <div id="alStatus" class="text-[11px] text-slate-500">Sin cuenta vinculada.</div>
+                <button id="alSyncAllBtn" class="mt-2 text-[11px] font-semibold text-sky-300 hover:text-sky-200 transition hidden">↻ Re-sincronizar toda mi lista</button>
+                <p class="text-[10px] text-slate-500 leading-relaxed">Crunchyroll y otras webs se detectan solas mientras las ves en tu navegador (la API de Crunchyroll no permite apps de terceros, por eso la sincronización en línea usa AniList/MyAnimeList).</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass edge rounded-2xl p-5">
             <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="flask-conical" class="w-4 h-4 text-emerald-400"></i> Simulador de reproducción</h3>
             <p class="text-[12px] text-slate-500 mb-4">Prueba el flujo completo del Auto-Scrobbler: abre un archivo local ficticio, deja que "se reproduzca" y mira cómo se incrementan tus episodios automáticamente.</p>
             <div class="space-y-3">
@@ -402,6 +512,18 @@ tailwind.config = {
   </div>
 </div>
 
+<div id="addModal" class="hidden fixed inset-0 z-[60] modal-backdrop flex items-center justify-center p-4">
+  <div class="glass edge rounded-3xl w-full max-w-md p-6 anim-pop">
+    <div id="addBody"></div>
+  </div>
+</div>
+
+<div id="prequelModal" class="hidden fixed inset-0 z-[60] modal-backdrop flex items-center justify-center p-4">
+  <div class="glass edge rounded-3xl w-full max-w-lg p-6 anim-pop">
+    <div id="prequelBody"></div>
+  </div>
+</div>
+
 <script>'use strict';
 
 const LS_KEY = 'animepulse.v2.state';
@@ -447,7 +569,7 @@ const MOCK_ANIME = [
 let state = {
   filter: 'watching',
   view: 'grid',
-  settings: { detectPlayers: true, autoIncrement: true, notifications: true },
+  settings: { detectPlayers: true, autoIncrement: true, notifications: true, theme: 'dark', accent: 'purple', autoAdd: true, syncOn: false, alClientId: '', alToken: '' },
   animeList: [],
   activity: [2,3,1,4,2,5,3],
   calendarDay: 'monday',
@@ -504,7 +626,7 @@ function load() {
     if (raw) {
       const p = JSON.parse(raw);
       state = Object.assign(state, p);
-      state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notifications:true }, p.settings || {});
+      state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notifications:true, theme:'dark', accent:'purple', autoAdd:true, syncOn:false, alClientId:'', alToken:'' }, p.settings || {});
       state.scrobbler = Object.assign({ running:false, player:'VLC Player', animeId:null, episodeNow:0, progress:0, fileName:null, timer:null, source:'manual', increment:true }, p.scrobbler || {});
       state.scrobbler.timer = null;
       if (Array.isArray(p.animeList)) state.animeList = p.animeList;
@@ -757,6 +879,7 @@ function updateProgress(id, delta) {
   recomputeStats();
   renderScrobblerUI();
   if (document.getElementById('detailModal') && !document.getElementById('detailModal').classList.contains('hidden')) refreshDetail();
+  alMaybeSync(id);
 }
 
 function setStatus(id, status) {
@@ -766,6 +889,7 @@ function setStatus(id, status) {
   save();
   renderDashboard(); recomputeStats(); renderScrobblerUI();
   if (state.settings.notifications) toast('Estado actualizado: <b>' + STATUS_META[status].label + '</b>', 'info');
+  alMaybeSync(id);
 }
 
 function setRating(id, rating) {
@@ -782,6 +906,7 @@ function addAnimeFrom(item, status) {
   if (existing) { toast('<b>' + esc(item.title) + '</b> ya está en tu lista', 'warn'); return existing; }
   const entry = {
     id: item.id,
+    al_id: item.al_id || null,
     title: item.title,
     title_english: item.title_english || '',
     image: item.image || '',
@@ -804,6 +929,7 @@ function addAnimeFrom(item, status) {
   state.filter = entry.status;
   renderDashboard(); recomputeStats(); renderScrobblerUI();
   toast('<b>' + esc(item.title) + '</b> añadido a <b>' + STATUS_META[entry.status].label + '</b>', 'ok');
+  alMaybeSync(entry.id);
   return entry;
 }
 
@@ -822,8 +948,6 @@ function askDelete(id) {
   pendingDeleteId = id;
   document.getElementById('confirmMsg').innerHTML = 'Se eliminará <b class="text-white">' + esc(a.title) + '</b> de tu lista. El progreso guardado se perderá.';
   document.getElementById('confirmModal').classList.remove('hidden');
-}function ytEmbed(id, forId) {
-  return id ? '<iframe data-trailer-of="' + esc(forId || '') + '" class="w-full aspect-video rounded-xl edge" src="https://www.youtube-nocookie.com/embed/' + esc(id) + '?rel=0" title="Tráiler" allowfullscreen loading="lazy"></iframe>' : '';
 }
 
 function airBadgeChip(a) {
@@ -869,7 +993,7 @@ function detailOfLocal(a) {
       '</div></div>' +
     '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Sinopsis</div>' +
       '<p class="text-[12px] text-slate-400 leading-relaxed">' + (a.synopsis ? esc(a.synopsis) : 'Sin sinopsis disponible.') + '</p></div>' +
-    (a.trailerId ? '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Tráiler</div>' + ytEmbed(a.trailerId, a.id) + '</div>' : '') +
+    (a.trailerId ? ytWrap(a.trailerId, a.id) : '') +
     '<div class="flex items-center justify-end gap-2 mt-6">' +
       '<button data-mdl="delete" data-id="' + esc(a.id) + '" class="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-rose-500/10 edge border-rose-400/20 text-rose-300 hover:bg-rose-500/20 transition flex items-center gap-1.5"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Eliminar</button>' +
       '<button data-mdl="close" class="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">Cerrar</button>' +
@@ -893,7 +1017,7 @@ function detailOfApi(item) {
       '</div></div>' +
     '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Sinopsis</div>' +
       '<p class="text-[12px] text-slate-400 leading-relaxed max-h-40 overflow-y-auto pr-1">' + (item.synopsis ? esc(item.synopsis) : 'Sin sinopsis disponible.') + '</p></div>' +
-    (item.trailerId ? '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Tráiler</div>' + ytEmbed(item.trailerId, item.id) + '</div>' : '') +
+    (item.trailerId ? ytWrap(item.trailerId, item.id) : '') +
   '<div class="flex flex-wrap gap-2 mt-5">';
     '<div class="flex flex-wrap items-center gap-2 mt-6">' +
       (inList
@@ -1022,9 +1146,13 @@ async function resolveDetectedAnime(name) {
     toast('No pude resolver «' + esc(name) + '». Búscalo en la barra superior para agregarlo.', 'warn');
     return;
   }
-  apiDetailCache[item.mal_id] = item;
-  openApiDetail(item);
-  toast('Ficha de <b>' + esc(item.title) + '</b>: ábrela para agregarlo a tu lista y que el Auto-Scrobbler lo registre.', 'ok');
+  apiDetailCache[String(item.mal_id)] = item;
+  if (state.settings && state.settings.autoAdd !== false) {
+    openAddPrompt(item);
+  } else {
+    openApiDetail(item);
+    toast('Ficha de <b>' + esc(item.title) + '</b>: ábrela para agregarlo a tu lista y que el Auto-Scrobbler lo registre.', 'ok');
+  }
 }
 
 function onBrowserTitles(list) {
@@ -1117,6 +1245,7 @@ function mapAnilistItem(m) {
   return {
     id: 'mal_' + m.id,
     mal_id: m.id,
+    al_id: m.id,
     title: t.romaji || t.english || t.native || 'Sin título',
     title_english: t.english || '',
     image: img,
@@ -1137,22 +1266,29 @@ const AL_MEDIA = 'query($id: Int) { Media(id: $id, type: ANIME) { ' + AL_FIELDS 
 const AL_TRENDING = 'query($n: Int) { Page(page: 1, perPage: $n) { media(type: ANIME, sort: POPULARITY_DESC, isAdult: false) { ' + AL_FIELDS + ' } } }';
 const AL_SCHED = 'query($g: Int, $l: Int) { Page(page: 1, perPage: 50) { airingSchedules(airingAt_greater: $g, airingAt_lesser: $l) { airingAt episode media { id title { romaji english native } coverImage { large medium } studios { nodes { name } } } } } }';
 const AL_PING = 'query { Page(page: 1, perPage: 1) { media(type: ANIME, sort: POPULARITY_DESC) { id } } }';
+const AL_RELATIONS = 'query($id: Int) { Media(id: $id, type: ANIME) { id relations { edges { relationType node { id title { romaji english native } coverImage { medium } episodes } } } } }';
+const AL_VIEWER = 'query { Viewer { id name avatar { large } } }';
+const AL_SAVE = 'mutation($mid: Int, $progress: Int, $status: MediaListStatus) { SaveMediaListEntry(mediaId: $mid, progress: $progress, status: $status) { id progress status } }';
 
-async function anilistQuery(query, variables) {
+async function anilistQuery(query, variables, token) {
   for (let attempt = 0; attempt < 3; attempt++) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 15000);
     try {
+      const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+      if (token) headers.Authorization = 'Bearer ' + token;
       const res = await fetch(ANILIST, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: headers,
         body: JSON.stringify({ query: query, variables: variables || {} }),
         signal: ctrl.signal
       });
       clearTimeout(timer);
       if (res.status === 429) { await sleep(1300); continue; }
       if (!res.ok) {
+        const txt = await res.text().catch(() => '');
         if (attempt < 2) { await sleep(1000 + attempt * 600); continue; }
+        console.warn('AniList error', res.status, txt.slice(0, 200));
         return null;
       }
       const body = await res.json();
@@ -1176,6 +1312,171 @@ async function searchAnimeFinal(q, limit) {
   const json = await apiFetch(JIKAN + '/anime?q=' + encodeURIComponent(q) + '&limit=' + limit + '&sfw=true');
   if (json && Array.isArray(json.data) && json.data.length) return json.data.map(mapJikanItem);
   return null;
+}
+
+function applyAppearance() {
+  const st = state.settings || {};
+  const html = document.documentElement;
+  html.setAttribute('data-theme', st.theme || 'dark');
+  html.setAttribute('data-accent', st.accent || 'purple');
+  document.querySelectorAll('[data-theme-pick]').forEach(b => b.classList.toggle('tab-active', (b.getAttribute('data-theme-pick')) === (st.theme || 'dark')));
+  document.querySelectorAll('[data-accent-pick]').forEach(b => {
+    const on = b.getAttribute('data-accent-pick') === (st.accent || 'purple');
+    b.classList.toggle('ring-2', on);
+    b.classList.toggle('ring-white/70', on);
+  });
+}
+
+function openExternalUrl(url) {
+  try {
+    if (window.electronAPI && window.electronAPI.openExternal) window.electronAPI.openExternal(url);
+    else window.open(url, '_blank');
+  } catch (e) { toast('No se pudo abrir el enlace externo.', 'warn'); }
+}
+
+function ytWrap(id, forId) {
+  return '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Tráiler oficial</div>' +
+    '<div class="rounded-xl edge overflow-hidden bg-black/30 aspect-video relative">' +
+    '<iframe data-trailer-of="' + esc(forId || '') + '" class="absolute inset-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/' + esc(id) + '?rel=0&autoplay=1&playsinline=1&color=white" title="Tráiler" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>' +
+    '<button id="ytExternal" class="mt-2 flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 hover:text-white transition"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> Abrir en YouTube</button></div>';
+}
+
+let relationsCache = {};
+async function fetchRelations(alId) {
+  if (!alId) return [];
+  if (relationsCache[alId]) return relationsCache[alId];
+  const data = await anilistQuery(AL_RELATIONS, { id: alId });
+  const edges = (data && data.Media && data.Media.relations && data.Media.relations.edges) || [];
+  relationsCache[alId] = edges || [];
+  return relationsCache[alId];
+}
+
+function inListByTitle(title) {
+  const t = (title || '').trim().toLowerCase();
+  if (!t) return false;
+  return state.animeList.some(a => (a.title || '').trim().toLowerCase() === t || (a.title_english || '').trim().toLowerCase() === t);
+}
+
+async function maybeOfferPrequels(item) {
+  const alId = item.al_id || item.mal_id || null;
+  if (!alId) return;
+  const edges = await fetchRelations(alId);
+  const prequels = edges.filter(e => e.relationType === 'PREQUEL' && e.node && e.node.id)
+    .filter(e => {
+      const r = e.node.title.romaji || e.node.title.english || e.node.title.native || '';
+      const en = e.node.title.english || e.node.title.romaji || e.node.title.native || '';
+      return !inListByTitle(r) && !inListByTitle(en);
+    })
+    .map(e => ({ id: 'mal_' + e.node.id, al_id: e.node.id, title: e.node.title.romaji || e.node.title.english || e.node.title.native || 'Temporada anterior', image: (e.node.coverImage && e.node.coverImage.medium) || '', malEpisodes: e.node.episodes || 0 }));
+  if (!prequels.length) return;
+  const hue = hashHue(item.title);
+  const rows = prequels.map(p => '<div class="flex items-center gap-3 p-2 rounded-xl bg-white/[.04]">' +
+    '<div class="w-9 h-13 rounded-lg overflow-hidden shrink-0 relative flex items-center justify-center" style="background:linear-gradient(150deg,hsl(' + hue + ',65%,28%),hsl(' + ((hue + 120) % 360) + ',60%,16%))">' +
+    (p.image ? '<img src="' + esc(p.image) + '" class="w-full h-full object-cover" onerror="this.remove()">' : '<span class="text-[9px] font-bold text-white/80">' + initials(p.title) + '</span>') + '</div>' +
+    '<div class="flex-1 min-w-0 text-[12px]"><div class="text-slate-200 font-medium truncate">' + esc(p.title) + '</div><div class="text-[10px] text-slate-500">' + (p.malEpisodes ? p.malEpisodes + ' episodios' : 'Temporada anterior') + '</div></div></div>').join('');
+  document.getElementById('prequelBody').innerHTML =
+    '<div class="flex items-start gap-3 mb-4"><div class="w-10 h-14 rounded-lg overflow-hidden shrink-0 relative" style="background:linear-gradient(150deg,hsl(' + hue + ',65%,28%),hsl(' + ((hue + 120) % 360) + ',60%,16%))">' +
+    (item.image ? '<img src="' + esc(item.image) + '" class="w-full h-full object-cover" onerror="this.remove()">' : '') + '</div>' +
+    '<div><div class="font-display font-bold text-white text-sm leading-tight">' + esc(item.title) + '</div>' +
+    '<div class="text-[11px] text-slate-500 mt-0.5">Detectamos temporadas anteriores de esta franquicia.</div></div></div>' +
+    '<div class="font-display font-semibold text-[13px] text-white mb-2">¿Ya viste las anteriores?</div>' +
+    '<div class="space-y-1.5 mb-5">' + rows + '</div>' +
+    '<div class="flex gap-2 justify-end flex-wrap">' +
+    '<button id="preqNo" class="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">No, solo agregar esta</button>' +
+    '<button id="preqYes" class="btn-primary px-4 py-2.5 rounded-xl text-[12px] font-semibold text-white">Sí, marcar las ' + prequels.length + ' como completadas</button></div>';
+  icons();
+  const ok = () => document.getElementById('prequelModal').classList.add('hidden');
+  document.getElementById('preqNo').addEventListener('click', () => { ok(); toast('<b>' + esc(item.title) + '</b> agregado. Omitiste las anteriores.', 'info'); });
+  document.getElementById('preqYes').addEventListener('click', () => {
+    ok();
+    let added = 0;
+    prequels.forEach(p => { const d = mapAnilistItem({ id: p.al_id, title: { romaji: p.title }, coverImage: { medium: p.image }, episodes: p.malEpisodes, studios: { nodes: [] }, genres: [], trailer: null, description: '' }); const e = addAnimeFrom(d, 'completed'); if (e && !e.watched) { e.watched = (p.malEpisodes || 1); e.airing = false; save(); } if (e) added++; });
+    renderDashboard(); recomputeStats(); renderScrobblerUI();
+    toast('Agregadas <b>' + added + '</b> temporadas anteriores como completadas ✓', 'ok');
+  });
+  document.getElementById('prequelModal').classList.remove('hidden');
+}
+
+let pendingDetectedItem = null;
+function openAddPrompt(item) {
+  pendingDetectedItem = item;
+  const hue = hashHue(item.title);
+  document.getElementById('addBody').innerHTML =
+    '<div class="flex items-start gap-4">' +
+    '<div class="w-24 shrink-0 aspect-[2/3] rounded-2xl overflow-hidden edge relative flex items-center justify-center" style="background:linear-gradient(150deg,hsl(' + hue + ',65%,28%),hsl(' + ((hue + 120) % 360) + ',60%,16%))">' +
+    (item.image ? '<img src="' + esc(item.image) + '" class="w-full h-full object-cover" onerror="this.remove()">' : '<span class="text-xl font-bold text-white/80">' + initials(item.title) + '</span>') + '</div>' +
+    '<div class="flex-1 min-w-0"><div class="text-[10px] font-bold uppercase tracking-widest text-emerald-300 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span> DETECTADO EN TU NAVEGADOR</div>' +
+    '<div class="font-display font-bold text-white text-lg leading-tight mt-1">' + esc(item.title) + '</div>' +
+    (item.title_english && item.title_english !== item.title ? '<div class="text-[12px] text-slate-500 mt-0.5">' + esc(item.title_english) + '</div>' : '') +
+    '<div class="flex items-center gap-2 mt-2 text-[12px] text-slate-400">' +
+    (item.studio ? '<span class="flex items-center gap-1"><i data-lucide="building-2" class="w-3.5 h-3.5"></i>' + esc(item.studio) + '</span>' : '') +
+    (item.malScore ? '<span>·</span><span class="text-amber-300 font-semibold">★ ' + item.malScore.toFixed(1) + '</span>' : '') +
+    (item.year ? '<span>·</span><span>' + item.year + '</span>' : '') + '</div></div></div>' +
+    '<div class="font-display font-semibold text-[14px] text-white mt-5">Esta anime no está en tu lista.</div>' +
+    '<p class="text-[12px] text-slate-400 mt-1 leading-relaxed">¿Quieres agregarlo para que el Auto-Scrobbler registre tu progreso automáticamente?</p>' +
+    '<div class="flex gap-2 mt-5">' +
+    '<button id="addYes" class="btn-primary flex-1 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-1.5"><i data-lucide="bookmark-plus" class="w-4 h-4"></i> Agregar a mi lista</button>' +
+    '<button id="addDetail" class="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition flex items-center gap-1.5"><i data-lucide="eye" class="w-3.5 h-3.5"></i> Ver ficha</button></div>' +
+    '<button id="addNo" class="w-full mt-2 px-4 py-2 rounded-xl text-[11px] font-semibold text-slate-500 hover:text-slate-300 transition">Descartar</button>';
+  icons();
+  document.getElementById('addModal').classList.remove('hidden');
+  document.getElementById('addYes').addEventListener('click', () => {
+    document.getElementById('addModal').classList.add('hidden');
+    const entry = addAnimeFrom(item, 'watching');
+    if (entry) maybeOfferPrequels(item);
+  });
+  document.getElementById('addDetail').addEventListener('click', () => {
+    document.getElementById('addModal').classList.add('hidden');
+    apiDetailCache[String(item.mal_id)] = item;
+    openApiDetail(item);
+  });
+  document.getElementById('addNo').addEventListener('click', () => document.getElementById('addModal').classList.add('hidden'));
+}
+
+const AL_STATUS = { watching: 'CURRENT', plan: 'PLANNING', completed: 'COMPLETED', onhold: 'PAUSED', dropped: 'DROPPED' };
+let alSyncTimer = null;
+function alMaybeSync(id) {
+  if (!state.settings || state.settings.syncOn !== true) return;
+  if (!state.settings.alToken) return;
+  clearTimeout(alSyncTimer);
+  alSyncTimer = setTimeout(() => {
+    const a = findAnime(id);
+    if (!a || !a.al_id) return;
+    const payload = { mid: a.al_id, progress: a.watched || 0, status: AL_STATUS[a.status] || 'CURRENT' };
+    anilistQuery(AL_SAVE, payload, state.settings.alToken).then(d => {
+      if (!d || !d.SaveMediaListEntry) toast('No se pudo sincronizar <b>' + esc(a.title) + '</b> en AniList.', 'warn');
+    });
+  }, 1200);
+}
+function alSilentSyncAll() {
+  if (!state.settings.syncOn || !state.settings.alToken) return;
+  let done = 0, failed = 0;
+  state.animeList.forEach(a => {
+    if (!a.al_id) return;
+    anilistQuery(AL_SAVE, { mid: a.al_id, progress: a.watched || 0, status: AL_STATUS[a.status] || 'CURRENT' }, state.settings.alToken)
+      .then(d => { if (d && d.SaveMediaListEntry) done++; else failed++; })
+      .catch(() => failed++);
+  });
+  toast('Sincronizando ' + state.animeList.length + ' entradas con AniList…', 'info');
+}
+
+function renderALStatus(user) {
+  const st = state.settings || {};
+  const el = document.getElementById('alStatus');
+  const btn = document.getElementById('alSyncAllBtn');
+  if (!el) return;
+  if (st.alToken) {
+    if (user && user.name) {
+      el.innerHTML = 'Conectado como <b class="text-sky-300">' + esc(user.name) + '</b> · sync ' + (st.syncOn ? '<b class="text-emerald-300">activa</b>' : 'pausada') + '.';
+      if (btn) btn.classList.remove('hidden');
+    } else {
+      el.innerHTML = 'Token guardado · sync ' + (st.syncOn ? '<b class="text-emerald-300">activa</b>' : 'pausada') + ' (pulsa <b>Conectar</b> para verificar).';
+      if (btn) btn.classList.add('hidden');
+    }
+  } else {
+    el.innerHTML = 'Sin cuenta vinculada.';
+    if (btn) btn.classList.add('hidden');
+  }
 }
 
 let globalSearchTimer = null;
@@ -1545,6 +1846,7 @@ function finishEpisode() {
       save();
       renderDashboard(); recomputeStats();
       if (state.settings.notifications) toast('<b>' + esc(a.title) + '</b> — Episodio ' + (a.watched) + ' registrado por Auto-Scrobbler ✓', 'ok');
+      alMaybeSync(a.id);
     }
   }
   if (state.scrobbler.running) {
@@ -1609,10 +1911,47 @@ function switchSection(section) {
 }
 
 function setupSettings() {
+  applyAppearance();
   document.querySelectorAll('input[data-setting]').forEach(cb => {
     cb.checked = !!state.settings[cb.dataset.setting];
-    cb.addEventListener('change', () => { state.settings[cb.dataset.setting] = cb.checked; save(); toast('Configuración actualizada', 'info'); });
+    cb.addEventListener('change', () => { state.settings[cb.dataset.setting] = cb.checked; save(); if (cb.dataset.setting === 'syncOn') renderALStatus(); toast('Configuración actualizada', 'info'); });
   });
+  document.querySelectorAll('[data-theme-pick]').forEach(b => {
+    b.addEventListener('click', () => { state.settings.theme = b.getAttribute('data-theme-pick'); save(); applyAppearance(); toast('Tema: <b>' + (b.getAttribute('data-theme-pick') === 'oled' ? 'OLED Negro' : b.getAttribute('data-theme-pick') === 'light' ? 'Claro' : 'Oscuro') + '</b>', 'ok'); });
+  });
+  document.querySelectorAll('[data-accent-pick]').forEach(b => {
+    b.addEventListener('click', () => { state.settings.accent = b.getAttribute('data-accent-pick'); save(); applyAppearance(); toast('Acento actualizado ✓', 'ok'); });
+  });
+  const cid = document.getElementById('alClientId');
+  const tok = document.getElementById('alToken');
+  cid.value = state.settings.alClientId || '';
+  tok.value = state.settings.alToken || '';
+  cid.addEventListener('input', () => { state.settings.alClientId = cid.value.trim(); save(); });
+  tok.addEventListener('input', () => { state.settings.alToken = tok.value.trim(); save(); renderALStatus(); });
+  document.getElementById('alAuthBtn').addEventListener('click', () => {
+    const id = (state.settings.alClientId || '').trim();
+    if (!id) { toast('Primero pega tu <b>Client ID</b> de anilist.co/settings/developer.', 'warn'); return; }
+    openExternalUrl('https://anilist.co/api/v2/oauth/authorize?client_id=' + encodeURIComponent(id) + '&response_type=token');
+    toast('Si no te pide iniciar sesión, usa el flujo de código y pega el <b>token</b> de la página en el campo de abajo.', 'info');
+  });
+  document.getElementById('alTestBtn').addEventListener('click', async () => {
+    const t = (state.settings.alToken || '').trim();
+    if (!t) { toast('Pega tu <b>access token</b> de AniList primero.', 'warn'); return; }
+    document.getElementById('alTestBtn').disabled = true;
+    document.getElementById('alTestBtn').textContent = 'Verificando…';
+    const d = await anilistQuery(AL_VIEWER, null, t);
+    document.getElementById('alTestBtn').disabled = false;
+    document.getElementById('alTestBtn').innerHTML = 'Conectar';
+    if (d && d.Viewer) {
+      toast('<b>Conectado como ' + esc(d.Viewer.name) + '</b> en AniList ✓', 'ok');
+      renderALStatus(d.Viewer);
+    } else {
+      toast('Token inválido o expirado. Revisa el flujo de <b>Autorizar</b> y vuelve a pegarlo.', 'err');
+      renderALStatus();
+    }
+  });
+  document.getElementById('alSyncAllBtn').addEventListener('click', alSilentSyncAll);
+  renderALStatus();
   document.getElementById('exportBtn').addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -1644,7 +1983,7 @@ function setupSettings() {
     localStorage.removeItem('animepulse.v2.backup');
     state.animeList = [];
     state.activity = [0,0,0,0,0,0,0];
-    state.settings = { detectPlayers: true, autoIncrement: true, notifications: true };
+    state.settings = { detectPlayers: true, autoIncrement: true, notifications: true, theme: 'dark', accent: 'purple', autoAdd: true, syncOn: false, alClientId: '', alToken: '' };
     stopScrobble();
     renderDashboard(); recomputeStats(); renderFilterBar(); renderScrobblerUI(); setupSettings();
     toast('Lista borrada. Ahora empiezas desde cero, sin datos de demo ✓', 'ok');
@@ -1695,7 +2034,7 @@ function wireActions() {
     else if (action === 'inc') updateProgress(id, 1);
     else if (action === 'dec') updateProgress(id, -1);
     else if (action === 'delete') { closeModal(); askDelete(id); }
-    else if (action === 'add') { const numId = b.getAttribute('data-id').replace('mal_', ''); const it = apiDetailCache[numId] || state.searchCache['id_' + numId]; if (it) { closeModal(); addAnimeFrom(it, 'watching'); } }
+    else if (action === 'add') { const numId = b.getAttribute('data-id').replace('mal_', ''); const it = apiDetailCache[numId] || state.searchCache['id_' + numId]; if (it) { closeModal(); addAnimeFrom(it, 'watching'); if (it.al_id) maybeOfferPrequels(it); } }
     else if (action === 'add-plan') { const numId = b.getAttribute('data-id').replace('mal_', ''); const it = apiDetailCache[numId] || state.searchCache['id_' + numId]; if (it) { closeModal(); addAnimeFrom(it, 'plan'); } }
   });
   document.getElementById('detailBody').addEventListener('change', e => {
@@ -1705,10 +2044,18 @@ function wireActions() {
     const id = el.getAttribute('data-id');
     const a = findAnime(id);
     if (!a) return;
-    if (action === 'ep') { a.watched = clamp(parseInt(el.value, 10) || 0, 0, totalEps(a) > 0 ? totalEps(a) : 99999); save(); refreshDetail(); recomputeStats(); }
+    if (action === 'ep') { a.watched = clamp(parseInt(el.value, 10) || 0, 0, totalEps(a) > 0 ? totalEps(a) : 99999); save(); refreshDetail(); recomputeStats(); alMaybeSync(id); }
     else if (action === 'status') setStatus(id, el.value);
     else if (action === 'rating') setRating(id, parseInt(el.value, 10) || 0);
     else if (action === 'notes') { a.notes = el.value; save(); }
+  });
+  document.addEventListener('click', e => {
+    const yt = e.target.closest('#ytExternal');
+    if (!yt) return;
+    const f = document.querySelector('#detailModal [data-trailer-of]');
+    const m = f && f.src ? f.src.match(/embed\/([\w-]+)/) : null;
+    if (m) openExternalUrl('https://www.youtube.com/watch?v=' + m[1]);
+    else toast('No se pudo localizar el tráiler.', 'warn');
   });
   document.getElementById('exploreResults').addEventListener('click', e => {
     const card = e.target.closest('.result-card');
@@ -1723,8 +2070,10 @@ function wireActions() {
   });
   document.getElementById('exploreSkeleton').addEventListener('click', () => {});
   document.getElementById('detailModal').addEventListener('click', e => { if (e.target === document.getElementById('detailModal')) closeModal(); });
+  document.getElementById('addModal').addEventListener('click', e => { if (e.target === document.getElementById('addModal')) document.getElementById('addModal').classList.add('hidden'); });
+  document.getElementById('prequelModal').addEventListener('click', e => { if (e.target === document.getElementById('prequelModal')) document.getElementById('prequelModal').classList.add('hidden'); });
   document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === document.getElementById('confirmModal')) { document.getElementById('confirmModal').classList.add('hidden'); pendingDeleteId = null; } });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (!document.getElementById('detailModal').classList.contains('hidden')) closeModal(); document.getElementById('confirmModal').classList.add('hidden'); pendingDeleteId = null; } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (!document.getElementById('detailModal').classList.contains('hidden')) closeModal(); document.getElementById('addModal').classList.add('hidden'); document.getElementById('prequelModal').classList.add('hidden'); document.getElementById('confirmModal').classList.add('hidden'); pendingDeleteId = null; } });
   document.getElementById('confirmCancel').addEventListener('click', () => { document.getElementById('confirmModal').classList.add('hidden'); pendingDeleteId = null; });
   document.getElementById('confirmOk').addEventListener('click', () => {
     if (pendingDeleteId) removeAnime(pendingDeleteId);
@@ -1739,6 +2088,7 @@ function wireActions() {
 
 function init() {
   load();
+  applyAppearance();
   recomputeStats();
   renderDashboard();
   setupSettings();
@@ -1767,7 +2117,7 @@ function init() {
   if (navigator.onLine) {
     const pill = document.getElementById('apiPill');
     pill.innerHTML = '<i data-lucide="wifi" class="w-3 h-3"></i> API Anime'; icons();
-    setTimeout(() => anilistQuery(AL_PING).then(d => { if (d && d.Page) { document.getElementById('apiPill').querySelector('i').className = 'w-3 h-3'; toast('Conexión con la API de AniList verificada ✓', 'ok'); } }), 500);
+    setTimeout(() => anilistQuery(AL_PING).then(d => { if (d && d.Page) { document.getElementById('apiPill').innerHTML = '<i data-lucide="wifi" class="w-3 h-3"></i> API Anime'; icons(); toast('Conexión con la API de AniList verificada ✓', 'ok'); } }), 500);
   } else {
     document.getElementById('apiPill').className = 'hidden sm:flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-full border border-rose-400/20 bg-rose-400/10 text-rose-300 font-medium';
     document.getElementById('apiPill').innerHTML = '<i data-lucide="wifi-off" class="w-3 h-3"></i> Offline'; icons();

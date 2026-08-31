@@ -9,8 +9,12 @@ App de escritorio para el seguimiento de anime inspirada en la potencia de **Tai
 ## Características
 
 - **Mi Lista**: filtros por estado (Viendo, Pendientes, Completados, En pausa, Abandonados), vista de cuadrícula o lista densa con incremento rápido de episodios (`+1 Ep`).
-- **Búsqueda en tiempo real** contra la API GraphQL de [AniList](https://anilist.co) (con respaldo de Jikan) con autocompletado y modal de previsualización (sinopsis, tráiler, puntuación, episodios).
-- **Auto-Scrobbler**: detecta automáticamente el anime que estás viendo en cualquier navegador (Chrome / Edge / Firefox / Brave…) o reproductor mediante el título de la ventana (Windows), también dentro de la app (tráiler/ficha). Si el título detectado no está en tu lista, te sugiere agregarlo abriendo su ficha. Registra episodios al terminar e incluye simulador manual (VLC / MPV / PotPlayer).
+- **Búsqueda en tiempo real** contra la API GraphQL de [AniList](https://anilist.co) (con respaldo de Jikan) con autocompletado y modal de previsualización (sinopsis, tráiler reproducible con autoplay y botón «Abrir en YouTube», puntuación, episodios).
+- **Auto-Scrobbler**: detecta automáticamente el anime que estás viendo en cualquier navegador (Chrome / Edge / Firefox / Brave…) o reproductor mediante el título de la ventana (Windows), también dentro de la app (tráiler/ficha). Registrar episodios al terminar e incluye simulador manual (VLC / MPV / PotPlayer).
+- **Prompts inteligentes al detectar**: si el anime que ves no está en tu lista te pregunta si quieres agregarlo (Añadir / Ver ficha / Descartar). Para franquicias largas (p. ej. Bleach) detecta las temporadas anteriores vía `relations` de AniList y te ofrece marcarlas como completadas al instante.
+- **Tráiler funcional**: se reproduce dentro de la app al abrir la ficha (autoplay) con enlace externo a YouTube si el embed está bloqueado.
+- **Cuenta AniList (OAuth)**: conecta tu cuenta pegando el Client ID y access token (crea una app gratis en `anilist.co/settings/developer`). Tu progreso y estado se sincronizan automáticamente en línea; hay re-sincronización completa con un clic. Crunchyroll y otras webs se detectan solas al verlas en el navegador (Crunchyroll no ofrece API pública para terceros).
+- **Ajustes del Tracker**: temas («Oscuro», «OLED Negro», «Claro») y 6 colores de acento, además de los interruptores del Auto-Scrobbler (detección, incremento, notificaciones, prompt automático y sincronización).
 - **Estadísticas personales**: métricas globales, género favoritos, distribución por estado y gráfico de actividad de los últimos 7 días.
 - **Calendario de emisión** horario JST con datos en vivo desde el `airingSchedules` de AniList (sábados-completos) con respaldo de demo.
 - **Persistencia total** en `localStorage` con exportación/importación de respaldo JSON. Arranca con la lista vacía (sin datos de demo).
