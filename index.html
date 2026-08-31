@@ -980,6 +980,52 @@ function episodeFromTitle(t) {
   return null;
 }
 
+const STREAM_MARK = /\b(animeflv|crunchyroll|myanimelist|mangacrash|animeonline|aniplay|jkanime|zoro\.to|netflix|disney\s*plus|crunchy|hbomax|max\.com|funimation|prime\s*video|hulu|mxplayer|bilibili|animedao|gogoanime)\b|episodio|episode|cap[ií]tulo/i;
+
+let lastPromptName = null;
+let detectSearchBusy = false;
+
+function animeNameFromTitle(t) {
+  let s = t;
+  const m = s.match(/\b(?:ep\.?|episode|episodio|cap[ií]tulo)\b.*$/i);
+  if (m) s = s.slice(0, m.index);
+  s = s
+    .replace(/\b(?:sub\s*[ée]spa[nñ]ol|sub\s*ingles|lati?no|subtitulado|\d{3,4}p|ver\s*online|hd|animeflv|crunchyroll|jkanime|aniplay|animeonline|gogoanime|mangacrash|mxplayer|bilibili|netflix|hbomax|brave)\b/gi, '')
+    .replace(/\s*[-—|]\s*/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return s;
+}
+
+function detectHint(list) {
+  for (const w of list) {
+    if (!STREAM_MARK.test(w.t)) continue;
+    const name = animeNameFromTitle(w.t);
+    if (!name || name.length < 3) continue;
+    if (name === lastPromptName) continue;
+    lastPromptName = name;
+    const ep = episodeFromTitle(w.t);
+    toast('Viendo en <b>' + esc(w.n.replace(/\.exe$/i, '')) + '</b>: «<b>' + esc(name) + '</b>' + (ep ? ' — Ep ' + ep : '') + '» no está en tu lista. Buscando su ficha para que lo agregues…', 'info');
+    resolveDetectedAnime(name);
+  }
+}
+
+async function resolveDetectedAnime(name) {
+  if (detectSearchBusy) return;
+  detectSearchBusy = true;
+  const json = await apiFetch(JIKAN + '/anime?q=' + encodeURIComponent(name) + '&limit=3&sfw=true');
+  detectSearchBusy = false;
+  if (!json || !Array.isArray(json.data) || !json.data.length) {
+    toast('No pude resolver «' + esc(name) + '» por la API. Búscalo en la barra superior para agregarlo.', 'warn');
+    return;
+  }
+  const item = mapJikanItem(json.data[0]);
+  const malId = item.id.replace('mal_', '');
+  apiDetailCache[malId] = item;
+  openApiDetail(item);
+  toast('Ficha de <b>' + esc(item.title) + '</b>: ábrela para agregarlo a tu lista y que el Auto-Scrobbler lo registre.', 'ok');
+}
+
 function onBrowserTitles(list) {
   if (!state.settings || state.settings.detectPlayers === false) {
     if (state.scrobbler.running && state.scrobbler.source === 'browser') stopScrobble();
@@ -1007,8 +1053,9 @@ function onBrowserTitles(list) {
       increment: state.settings.autoIncrement !== false,
       ep: ep
     });
-  } else if (state.scrobbler.running && state.scrobbler.source === 'browser') {
-    stopScrobble();
+  } else {
+    if (state.scrobbler.running && state.scrobbler.source === 'browser') stopScrobble();
+    detectHint(list);
   }
 }
 
