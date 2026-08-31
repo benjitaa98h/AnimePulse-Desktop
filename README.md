@@ -8,10 +8,10 @@ App de escritorio para el seguimiento de anime inspirada en la potencia de **Tai
 
 - **Mi Lista**: filtros por estado (Viendo, Pendientes, Completados, En pausa, Abandonados), vista de cuadrícula o lista densa con incremento rápido de episodios (`+1 Ep`).
 - **Búsqueda en tiempo real** contra la API pública de [Jikan (MyAnimeList)](https://api.jikan.moe/v4/anime) con autocompletado y modal de previsualización (sinopsis, tráiler, puntuación, episodios).
-- **Auto-Scrobbler simulado**: detecta "reproductores en ejecución" (VLC / MPV / PotPlayer) y registra episodios automáticamente al terminar la reproducción.
+- **Auto-Scrobbler**: detecta automáticamente el anime del tráiler/YouTube que reproduces dentro de la app (ficha o previsualización), más simulador manual de reproducción (VLC / MPV / PotPlayer) que registra episodios al terminar.
 - **Estadísticas personales**: métricas globales, género favoritos, distribución por estado y gráfico de actividad de los últimos 7 días.
 - **Calendario de emisión** horario JST con datos en vivo desde Jikan `/schedules`.
-- **Persistencia total** en `localStorage` con exportación/importación de respaldo JSON y datos de demo precargados.
+- **Persistencia total** en `localStorage` con exportación/importación de respaldo JSON. Arranca con la lista vacía (sin datos de demo).
 
 ## Requisitos
 
