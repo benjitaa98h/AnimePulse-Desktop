@@ -5,5 +5,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   toggleMaximize: () => ipcRenderer.send('win:toggle-maximize'),
   close: () => ipcRenderer.send('win:close'),
   isMaximized: () => ipcRenderer.invoke('win:is-maximized'),
-  onMaximized: (cb) => ipcRenderer.on('window:maximized', (_e, val) => cb(val))
+  onMaximized: (cb) => ipcRenderer.on('window:maximized', (_e, val) => cb(val)),
+  browserDetectStart: () => ipcRenderer.send('browser:detect-start'),
+  onBrowserTitles: (cb) => ipcRenderer.on('browser:titles', (_e, list) => cb(list))
 });
