@@ -1185,8 +1185,7 @@ function detailOfApi(item) {
     '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Sinopsis</div>' +
       '<p class="text-[12px] text-slate-400 leading-relaxed max-h-40 overflow-y-auto pr-1">' + (item.synopsis ? esc(item.synopsis) : 'Sin sinopsis disponible.') + '</p></div>' +
     (item.trailerId ? ytWrap(item.trailerId, item.id) : '') +
-  '<div class="flex flex-wrap gap-2 mt-5">';
-    '<div class="flex flex-wrap items-center gap-2 mt-6">' +
+  '<div class="flex flex-wrap items-center gap-2 mt-5">' +
       (inList
         ? '<span class="text-[12px] text-emerald-300 font-semibold flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Ya está en tu lista (' + STATUS_META[inList.status].label + ')</span>'
         : '<button data-mdl="add" data-id="' + esc(item.id) + '" class="btn-primary px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center gap-2"><i data-lucide="bookmark-plus" class="w-4 h-4"></i> Añadir a Mi Lista</button>') +
@@ -2352,8 +2351,10 @@ async function runExploreSearch(q, force) {
   const key = 'e_' + q.toLowerCase();
   let raw = force ? null : exploreKeyCache[key];
   if (!raw) {
-    const items = await searchAnimeFinal(q, 24);
-    if (items) raw = exploreKeyCache[key] = items;
+    try {
+      const items = await searchAnimeFinal(q, 24);
+      if (items) raw = exploreKeyCache[key] = items;
+    } catch (err) { console.error('Error en runExploreSearch', err); raw = null; }
   }
   showSkeleton(false); setBodyLoading(false);
   if (!raw) {
@@ -2373,13 +2374,15 @@ async function loadTrending() {
   document.getElementById('exploreResults').innerHTML = '';
   showSkeleton(true); setBodyLoading(true);
   if (!trendingRaw) {
-    const data = await anilistQuery(AL_TRENDING, { n: 24 });
-    if (data && data.Page && data.Page.media && data.Page.media.length) trendingRaw = data.Page.media.map(mapAnilistItem);
-    else {
-      const json = await apiFetch(JIKAN + '/top/anime?filter=bypopularity&limit=24&sfw=true');
-      if (json && Array.isArray(json.data) && json.data.length) trendingRaw = json.data.map(mapJikanItem);
-      else trendingRaw = 'offline';
-    }
+    try {
+      const data = await anilistQuery(AL_TRENDING, { n: 24 });
+      if (data && data.Page && data.Page.media && data.Page.media.length) trendingRaw = data.Page.media.map(mapAnilistItem);
+      else {
+        const json = await apiFetch(JIKAN + '/top/anime?filter=bypopularity&limit=24&sfw=true');
+        if (json && Array.isArray(json.data) && json.data.length) trendingRaw = json.data.map(mapJikanItem);
+        else trendingRaw = 'offline';
+      }
+    } catch (err) { console.error('Error en loadTrending', err); trendingRaw = 'offline'; }
   }
   showSkeleton(false); setBodyLoading(false);
   if (!trendingRaw) { document.getElementById('exploreHint').textContent = 'No se pudieron cargar las tendencias.'; return; }
@@ -2432,6 +2435,8 @@ function openExploreDetail(div) {
     if (trendingRaw === 'offline') { toast('Estás en modo demo sin conexión: la ficha estará disponible cuando la API vuelva.', 'info'); return; }
     openApiDetailById(malId); return;
   }
+  apiDetailCache[String(item.mal_id)] = item;
+  state.searchCache['id_' + String(item.mal_id)] = item;
   openApiDetail(item);
 }
 
@@ -2468,7 +2473,8 @@ function renderCalendar() {
 
 function scheduleCard(m, isMock) {
   const hue = hashHue(m.title);
-  return '<div class="flex items-center gap-3 p-3 rounded-xl glass edge anim-in">' +
+  const clk = (m.mal_id ? ' cal-card cursor-pointer' : '');
+  return '<div' + (m.mal_id ? ' data-mal="' + m.mal_id + '"' : '') + ' class="flex items-center gap-3 p-3 rounded-xl glass edge anim-in' + clk + '">' +
     '<div class="relative w-10 h-14 rounded-lg overflow-hidden shrink-0" style="background:linear-gradient(150deg,hsl(' + hue + ',65%,28%),hsl(' + ((hue + 120) % 360) + ',60%,16%))">' +
     '<span class="poster-fallback" style="font-size:.75rem">' + initials(m.title) + '</span>' +
     (m.image ? '<img src="' + esc(m.image) + '" class="w-full h-full object-cover relative z-[1]" loading="lazy" onerror="this.remove()">' : '') + '</div>' +
@@ -2549,6 +2555,18 @@ async function loadSchedule(day) {
   updateCalCountdowns();
 }
 
+async function calOpenDetail(malId, cardText) {
+  const usingAs = asSchedLoaded && state.settings && state.settings.asOn;
+  if (!usingAs) { await openApiDetailById(malId); return; }
+  const title = (cardText || '').split('\n')[0].trim();
+  toast('Cargando ficha de «' + esc(title || 'este título') + '»…', 'info');
+  let item = null;
+  try { const found = await searchAnimeFinal(title, 3); if (found && found.length) item = found[0]; } catch (e) { item = null; }
+  if (!item) { toast('No se pudo localizar «' + esc(title) + '» para ver su ficha.', 'warn'); return; }
+  apiDetailCache[String(item.mal_id)] = item;
+  state.searchCache['id_' + String(item.mal_id)] = item;
+  openApiDetail(item);
+}
 function asWeek(d) {
   const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const dayNum = (t.getUTCDay() + 6) % 7;
@@ -2711,7 +2729,7 @@ function finishEpisode() {
       save();
       renderDashboard(); recomputeStats();
       if (state.settings.notifications) toast('<b>' + esc(a.title) + '</b> — Episodio ' + (a.watched) + ' registrado por Auto-Scrobbler ✓', 'ok');
-      alMaybeSync(a.id); kitsuMaybeSync(a.id); kitsuMaybeSync(a.id);
+      alMaybeSync(a.id); kitsuMaybeSync(a.id);
     }
   }
   if (state.scrobbler.running) {
@@ -2984,9 +3002,9 @@ function wireActions() {
   });
   document.addEventListener('click', e => {
     const dayBtn = e.target.closest('.cal-day[data-day]');
-    if (!dayBtn) return;
-    state.calendarDay = dayBtn.getAttribute('data-day');
-    renderCalendar();
+    if (dayBtn) { state.calendarDay = dayBtn.getAttribute('data-day'); renderCalendar(); return; }
+    const card = e.target.closest('#calList .cal-card[data-mal]');
+    if (card) calOpenDetail(card.getAttribute('data-mal'), card.textContent);
   });
   document.getElementById('exploreSkeleton').addEventListener('click', () => {});
   document.getElementById('detailModal').addEventListener('click', e => { if (e.target === document.getElementById('detailModal')) closeModal(); });
