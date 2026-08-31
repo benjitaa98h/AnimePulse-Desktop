@@ -78,7 +78,7 @@ tailwind.config = {
   textarea, input { outline: none; }
   input:focus, textarea:focus { border-color: rgba(var(--a1-r),var(--a1-g),var(--a1-b),.55) !important; box-shadow: 0 0 0 3px rgba(var(--a1-r),var(--a1-g),var(--a1-b),.15); }
   .fade-section { transition: opacity .18s ease; }
-  body.section-loading .fade-section { opacity: .55; pointer-events: none; }
+  body.section-loading .fade-section { opacity: .92; pointer-events: none; }
 
   html[data-theme="oled"] body { background: #000; }
   html[data-theme="oled"] .glass { background: rgba(9,9,14,.78); }
@@ -1359,24 +1359,24 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function apiFetch(url, attempt) {
   attempt = attempt || 0;
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 12000);
+  const timer = setTimeout(() => ctrl.abort(), 7000);
   let res;
   try {
     res = await fetch(url, { signal: ctrl.signal, headers: { 'Accept': 'application/json' } });
   } catch (e) {
     clearTimeout(timer);
-    if (attempt < 2) { await sleep(900 + attempt * 700); return apiFetch(url, attempt + 1); }
+    if (attempt < 1) { await sleep(600); return apiFetch(url, attempt + 1); }
     toast('Error de red al conectar con Jikan. Verifica tu conexión a internet.', 'err');
     return null;
   }
   clearTimeout(timer);
   if (res.status === 429) {
-    if (attempt < 2) { await sleep(1600); return apiFetch(url, attempt + 1); }
+    if (attempt < 1) { await sleep(1200); return apiFetch(url, attempt + 1); }
     toast('Límite de la API de Jikan alcanzado. Espera unos segundos e inténtalo otra vez.', 'warn');
     return null;
   }
   if (!res.ok) {
-    if (attempt < 2) { await sleep(1200 + attempt * 800); return apiFetch(url, attempt + 1); }
+    if (attempt < 1) { await sleep(900); return apiFetch(url, attempt + 1); }
     toast('La API de Jikan no responde (error ' + res.status + '). Suele ser temporal; inténtalo en unos segundos.', 'err');
     return null;
   }
@@ -1437,9 +1437,9 @@ const AL_VIEWER = 'query { Viewer { id name avatar { large } } }';
 const AL_SAVE = 'mutation($mid: Int, $progress: Int, $status: MediaListStatus) { SaveMediaListEntry(mediaId: $mid, progress: $progress, status: $status) { id progress status } }';
 
 async function anilistQuery(query, variables, token) {
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < 2; attempt++) {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 15000);
+    const timer = setTimeout(() => ctrl.abort(), 8000);
     try {
       const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
       if (token) headers.Authorization = 'Bearer ' + token;
@@ -1450,22 +1450,22 @@ async function anilistQuery(query, variables, token) {
         signal: ctrl.signal
       });
       clearTimeout(timer);
-      if (res.status === 429) { await sleep(1300); continue; }
+      if (res.status === 429) { await sleep(800); continue; }
       if (!res.ok) {
         const txt = await res.text().catch(() => '');
-        if (attempt < 2) { await sleep(1000 + attempt * 600); continue; }
+        if (attempt < 1) { await sleep(700); continue; }
         console.warn('AniList error', res.status, txt.slice(0, 200));
         return null;
       }
       const body = await res.json();
       if (body && body.errors) {
-        if (attempt < 2) { await sleep(800); continue; }
+        if (attempt < 1) { await sleep(600); continue; }
         return null;
       }
       return body.data || null;
     } catch (e) {
       clearTimeout(timer);
-      if (attempt < 2) { await sleep(900 + attempt * 700); continue; }
+      if (attempt < 1) { await sleep(600); continue; }
       return null;
     }
   }
@@ -2336,9 +2336,9 @@ function showSkeleton(on) {
 
 let skeletonTimeout = null;
 function setBodyLoading(on) {
-  clearTimeout(skeletonTimeout);
+  clearTimeout(skeletonTimeout); skeletonTimeout = null;
   document.body.classList.toggle('section-loading', on);
-  if (on) skeletonTimeout = setTimeout(() => document.body.classList.remove('section-loading'), 12000);
+  if (on) skeletonTimeout = setTimeout(() => { document.body.classList.remove('section-loading'); skeletonTimeout = null; }, 15000);
 }
 
 const exploreKeyCache = {};
