@@ -58,6 +58,48 @@ function createDB(userDataDir) {
       event TEXT,
       created_at INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS scrobble_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      anime_id TEXT NOT NULL,
+      anime_title TEXT,
+      episode INTEGER NOT NULL,
+      season INTEGER DEFAULT 1,
+      source TEXT,
+      player TEXT,
+      progress REAL,
+      coins INTEGER DEFAULT 0,
+      xp INTEGER DEFAULT 0,
+      marathon INTEGER DEFAULT 1,
+      watched_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_scrobble_anime ON scrobble_history(anime_id, episode);
+    CREATE INDEX IF NOT EXISTS idx_scrobble_date ON scrobble_history(watched_at);
+
+    CREATE TABLE IF NOT EXISTS coin_tx (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      delta INTEGER NOT NULL,
+      reason TEXT NOT NULL,
+      ref_id TEXT,
+      created_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS xp_tx (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      delta INTEGER NOT NULL,
+      reason TEXT NOT NULL,
+      ref_id TEXT,
+      created_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS marathons (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      anime_id TEXT,
+      start_at INTEGER NOT NULL,
+      end_at INTEGER NOT NULL,
+      episode_count INTEGER NOT NULL,
+      multiplier REAL DEFAULT 1.0
+    );
   `);
 
   const dbPath = path.join(userDataDir, 'animepulse-state.json');
@@ -129,7 +171,7 @@ function createDB(userDataDir) {
   }
 
   function wipe() {
-    db.exec('DELETE FROM app_state; DELETE FROM anime_list; DELETE FROM user_stats; DELETE FROM trophies; DELETE FROM trophies_history;');
+    db.exec('DELETE FROM app_state; DELETE FROM anime_list; DELETE FROM user_stats; DELETE FROM trophies; DELETE FROM trophies_history; DELETE FROM scrobble_history; DELETE FROM coin_tx; DELETE FROM xp_tx; DELETE FROM marathons;');
     return { ok: true };
   }
 
@@ -203,6 +245,75 @@ function createDB(userDataDir) {
     return db.prepare('SELECT anime_id, anime_title, trophy_id, coins, xp, event, created_at FROM trophies_history ORDER BY created_at DESC LIMIT ?').all(n);
   }
 
+  function ipcRecordEpisode(evt) {
+    if (!evt || evt.anime_id == null) return { ok: false, error: 'missing anime_id' };
+    const now = Date.now();
+    const anime = db.prepare('SELECT title FROM anime_list WHERE id = ?').get(String(evt.anime_id));
+    const title = String(evt.anime_title || (anime && anime.title) || '');
+    const episode = Number(evt.episode || 0);
+    const coins = Math.round(Number(evt.coins || 0));
+    const xp = Math.round(Number(evt.xp || 0));
+    const marathon = Number(evt.marathon || 1);
+    const source = String(evt.source || 'manual');
+    const player = String(evt.player || '');
+    const progress = evt.progress == null ? null : Number(evt.progress);
+
+    const tx = db.prepare('BEGIN');
+    const cHistory = db.prepare(
+      'INSERT INTO scrobble_history (anime_id, anime_title, episode, season, source, player, progress, coins, xp, marathon, watched_at) ' +
+      'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    );
+    const cCoins = db.prepare('INSERT INTO coin_tx (delta, reason, ref_id, created_at) VALUES (?, ?, ?, ?)');
+    const cXp = db.prepare('INSERT INTO xp_tx (delta, reason, ref_id, created_at) VALUES (?, ?, ?, ?)');
+    const cMarathon = db.prepare(
+      'INSERT INTO marathons (anime_id, start_at, end_at, episode_count, multiplier) VALUES (?, ?, ?, ?, ?)'
+    );
+
+    try {
+      tx.run();
+      const r = cHistory.run(
+        String(evt.anime_id), title, episode, Number(evt.season || 1), source, player,
+        progress, coins, xp, marathon, now
+      );
+      const historyId = Number(r.lastInsertRowid);
+      if (coins !== 0) cCoins.run(coins, 'episode', String(historyId), now);
+      if (xp !== 0) cXp.run(xp, 'episode', String(historyId), now);
+      if (marathon >= 3) {
+        cMarathon.run(String(evt.anime_id), now - 3 * 60 * 60 * 1000, now, marathon, 1.5);
+      }
+      db.prepare('COMMIT').run();
+      return { ok: true, id: historyId };
+    } catch (e) {
+      try { db.prepare('ROLLBACK').run(); } catch (e2) { /* noop */ }
+      return { ok: false, error: String(e && e.message) };
+    }
+  }
+
+  function ipcScrobbleHistory(limit) {
+    const n = Number(limit || 50);
+    return db.prepare(
+      'SELECT id, anime_id, anime_title, episode, season, source, player, progress, coins, xp, marathon, watched_at ' +
+      'FROM scrobble_history ORDER BY watched_at DESC LIMIT ?'
+    ).all(n);
+  }
+
+  function ipcCoinSummary() {
+    const row = db.prepare('SELECT COALESCE(SUM(delta),0) AS total, COUNT(*) AS tx FROM coin_tx').get();
+    return { total: row ? Number(row.total) : 0, tx: row ? Number(row.tx) : 0 };
+  }
+
+  function ipcScrobbleStats() {
+    const r = db.prepare(
+      'SELECT COUNT(*) AS episodes, COUNT(DISTINCT anime_id) AS animes, COALESCE(SUM(episode),0) AS total_eps, ' +
+      'MAX(marathon) AS best_marathon FROM scrobble_history'
+    ).get();
+    return {
+      episodes: r ? Number(r.episodes) : 0,
+      animes: r ? Number(r.animes) : 0,
+      best_marathon: r ? Number(r.best_marathon || 1) : 1
+    };
+  }
+
   function close() {
     try { db.close(); } catch (e) { /* noop */ }
   }
@@ -214,7 +325,11 @@ function createDB(userDataDir) {
     listTrophies: ipcListTrophies,
     addTrophy: ipcAddTrophy,
     addHistory: ipcAddHistory,
-    history: ipcHistory
+    history: ipcHistory,
+    recordEpisode: ipcRecordEpisode,
+    scrobbleHistory: ipcScrobbleHistory,
+    coinSummary: ipcCoinSummary,
+    scrobbleStats: ipcScrobbleStats
   };
 }
 

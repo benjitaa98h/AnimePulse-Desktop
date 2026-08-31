@@ -374,6 +374,14 @@ tailwind.config = {
           </div>
           <div id="trophyGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3"></div>
         </div>
+        <div class="glass edge rounded-2xl p-5 mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-display font-semibold text-sm text-white flex items-center gap-2"><i data-lucide="history" class="w-4 h-4 text-cyan-400"></i> Historial de reproducción</h3>
+            <span id="scrobHistCoin" class="text-[11px] font-semibold text-amber-300"></span>
+          </div>
+          <div id="scrobHistList" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+          <div id="scrobHistEmpty" class="text-[12px] text-slate-500 py-4 text-center">Aún no hay reproducciones registradas. Reproduce un episodio para que aparezca aquí.</div>
+        </div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div class="glass edge rounded-2xl p-4 flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl bg-purple-500/15 flex items-center justify-center text-purple-400"><i data-lucide="film" class="w-5 h-5"></i></div>
@@ -2877,6 +2885,7 @@ function awardEpisode(a) {
   let coins = 10, xp = 20;
   if (g.marathon >= 3) { coins = Math.round(coins * 1.5); xp = Math.round(xp * 1.5); }
   addCoins(coins); addXP(xp);
+  recordEpisodeToDB(a, coins, xp);
 
   if (g.marathon >= 3) toast('🔥 Maratón x' + g.marathon + '! +' + coins + ' 🪙', 'ok');
   else toast('+' + coins + ' 🪙 y +' + xp + ' XP', 'info');
@@ -2893,6 +2902,25 @@ function awardEpisode(a) {
   syncGameDB();
   checkTrophies();
   renderGamification();
+}
+
+function recordEpisodeToDB(a, coins, xp) {
+  if (!a || !a.id) return;
+  const sb = state.scrobbler || {};
+  const evt = {
+    anime_id: a.id,
+    anime_title: a.title,
+    episode: a.watched || 1,
+    source: sb.source || 'manual',
+    player: sb.player || '',
+    progress: sb.progress != null ? (sb.progress / 100) : null,
+    coins, xp,
+    marathon: state.gamification.marathon || 1,
+    season: 1
+  };
+  if (window.electronAPI && window.electronAPI.gameRecordEpisode) {
+    window.electronAPI.gameRecordEpisode(evt);
+  }
 }
 
 function checkFranquicia(a) {
@@ -3000,6 +3028,34 @@ function renderGamification() {
   if (coinText) coinText.textContent = '🪙 ' + g.coins;
   if (epTextG) epTextG.textContent = g.totalEpisodes + ' ep';
   renderTrophies();
+  renderScrobbleHistory();
+}
+
+function renderScrobbleHistory() {
+  const listEl = document.getElementById('scrobHistList');
+  const emptyEl = document.getElementById('scrobHistEmpty');
+  const coinEl = document.getElementById('scrobHistCoin');
+  if (!listEl) return;
+  if (window.electronAPI && window.electronAPI.gameScrobbleHistory) {
+    Promise.all([window.electronAPI.gameScrobbleHistory(30), window.electronAPI.gameCoinSummary()])
+      .then(([rows, coins]) => {
+        if (Array.isArray(rows) && rows.length) {
+          listEl.innerHTML = rows.map(h => {
+            const d = new Date(Number(h.watched_at || Date.now()));
+            const date = d.toLocaleDateString(undefined, { day: '2-digit', month: 'short' }) + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+            const mar = (h.marathon && h.marathon >= 3) ? '<span class="text-[9px] font-bold text-orange-300 ml-1">🔥×' + h.marathon + '</span>' : '';
+            return '<div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-white/[.03]">' +
+              '<div class="min-w-0"><div class="text-[12px] text-slate-200 truncate">' + esc(h.anime_title || 'Anime') + ' <b class="text-white">Ep ' + h.episode + '</b>' + mar + '</div>' +
+              '<div class="text-[10px] text-slate-500">' + esc(h.player || h.source || '—') + ' · ' + date + '</div></div>' +
+              '<div class="text-right shrink-0"><div class="text-[11px] font-semibold text-amber-300">+' + h.coins + ' 🪙</div><div class="text-[10px] text-slate-500">+' + h.xp + ' XP</div></div>' +
+              '</div>';
+          }).join('');
+          if (emptyEl) emptyEl.style.display = 'none';
+        } else if (listEl) listEl.innerHTML = '';
+        if (coinEl && coins && coins.total != null) coinEl.textContent = '🪙 ' + coins.total + ' acumulados';
+      })
+      .catch(() => {});
+  }
 }
 
 function stopScrobble() {

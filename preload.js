@@ -33,5 +33,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   gameListTrophies: () => ipcRenderer.invoke('game:list-trophies'),
   gameAddTrophy: (t) => ipcRenderer.invoke('game:add-trophy', t),
   gameAddHistory: (entry) => ipcRenderer.invoke('game:add-history', entry),
-  gameHistory: (limit) => ipcRenderer.invoke('game:history', limit)
+  gameHistory: (limit) => ipcRenderer.invoke('game:history', limit),
+  gameRecordEpisode: (evt) => ipcRenderer.invoke('game:record-episode', evt),
+  gameScrobbleHistory: (limit) => ipcRenderer.invoke('game:scrobble-history', limit),
+  gameCoinSummary: () => ipcRenderer.invoke('game:coin-summary'),
+  gameScrobbleStats: () => ipcRenderer.invoke('game:scrobble-stats')
 });

@@ -252,6 +252,18 @@ ipcMain.handle('game:add-history', (e, entry) => {
 ipcMain.handle('game:history', (e, limit) => {
   try { return appDB ? appDB.history(limit) : []; } catch (e) { return []; }
 });
+ipcMain.handle('game:record-episode', (e, evt) => {
+  try { return appDB ? appDB.recordEpisode(evt) : { ok: false }; } catch (e) { return { ok: false, error: String(e && e.message) }; }
+});
+ipcMain.handle('game:scrobble-history', (e, limit) => {
+  try { return appDB ? appDB.scrobbleHistory(limit) : []; } catch (e) { return []; }
+});
+ipcMain.handle('game:coin-summary', () => {
+  try { return appDB ? appDB.coinSummary() : { total: 0, tx: 0 }; } catch (e) { return { total: 0, tx: 0 }; }
+});
+ipcMain.handle('game:scrobble-stats', () => {
+  try { return appDB ? appDB.scrobbleStats() : { episodes: 0, animes: 0, best_marathon: 1 }; } catch (e) { return { episodes: 0, animes: 0, best_marathon: 1 }; }
+});
 
 const { createWatcher } = require('./folder-watcher');
 const watcher = createWatcher(fresh => {
