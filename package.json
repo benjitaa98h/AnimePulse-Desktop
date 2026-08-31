@@ -19,7 +19,8 @@
       "index.html",
       "discord-rpc.js",
       "folder-watcher.js",
-      "src/db.js"
+      "src/db.js",
+      "src/scrobbler.js"
     ],
     "directories": {
       "output": "dist"

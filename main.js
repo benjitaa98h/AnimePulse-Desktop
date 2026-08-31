@@ -243,6 +243,16 @@ ipcMain.handle('organizer:watch', (e, payload) => {
 app.on('quit', () => watcher.stop());
 app.on('before-quit', () => watcher.stop());
 
+const { createScrobbler } = require('./src/scrobbler');
+const nativeScrobbler = createScrobbler(evt => {
+  if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send('scrobble:native', evt);
+  }
+});
+ipcMain.handle('scrobble:native-start', () => { nativeScrobbler.start(); return { ok: true }; });
+ipcMain.handle('scrobble:native-stop', () => { nativeScrobbler.stop(); return { ok: true }; });
+app.on('before-quit', () => nativeScrobbler.stop());
+
 const { createDiscord } = require('./discord-rpc');
 const dc = createDiscord(evt => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('discord:status', evt); });
 ipcMain.handle('discord:connect', (e, p) => {
