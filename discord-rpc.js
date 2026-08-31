@@ -1,5 +1,12 @@
 'use strict';
 const net = require('net');
+const path = require('path');
+
+function getDiscordPipePath(n) {
+  if (process.platform === 'win32') return '\\\\?\\pipe\\discord-ipc-' + n;
+  if (process.platform === 'darwin') return path.join(process.env.HOME || '/tmp', 'Library', 'Application Support', 'discord-ipc-' + n);
+  return path.join(process.env.XDG_RUNTIME_DIR || '/tmp', 'discord-ipc-' + n);
+}
 
 function createDiscord(onEvent) {
   const dc = { socket: null, buffer: Buffer.alloc(0), clientId: '', activity: null, ready: false };
@@ -51,7 +58,7 @@ function createDiscord(onEvent) {
     const tryNext = () => {
       if (idx > 9) { emit({ ok: false, error: 'Discord no está abierto' }); return; }
       const n = idx++;
-      const s = net.connect({ path: '\\\\?\\pipe\\discord-ipc-' + n });
+      const s = net.connect({ path: getDiscordPipePath(n) });
       s.on('connect', () => { dc.socket = s; write(0, { v: 1, client_id: dc.clientId }); });
       s.on('data', read);
       s.once('error', () => { if (dc.socket === s) dc.socket = null; tryNext(); });

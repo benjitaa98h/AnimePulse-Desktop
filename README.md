@@ -10,7 +10,7 @@ App de escritorio para el seguimiento de anime inspirada en la potencia de **Tai
 
 - **Mi Lista**: filtros por estado (Viendo, Pendientes, Completados, En pausa, Abandonados), vista de cuadrícula o lista densa con incremento rápido de episodios (`+1 Ep`).
 - **Búsqueda en tiempo real** contra la API GraphQL de [AniList](https://anilist.co) (con respaldo de Jikan) con autocompletado y modal de previsualización (sinopsis, tráiler reproducible con autoplay y botón «Abrir en YouTube», puntuación, episodios).
-- **Auto-Scrobbler**: detecta automáticamente el anime que estás viendo en cualquier navegador (Chrome / Edge / Firefox / Brave…) o reproductor mediante el título de la ventana (Windows), también dentro de la app (tráiler/ficha). Registrar episodios al terminar e incluye simulador manual (VLC / MPV / PotPlayer).
+- **Auto-Scrobbler**: detecta automáticamente el anime que estás viendo en cualquier navegador (Chrome / Edge / Firefox / Brave…) o reproductor mediante el título de la ventana. En Windows usa PowerShell, en Linux usa `xdotool` (con respaldo `wmctrl`) y en macOS `osascript`. Funciona también dentro de la app (tráiler/ficha). Registra episodios al terminar e incluye simulador manual (VLC / MPV / PotPlayer).
 - **Prompts inteligentes al detectar**: si el anime que ves no está en tu lista te pregunta si quieres agregarlo (Añadir / Ver ficha / Descartar). Para franquicias largas (p. ej. Bleach) detecta las temporadas anteriores vía `relations` de AniList y te ofrece marcarlas como completadas al instante.
 - **Tráiler funcional**: se reproduce dentro de la app al abrir la ficha (autoplay) con enlace externo a YouTube si el embed está bloqueado.
 - **Cuenta AniList (OAuth)**: conecta tu cuenta pegando el Client ID y access token (crea una app gratis en `anilist.co/settings/developer`). Tu progreso y estado se sincronizan automáticamente en línea; hay re-sincronización completa con un clic desde la ficha del conector o con el botón «Sync AniList» de la barra de Mi Lista. Crunchyroll y otras webs se detectan solas al verlas en el navegador (Crunchyroll no ofrece API pública para terceros).
@@ -28,6 +28,16 @@ App de escritorio para el seguimiento de anime inspirada en la potencia de **Tai
 
 - [Node.js](https://nodejs.org) 18 o superior.
 
+### Requisitos según plataforma
+
+- **Windows**: funciona sin dependencias adicionales.
+- **Linux**: para la detección de ventanas del Auto-Scrobbler en el navegador, instala `xdotool` (o `wmctrl` como respaldo):
+  ```bash
+  sudo apt install xdotool wmctrl      # Debian / Ubuntu
+  sudo dnf install xdotool wmctrl      # Fedora
+  sudo pacman -S xdotool wmctrl        # Arch
+  ```
+
 ## Instalación y ejecución
 
 ```bash
@@ -35,13 +45,13 @@ npm install
 npm start
 ```
 
-## Empaquetar como ejecutable (.exe)
+## Empaquetar como ejecutable
 
 ```bash
 npm run dist
 ```
 
-Los instaladores se generan en la carpeta `dist/` (`NSIS` + `portable`).
+Los instaladores se generan en la carpeta `dist/`: en **Windows** (`NSIS` + `portable`), en **Linux** (`AppImage` + `deb`) y en **macOS** (`dmg`). Cada plataforma genera su instalador correspondiente al ejecutar `npm run dist` en ese sistema.
 
 ## Estructura
 

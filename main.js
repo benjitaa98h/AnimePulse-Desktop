@@ -1,33 +1,80 @@
 const { app, BrowserWindow, ipcMain, shell, dialog, clipboard } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { execFile } = require('child_process');
 
 let mainWindow = null;
 let pollTimer = null;
 let pollInFlight = false;
 
-const PS_TITLES = '[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle } | ForEach-Object { [PSCustomObject]@{ n=$_.ProcessName; t=$_.MainWindowTitle } } | ConvertTo-Json -Compress';
+const { execFile: execFileCb } = require('child_process');
+const { promisify } = require('util');
+const execFileAsync = promisify(execFileCb);
 
 function pollWindowTitles() {
   if (pollInFlight || !mainWindow || mainWindow.isDestroyed() || mainWindow.webContents.isDestroyed()) return;
   pollInFlight = true;
-  execFile('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', PS_TITLES],
-    { timeout: 4500, maxBuffer: 8 * 1024 * 1024, windowsHide: true }, (err, stdout) => {
-      pollInFlight = false;
-      if (err) return;
-      if (!mainWindow || mainWindow.isDestroyed() || mainWindow.webContents.isDestroyed()) return;
-      const txt = (stdout || '').trim();
-      let list = [];
-      if (txt) {
-        try {
+
+  const platform = process.platform;
+
+  let promise;
+  if (platform === 'win32') {
+    const PS_TITLES = '[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle } | ForEach-Object { [PSCustomObject]@{ n=$_.ProcessName; t=$_.MainWindowTitle } } | ConvertTo-Json -Compress';
+    promise = execFileAsync('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', PS_TITLES], { timeout: 4500, maxBuffer: 8 * 1024 * 1024, windowsHide: true })
+      .then(({ stdout }) => {
+        const txt = (stdout || '').trim();
+        let list = [];
+        if (txt) {
           const j = JSON.parse(txt);
           list = Array.isArray(j) ? j : [j];
-        } catch (e) { return; }
-      }
-      list = list.filter(w => w && w.t && w.n && !/animepulse/i.test(w.t));
+        }
+        return list.filter(w => w && w.t && w.n && !/animepulse/i.test(w.t));
+      });
+  } else if (platform === 'linux') {
+    promise = execFileAsync('xdotool', ['search', '--name', '', 'getwindowname', '%1', 'getwindowpid', '%1'], { timeout: 4500, maxBuffer: 8 * 1024 * 1024 })
+      .then(({ stdout }) => {
+        const lines = (stdout || '').trim().split('\n').filter(Boolean);
+        const list = [];
+        for (let i = 0; i < lines.length; i += 2) {
+          const title = (lines[i] || '').trim();
+          const pid = (lines[i + 1] || '').trim();
+          if (title && pid) list.push({ t: title, n: 'pid:' + pid });
+        }
+        return list.filter(w => w.t && !/animepulse/i.test(w.t));
+      })
+      .catch(() => {
+        return execFileAsync('wmctrl', ['-l'], { timeout: 3000 })
+          .then(({ stdout }) => {
+            return (stdout || '').trim().split('\n').filter(Boolean).map(line => {
+              const parts = line.split(/\s+/);
+              const title = parts.slice(2).join(' ');
+              return { t: title, n: 'wmctrl' };
+            }).filter(w => w.t && !/animepulse/i.test(w.t));
+          })
+          .catch(() => []);
+      });
+  } else if (platform === 'darwin') {
+    promise = execFileAsync('osascript', ['-e', 'tell application "System Events" to get {name, UNIX id} of every process whose background only is false'], { timeout: 4500, maxBuffer: 8 * 1024 * 1024 })
+      .then(({ stdout }) => {
+        const txt = (stdout || '').trim();
+        let list = [];
+        if (txt) {
+          const parsed = JSON.parse('[' + txt + ']');
+          list = parsed.map(p => ({ t: String(p[0] || ''), n: 'pid:' + String(p[1] || '') }));
+        }
+        return list.filter(w => w.t && !/animepulse/i.test(w.t));
+      })
+      .catch(() => []);
+  } else {
+    promise = Promise.resolve([]);
+  }
+
+  promise
+    .then(list => {
+      pollInFlight = false;
+      if (!mainWindow || mainWindow.isDestroyed() || mainWindow.webContents.isDestroyed()) return;
       mainWindow.webContents.send('browser:titles', list);
-    });
+    })
+    .catch(() => { pollInFlight = false; });
 }
 
 function startBrowserPolling() {
@@ -118,6 +165,7 @@ ipcMain.handle('fs:rename-file', (e, dir, from, to) => {
     const dst = path.join(dir, to);
     if (path.dirname(src) !== path.dirname(dst)) return { error: 'ruta-invalida' };
     if (!fs.existsSync(src)) return { error: 'no-existe' };
+    if (fs.existsSync(dst)) return { error: 'destino-existe' };
     fs.renameSync(src, dst);
     return { ok: true };
   } catch (err) { return { error: String((err && err.message) || err) }; }
@@ -204,8 +252,8 @@ ipcMain.handle('discord:connect', (e, p) => {
 });
 ipcMain.handle('discord:set', (e, p) => {
   const payload = p || {};
-  if (!dc.state.clientId) { dc.connect(payload.id); }
-  dc.setActivity(payload, dc.state.clientId);
+  if (payload.id) dc.state.clientId = String(payload.id).trim();
+  dc.setActivity(payload, dc.state.clientId || payload.id);
   return { ok: true };
 });
 ipcMain.handle('discord:stop', () => { dc.clear(); return { ok: true }; });

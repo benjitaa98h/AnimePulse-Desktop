@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com; font-src https://fonts.gstatic.com; frame-src https://www.youtube-nocookie.com https://www.youtube.com; connect-src 'self' https:;">
 <title>AnimePulse Desktop — Next-Gen Tracker</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a855f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='6 3 20 12 6 21 6 3'/%3E%3C/svg%3E">
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script src="https://unpkg.com/lucide@0.462.0"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -2141,16 +2142,16 @@ function shareAsImage(item) {
       const rr = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
       rr(cx, cy, cw, H2, 18); ctx.fill();
       if (img) { ctx.save(); rr(cx, cy, cw, H2, 18); ctx.clip(); ctx.drawImage(img, cx, cy, cw, H2); ctx.restore(); }
-      ctx.font = '700 34px "Segoe UI", sans-serif';
+      ctx.font = '700 34px Inter, "Segoe UI", sans-serif';
       ctx.fillStyle = '#fff';
       let ly = cy + 36;
       ly = wrapText(ctx, String(item.title), cw + cx + 28, ly, W - (cw + cx + 60), 42, '#fff');
-      ctx.font = '500 20px "Segoe UI", sans-serif';
+      ctx.font = '500 20px Inter, "Segoe UI", sans-serif';
       const st = STATUS_META[item.status] || STATUS_META.watching;
       const t = totalEps(item);
       ly = wrapText(ctx, (st.label || '') + (t ? ' · ' + (item.watched || 0) + ' / ' + t + ' episodios' : ''), cw + cx + 28, ly + 26, W - (cw + cx + 60), 26, 'rgba(255,255,255,.85)');
-      if (item.malScore) { ctx.font = '600 20px "Segoe UI", sans-serif'; ctx.fillStyle = '#fcd34d'; ctx.fillText('★ ' + item.malScore.toFixed(1), cw + cx + 28, ly + 30); }
-      ctx.font = '700 15px "Segoe UI", sans-serif';
+      if (item.malScore) { ctx.font = '600 20px Inter, "Segoe UI", sans-serif'; ctx.fillStyle = '#fcd34d'; ctx.fillText('★ ' + item.malScore.toFixed(1), cw + cx + 28, ly + 30); }
+      ctx.font = '700 15px Inter, "Segoe UI", sans-serif';
       ctx.fillStyle = 'rgba(255,255,255,.9)';
       ctx.fillText('ANIMEPULSE · TRACKER', 60, H - 24);
 const dataUrl = cv.toDataURL('image/png');

@@ -29,6 +29,20 @@
         "portable"
       ]
     },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "AudioVideo",
+      "maintainer": "Otaku Tracker"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.entertainment"
+    },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
