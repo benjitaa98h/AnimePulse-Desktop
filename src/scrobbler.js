@@ -99,39 +99,115 @@ function createScrobbler(onEvent) {
   const s = { active: false, timer: null, lastProgress: null };
   const intervalMs = 3000;
 
-  function tick() {
-    getTitles().then(titles => {
-      const t = titles.find(t => {
-        const p = detectPlayer(t.name);
-        return p && TIME_RE.test(t.title);
-      }) || titles.find(t => detectPlayer(t.name));
+  function mpvSocketPaths() {
+    if (process.platform === 'win32') return ['\\\\?\\pipe\\mpv-ipc', '\\\\?\\pipe\\mpv'];
+    const dir = process.env.XDG_RUNTIME_DIR || '/tmp';
+    const candidates = [
+      path.join(dir, 'mpv', 'socket'),
+      path.join(dir, 'mpv-socket'),
+      path.join(dir, 'mpv'),
+      '/tmp/mpvsocket',
+      '/tmp/mpv-socket'
+    ];
+    return candidates.filter(p => { try { return fs.existsSync(p); } catch (e) { return false; } });
+  }
 
-      if (!t) {
-        if (s.lastProgress && s.lastProgress.progress >= 0.8) {
-          onEvent({ type: 'complete', ...s.lastProgress });
-        }
-        s.lastProgress = null;
+  function mpvQuery(socketPath) {
+    return new Promise(resolve => {
+      const sock = net.connect({ path: socketPath });
+      const timeout = setTimeout(() => { try { sock.destroy(); } catch (e) {} resolve(null); }, 600);
+      let buf = '';
+      sock.on('connect', () => {
+        sock.write(JSON.stringify({ command: ['get_property', 'time-pos'] }) + '\n');
+        sock.write(JSON.stringify({ command: ['get_property', 'duration'] }) + '\n');
+        sock.write(JSON.stringify({ command: ['get_property', 'path'] }) + '\n');
+        sock.write(JSON.stringify({ command: ['get_property', 'filename'] }) + '\n');
+        sock.write(JSON.stringify({ command: ['get_property', 'pause'] }) + '\n');
+      });
+      sock.on('data', d => {
+        buf += d.toString('utf8');
+        try {
+          const lines = buf.split('\n').filter(Boolean);
+          let result = {};
+          for (const line of lines) {
+            const msg = JSON.parse(line);
+            if (msg.error === 'success') result[msg.request_id || 'v'] = msg.data;
+          }
+          if (Object.keys(result).length >= 1) {
+            clearTimeout(timeout);
+            try { sock.destroy(); } catch (e) {}
+            resolve(result);
+          }
+        } catch (e) {}
+      });
+      sock.on('error', () => { clearTimeout(timeout); resolve(null); });
+    });
+  }
+
+  function tick() {
+    const sockets = mpvSocketPaths();
+    const mpvPromise = sockets.length
+      ? mpvQuery(sockets[0]).then(data => {
+          if (!data) return null;
+          const cur = Number(data['time-pos']);
+          const dur = Number(data['duration']);
+          if (!Number.isFinite(cur) || !Number.isFinite(dur) || dur <= 0) return null;
+          const filename = String(data['filename'] || data['path'] || '');
+          return {
+            player: 'mpv',
+            title: stripExtensions(path.basename(filename)),
+            current_sec: cur,
+            duration_sec: dur,
+            progress: cur / dur,
+            episode: parseEpisodeFromTitle(path.basename(filename))
+          };
+        })
+      : Promise.resolve(null);
+
+    mpvPromise.then(mpvResult => {
+      if (mpvResult) {
+        s.lastProgress = mpvResult;
+        onEvent({ type: 'progress', ...mpvResult });
+        if (mpvResult.progress >= 0.8) onEvent({ type: 'complete', ...mpvResult });
         return;
       }
-
-      const player = detectPlayer(t.name);
-      const parsed = parseTitle(t.title);
-      if (!parsed) return;
-      const progress = {
-        player,
-        title: stripExtensions(parsed.clean),
-        current_sec: parsed.current,
-        duration_sec: parsed.duration,
-        progress: parsed.progress,
-        episode: parseEpisodeFromTitle(parsed.clean)
-      };
-      s.lastProgress = progress;
-      onEvent({ type: 'progress', ...progress });
-
-      if (parsed.progress >= 0.8) {
-        onEvent({ type: 'complete', ...progress });
-      }
+      return fallbackTitleTick();
     }).catch(() => {});
+
+    function fallbackTitleTick() {
+      return getTitles().then(titles => {
+        const t = titles.find(t => {
+          const p = detectPlayer(t.name);
+          return p && TIME_RE.test(t.title);
+        }) || titles.find(t => detectPlayer(t.name));
+
+        if (!t) {
+          if (s.lastProgress && s.lastProgress.progress >= 0.8) {
+            onEvent({ type: 'complete', ...s.lastProgress });
+          }
+          s.lastProgress = null;
+          return;
+        }
+
+        const player = detectPlayer(t.name);
+        const parsed = parseTitle(t.title);
+        if (!parsed) return;
+        const progress = {
+          player,
+          title: stripExtensions(parsed.clean),
+          current_sec: parsed.current,
+          duration_sec: parsed.duration,
+          progress: parsed.progress,
+          episode: parseEpisodeFromTitle(parsed.clean)
+        };
+        s.lastProgress = progress;
+        onEvent({ type: 'progress', ...progress });
+
+        if (parsed.progress >= 0.8) {
+          onEvent({ type: 'complete', ...progress });
+        }
+      }).catch(() => {});
+    }
   }
 
   function start() {
