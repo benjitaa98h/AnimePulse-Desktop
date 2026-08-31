@@ -349,6 +349,31 @@ tailwind.config = {
         <div class="flex flex-wrap items-center gap-3 mb-4">
           <h2 class="font-display font-bold text-xl text-white">Estadísticas Personales</h2>
         </div>
+        <div class="glass edge rounded-2xl p-5 mb-6">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/30 to-fuchsia-500/20 border border-purple-400/30 flex items-center justify-center text-white font-display font-bold text-xl" id="gameLevel">Nivel 1</div>
+              <div>
+                <div class="font-display font-semibold text-white">Otaku Profile</div>
+                <div class="text-[11px] text-slate-400" id="gameEpisodes">0 ep</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-sm font-semibold text-amber-300" id="gameCoins">🪙 0</span>
+            </div>
+          </div>
+          <div class="space-y-1.5 mb-6">
+            <div class="flex justify-between text-[10px] text-slate-400"><span>XP</span><span id="gameXpText">0 / 100 XP</span></div>
+            <div class="h-3 rounded-full bg-white/[.06] overflow-hidden">
+              <div class="h-full rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-400 transition-all duration-500" id="gameXpBar" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-display font-semibold text-sm text-white flex items-center gap-2"><i data-lucide="trophy" class="w-4 h-4 text-amber-400"></i> Trofeos</h3>
+            <button class="text-[11px] text-purple-400 hover:text-purple-300" onclick="checkTrophies()">Actualizar</button>
+          </div>
+          <div id="trophyGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3"></div>
+        </div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div class="glass edge rounded-2xl p-4 flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl bg-purple-500/15 flex items-center justify-center text-purple-400"><i data-lucide="film" class="w-5 h-5"></i></div>
@@ -700,7 +725,8 @@ let state = {
   lastSearch: '',
   airNotified: {},
   folder: null,
-  files: []
+  files: [],
+  gamification: { level: 1, xp: 0, coins: 0, marathon: 0, totalEpisodes: 0, totalCompleted: 0, lastAnimeId: null }
 };
 
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
@@ -770,6 +796,7 @@ state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notific
       if (Array.isArray(p.activity)) state.activity = p.activity.slice(0, 7);
       if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
       if (typeof p.folder === 'string') state.folder = p.folder;
+      state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null }, p.gamification || {});
     }
   } catch (e) { console.warn('Storage corrupto, se usará demo:', e); }
   if (!Array.isArray(state.animeList)) state.animeList = [];
@@ -792,6 +819,7 @@ async function restoreDisk(force) {
     if (Array.isArray(p.activity) && p.activity.length === 7) state.activity = p.activity;
     if (typeof p.folder === 'string') state.folder = p.folder;
     if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
+    state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null }, p.gamification || {});
     applyAppearance();
     recomputeStats(); renderDashboard(); renderScrobblerUI(); setupSettings(); icons();
     refreshDiskInfo();
@@ -2784,6 +2812,7 @@ function finishEpisode() {
       renderDashboard(); recomputeStats();
       if (state.settings.notifications) toast('<b>' + esc(a.title) + '</b> — Episodio ' + (a.watched) + ' registrado por Auto-Scrobbler ✓', 'ok');
       alMaybeSync(a.id); kitsuMaybeSync(a.id);
+      awardEpisode(a);
     }
   }
   if (state.scrobbler.running) {
@@ -2800,6 +2829,174 @@ function finishEpisode() {
     }
   }
   renderScrobblerUI();
+}
+
+const RARITY = { comun: { color: '#94a3b8' }, raro: { color: '#38bdf8' }, epico: { color: '#a855f7' }, legendario: { color: '#fbbf24' } };
+const TROPHY_DEFS = [
+  { id: 'first_episode', name: 'Primer Paso', description: 'Registra tu primer episodio', rarity: 'comun' },
+  { id: 'ep10', name: 'Veterano', description: 'Registra 10 episodios', rarity: 'comun' },
+  { id: 'ep50', name: 'Maratonista', description: 'Registra 50 episodios', rarity: 'raro' },
+  { id: 'ep100', name: 'Centurión', description: 'Registra 100 episodios', rarity: 'epico' },
+  { id: 'ep300', name: 'Leyenda Viva', description: 'Registra 300 episodios', rarity: 'legendario' },
+  { id: 'marathon3', name: 'Racha Ardiente', description: 'Logra un maratón de 3+ episodios seguidos', rarity: 'raro' },
+  { id: 'classic5', name: 'Clásico Imprescindible', description: 'Completa 5 animes anteriores al 2000', rarity: 'epico' },
+  { id: 'genre5', name: 'Explorador de Géneros', description: 'Completa 5 animes de un mismo género', rarity: 'raro' },
+  { id: 'first_franchise', name: 'Cazador de Franquicias', description: 'Completa tu primera franquicia entera', rarity: 'raro' },
+  { id: 'franchise2', name: 'Maestro de Sagas', description: 'Completa 2 franquicias enteras', rarity: 'legendario' }
+];
+let currentGameStats = null;
+
+function xpNeeded(level) { return level * 100; }
+
+function addXP(amount) {
+  const g = state.gamification;
+  g.xp += amount;
+  let leveled = false;
+  while (g.xp >= xpNeeded(g.level)) {
+    g.xp -= xpNeeded(g.level);
+    g.level++;
+    leveled = true;
+  }
+  if (leveled) toast('¡Subiste al <b>nivel ' + g.level + '</b>! 🎉', 'ok');
+  return leveled;
+}
+
+function addCoins(amount) {
+  state.gamification.coins += amount;
+}
+
+function awardEpisode(a) {
+  const g = state.gamification;
+  if (g.lastAnimeId === a.id) g.marathon++;
+  else { g.marathon = 1; g.lastAnimeId = a.id; }
+  g.totalEpisodes++;
+
+  let coins = 10, xp = 20;
+  if (g.marathon >= 3) { coins = Math.round(coins * 1.5); xp = Math.round(xp * 1.5); }
+  addCoins(coins); addXP(xp);
+
+  if (g.marathon >= 3) toast('🔥 Maratón x' + g.marathon + '! +' + coins + ' 🪙', 'ok');
+  else toast('+' + coins + ' 🪙 y +' + xp + ' XP', 'info');
+
+  const completed = totalEps(a) > 0 && a.watched >= totalEps(a);
+  if (completed && !(state.gamification.completedIds || []).includes(a.id)) {
+    state.gamification.completedIds = (state.gamification.completedIds || []).concat([a.id]);
+    const bonus = 50, xpBonus = 100;
+    addCoins(bonus); addXP(xpBonus);
+    toast('🎬 <b>' + esc(a.title) + '</b> completado! +' + bonus + ' 🪙 bonus', 'ok');
+    checkFranquicia(a);
+  }
+  save();
+  syncGameDB();
+  checkTrophies();
+  renderGamification();
+}
+
+function checkFranquicia(a) {
+  const completedIds = state.gamification.completedIds || [];
+  const familia = completedIds.filter(id2 => id2 !== a.id && relationsFamilia(id2, a));
+  if (familia.length + 1 >= 2) {
+    addCoins(100); addXP(200);
+    toast('👑 Franquicia completada! Cofre legendario: +100 🪙', 'ok');
+    unlockTrophy('first_franchise', 'Cazador de Franquicias', 'Completa tu primera franquicia entera', 'raro');
+    if (familia.length + 1 >= 2) unlockTrophy('franchise2', 'Maestro de Sagas', 'Completa 2 franquicias enteras', 'legendario');
+  }
+}
+
+function relationsFamilia(idA, idB) {
+  const a = findAnime(idA), b = findAnime(idB);
+  if (!a || !b) return false;
+  const norm = s => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  return (norm(a.title).includes(norm(b.title.split(/[ :]/)[0])) || norm(b.title).includes(norm(a.title.split(/[ :]/)[0]))) && norm(a.title) !== norm(b.title);
+}
+
+function unlockTrophy(id, name, desc, rarity) {
+  const g = state.gamification;
+  g.trophies = g.trophies || {};
+  if (g.trophies[id]) return;
+  g.trophies[id] = { name, desc, rarity, at: Date.now() };
+  toast('🏆 Trofeo desbloqueado: <b>' + esc(name) + '</b> (' + rarity + ')', 'ok');
+  save();
+  if (window.electronAPI && window.electronAPI.gameAddTrophy) {
+    window.electronAPI.gameAddTrophy({ id, name, description: desc, rarity, unlocked_at: Date.now() });
+  }
+}
+
+function checkTrophies() {
+  const g = state.gamification;
+  if (g.totalEpisodes >= 1) unlockTrophy('first_episode', 'Primer Paso', 'Registra tu primer episodio', 'comun');
+  if (g.totalEpisodes >= 10) unlockTrophy('ep10', 'Veterano', 'Registra 10 episodios', 'comun');
+  if (g.totalEpisodes >= 50) unlockTrophy('ep50', 'Maratonista', 'Registra 50 episodios', 'raro');
+  if (g.totalEpisodes >= 100) unlockTrophy('ep100', 'Centurión', 'Registra 100 episodios', 'epico');
+  if (g.totalEpisodes >= 300) unlockTrophy('ep300', 'Leyenda Viva', 'Registra 300 episodios', 'legendario');
+  if (g.marathon >= 3) unlockTrophy('marathon3', 'Racha Ardiente', 'Logra un maratón de 3+ episodios seguidos', 'raro');
+  const classics = (state.animeList || []).filter(a => a.year && a.year < 2000 && a.watched >= totalEps(a));
+  if (classics.length >= 5) unlockTrophy('classic5', 'Clásico Imprescindible', 'Completa 5 animes anteriores al 2000', 'epico');
+  const byGenre = {};
+  (state.animeList || []).forEach(a => { if (Array.isArray(a.genres) && a.watched >= totalEps(a)) a.genres.forEach(gr => { byGenre[gr] = (byGenre[gr] || 0) + 1; }); });
+  if (Object.entries(byGenre).some(([k, v]) => v >= 5)) unlockTrophy('genre5', 'Explorador de Géneros', 'Completa 5 animes de un mismo género', 'raro');
+  if ((g.completedIds || []).length >= 1) unlockTrophy('first_franchise', 'Cazador de Franquicias', 'Completa tu primera franquicia entera', 'raro');
+  if ((g.completedIds || []).length >= 2) unlockTrophy('franchise2', 'Maestro de Sagas', 'Completa 2 franquicias enteras', 'legendario');
+  renderTrophies();
+}
+
+async function loadGameDB() {
+  try {
+    if (window.electronAPI && window.electronAPI.gameListTrophies) {
+      const dbTrophies = await window.electronAPI.gameListTrophies();
+      if (Array.isArray(dbTrophies)) {
+        state.gamification.trophies = state.gamification.trophies || {};
+        dbTrophies.forEach(t => { if (!state.gamification.trophies[t.id]) state.gamification.trophies[t.id] = { name: t.name, desc: t.description, rarity: t.rarity, at: Number(t.unlocked_at) }; });
+      }
+    }
+    if (window.electronAPI && window.electronAPI.gameGetStats) {
+      const st = await window.electronAPI.gameGetStats();
+      if (st && st.level) { state.gamification.level = st.level; state.gamification.xp = st.xp || 0; state.gamification.coins = st.coins || 0; }
+    }
+  } catch (e) { /* noop */ }
+}
+
+function syncGameDB() {
+  if (window.electronAPI && window.electronAPI.gameSaveStats) {
+    window.electronAPI.gameSaveStats({ level: state.gamification.level, xp: state.gamification.xp, coins: state.gamification.coins, marathon: state.gamification.marathon, totalEpisodes: state.gamification.totalEpisodes });
+  }
+}
+
+function trophyList() {
+  const t = state.gamification.trophies || {};
+  return TROPHY_DEFS.map(d => ({ ...d, unlocked: !!t[d.id], at: t[d.id] ? t[d.id].at : null }));
+}
+
+function renderTrophies() {
+  const el = document.getElementById('trophyGrid');
+  if (!el) return;
+  const list = trophyList();
+  el.innerHTML = list.map(d => {
+    const c = RARITY[d.rarity].color;
+    const un = d.unlocked;
+    return '<div class="glass edge rounded-xl p-3 text-center ' + (un ? '' : 'opacity-40') + '" title="' + esc(d.description) + '">' +
+      '<div class="w-12 h-12 mx-auto rounded-xl flex items-center justify-center text-2xl mb-2" style="background:' + (un ? c + '22' : 'rgba(255,255,255,.04)') + ';border:1px solid ' + (un ? c : 'transparent') + '">' +
+      (un ? '🏆' : '🔒') + '</div>' +
+      '<div class="text-[11px] font-semibold text-slate-200">' + esc(d.name) + '</div>' +
+      '<div class="text-[9px] text-slate-500 mt-0.5">' + esc(d.description) + '</div>' +
+      '<div class="text-[8px] uppercase tracking-wide mt-1 font-bold" style="color:' + c + '">' + d.rarity + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function renderGamification() {
+  const g = state.gamification;
+  const lvl = document.getElementById('gameLevel');
+  const xpBar = document.getElementById('gameXpBar');
+  const xpText = document.getElementById('gameXpText');
+  const coinText = document.getElementById('gameCoins');
+  const epTextG = document.getElementById('gameEpisodes');
+  if (lvl) lvl.textContent = 'Nivel ' + g.level;
+  if (xpBar) { xpBar.style.width = Math.min(100, Math.round((g.xp / xpNeeded(g.level)) * 100)) + '%'; }
+  if (xpText) xpText.textContent = g.xp + ' / ' + xpNeeded(g.level) + ' XP';
+  if (coinText) coinText.textContent = '🪙 ' + g.coins;
+  if (epTextG) epTextG.textContent = g.totalEpisodes + ' ep';
+  renderTrophies();
 }
 
 function stopScrobble() {
@@ -3088,6 +3285,7 @@ function init() {
   setupGlobalSearch();
   setupScrobblerUI();
   renderScrobblerUI();
+  loadGameDB().then(() => { renderGamification(); checkTrophies(); });
   if (window.electronAPI && window.electronAPI.onBrowserTitles) {
     window.electronAPI.onBrowserTitles(list => onBrowserTitles(list));
     window.electronAPI.browserDetectStart();

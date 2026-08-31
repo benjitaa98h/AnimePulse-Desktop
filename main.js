@@ -226,6 +226,25 @@ ipcMain.handle('state:wipe', () => {
   return { ok: true };
 });
 
+ipcMain.handle('game:get-stats', () => {
+  try { return appDB ? appDB.getUserStats() : null; } catch (e) { return null; }
+});
+ipcMain.handle('game:save-stats', (e, stats) => {
+  try { return appDB ? appDB.saveUserStats(stats) : { ok: false }; } catch (e) { return { ok: false }; }
+});
+ipcMain.handle('game:list-trophies', () => {
+  try { return appDB ? appDB.listTrophies() : []; } catch (e) { return []; }
+});
+ipcMain.handle('game:add-trophy', (e, t) => {
+  try { return appDB ? appDB.addTrophy(t) : { ok: false }; } catch (e) { return { ok: false }; }
+});
+ipcMain.handle('game:add-history', (e, entry) => {
+  try { return appDB ? appDB.addHistory(entry) : { ok: false }; } catch (e) { return { ok: false }; }
+});
+ipcMain.handle('game:history', (e, limit) => {
+  try { return appDB ? appDB.history(limit) : []; } catch (e) { return []; }
+});
+
 const { createWatcher } = require('./folder-watcher');
 const watcher = createWatcher(fresh => {
   if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents && !mainWindow.webContents.isDestroyed()) mainWindow.webContents.send('organizer:new', fresh);

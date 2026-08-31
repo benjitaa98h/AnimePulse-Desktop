@@ -27,5 +27,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onDiscordStatus: (cb) => ipcRenderer.on('discord:status', (_e, s) => cb(s)),
   scrobbleNativeStart: () => ipcRenderer.invoke('scrobble:native-start'),
   scrobbleNativeStop: () => ipcRenderer.invoke('scrobble:native-stop'),
-  onScrobbleNative: (cb) => ipcRenderer.on('scrobble:native', (_e, evt) => cb(evt))
+  onScrobbleNative: (cb) => ipcRenderer.on('scrobble:native', (_e, evt) => cb(evt)),
+  gameGetStats: () => ipcRenderer.invoke('game:get-stats'),
+  gameSaveStats: (stats) => ipcRenderer.invoke('game:save-stats', stats),
+  gameListTrophies: () => ipcRenderer.invoke('game:list-trophies'),
+  gameAddTrophy: (t) => ipcRenderer.invoke('game:add-trophy', t),
+  gameAddHistory: (entry) => ipcRenderer.invoke('game:add-history', entry),
+  gameHistory: (limit) => ipcRenderer.invoke('game:history', limit)
 });

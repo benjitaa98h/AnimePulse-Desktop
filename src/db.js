@@ -33,6 +33,31 @@ function createDB(userDataDir) {
       air_notified TEXT,
       updated_at INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS user_stats (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS trophies (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      description TEXT,
+      rarity TEXT NOT NULL,
+      unlocked_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS trophies_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      anime_id TEXT,
+      anime_title TEXT,
+      trophy_id TEXT,
+      coins INTEGER DEFAULT 0,
+      xp INTEGER DEFAULT 0,
+      event TEXT,
+      created_at INTEGER NOT NULL
+    );
   `);
 
   const dbPath = path.join(userDataDir, 'animepulse-state.json');
@@ -104,7 +129,7 @@ function createDB(userDataDir) {
   }
 
   function wipe() {
-    db.exec('DELETE FROM app_state; DELETE FROM anime_list;');
+    db.exec('DELETE FROM app_state; DELETE FROM anime_list; DELETE FROM user_stats; DELETE FROM trophies; DELETE FROM trophies_history;');
     return { ok: true };
   }
 
@@ -124,11 +149,73 @@ function createDB(userDataDir) {
     };
   }
 
+  function ipcGetUserStats() {
+    const row = db.prepare('SELECT value FROM user_stats WHERE key = ?').get('main');
+    if (!row) return null;
+    try { return JSON.parse(row.value); } catch (e) { return null; }
+  }
+
+  function ipcSaveUserStats(stats) {
+    if (!stats || typeof stats !== 'object') return { ok: false };
+    db.prepare(
+      'INSERT INTO user_stats (key, value, updated_at) VALUES (?, ?, ?) ' +
+      'ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at'
+    ).run('main', JSON.stringify(stats), Date.now());
+    return { ok: true };
+  }
+
+  function ipcListTrophies() {
+    return db.prepare('SELECT id, name, description, rarity, unlocked_at FROM trophies ORDER BY unlocked_at').all();
+  }
+
+  function ipcAddTrophy(t) {
+    if (!t || !t.id) return { ok: false };
+    try {
+      const r = db.prepare(
+        'INSERT INTO trophies (id, name, description, rarity, unlocked_at) VALUES (?, ?, ?, ?, ?) ' +
+        'ON CONFLICT(id) DO NOTHING'
+      ).run(String(t.id), String(t.name || t.id), String(t.description || ''), String(t.rarity || 'comun'), Number(t.unlocked_at || Date.now()));
+      return { ok: true, inserted: r.changes > 0 };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message) };
+    }
+  }
+
+  function ipcAddHistory(entry) {
+    if (!entry) return { ok: false };
+    db.prepare(
+      'INSERT INTO trophies_history (anime_id, anime_title, trophy_id, coins, xp, event, created_at) ' +
+      'VALUES (?, ?, ?, ?, ?, ?, ?)'
+    ).run(
+      String(entry.anime_id || ''),
+      String(entry.anime_title || ''),
+      String(entry.trophy_id || ''),
+      Number(entry.coins || 0),
+      Number(entry.xp || 0),
+      String(entry.event || ''),
+      Number(entry.created_at || Date.now())
+    );
+    return { ok: true };
+  }
+
+  function ipcHistory(limit) {
+    const n = Number(limit || 50);
+    return db.prepare('SELECT anime_id, anime_title, trophy_id, coins, xp, event, created_at FROM trophies_history ORDER BY created_at DESC LIMIT ?').all(n);
+  }
+
   function close() {
     try { db.close(); } catch (e) { /* noop */ }
   }
 
-  return { migrateLegacy, saveFull, loadFull, wipe, info, close };
+  return {
+    migrateLegacy, saveFull, loadFull, wipe, info, close,
+    getUserStats: ipcGetUserStats,
+    saveUserStats: ipcSaveUserStats,
+    listTrophies: ipcListTrophies,
+    addTrophy: ipcAddTrophy,
+    addHistory: ipcAddHistory,
+    history: ipcHistory
+  };
 }
 
 module.exports = { createDB };
