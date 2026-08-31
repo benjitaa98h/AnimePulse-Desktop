@@ -2982,6 +2982,12 @@ function wireActions() {
     const nav = e.target.closest('.nav-item[data-section]');
     if (nav) switchSection(nav.getAttribute('data-section'));
   });
+  document.addEventListener('click', e => {
+    const dayBtn = e.target.closest('.cal-day[data-day]');
+    if (!dayBtn) return;
+    state.calendarDay = dayBtn.getAttribute('data-day');
+    renderCalendar();
+  });
   document.getElementById('exploreSkeleton').addEventListener('click', () => {});
   document.getElementById('detailModal').addEventListener('click', e => { if (e.target === document.getElementById('detailModal')) closeModal(); });
   document.getElementById('addModal').addEventListener('click', e => { if (e.target === document.getElementById('addModal')) document.getElementById('addModal').classList.add('hidden'); });
