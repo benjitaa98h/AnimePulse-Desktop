@@ -1322,9 +1322,11 @@ function detectHint(list) {
     if (!STREAM_MARK.test(w.t)) continue;
     const name = animeNameFromTitle(w.t);
     if (!name || name.length < 3) continue;
+    const ep = episodeFromTitle(w.t);
+    state.scrobbler.detected = { title: name, ep, from: w.n };
+    renderScrobblerUI();
     if (name === lastPromptName) continue;
     lastPromptName = name;
-    const ep = episodeFromTitle(w.t);
     toast('Viendo en <b>' + esc(w.n.replace(/\.exe$/i, '')) + '</b>: «<b>' + esc(name) + '</b>' + (ep ? ' — Ep ' + ep : '') + '» no está en tu lista. Buscando su ficha para que lo agregues…', 'info');
     resolveDetectedAnime(name);
   }
@@ -1355,6 +1357,7 @@ function onBrowserTitles(list) {
     if (state.scrobbler.running && state.scrobbler.source === 'browser') stopScrobble();
     return;
   }
+  state.scrobbler.detected = null;
   let best = null;
   let bestScore = 0;
   let bestWin = null;
@@ -3031,6 +3034,8 @@ function renderScrobblerUI() {
     miniText.innerHTML = s.running
       ? '<b class="text-emerald-300">' + esc(s.player.split('— ')[0].replace('VLC Player 3.2','VLC Player')) + '</b>: ' + esc(a.title) + ' — Ep ' + now + (t ? '/' + t : '')
       : 'Sin reproducción detectada';
+  } else if (miniText && state.scrobbler.detected) {
+    miniText.innerHTML = '<b class="text-sky-300">Detectando</b>: ' + esc(state.scrobbler.detected.title) + (state.scrobbler.detected.ep ? ' — Ep ' + state.scrobbler.detected.ep : '');
   } else if (miniText) miniText.textContent = 'Sin reproducción detectada';
 }
 
