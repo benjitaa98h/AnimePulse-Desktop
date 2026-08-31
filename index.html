@@ -831,7 +831,7 @@ let state = {
   airNotified: {},
   folder: null,
   files: [],
-  gamification: { level: 1, xp: 0, coins: 0, marathon: 0, totalEpisodes: 0, totalCompleted: 0, lastAnimeId: null },
+  gamification: { level: 1, xp: 0, coins: 0, marathon: 0, totalEpisodes: 0, totalCompleted: 0, lastAnimeId: null, seasonPass: null },
   profile: { name: 'Otaku Tracker', rank: 'basico', bio: '', accent: 'purple', avatar: '' }
 };
 
@@ -902,7 +902,7 @@ state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notific
       if (Array.isArray(p.activity)) state.activity = p.activity.slice(0, 7);
       if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
       if (typeof p.folder === 'string') state.folder = p.folder;
-      state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null }, p.gamification || {});
+      state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null, seasonPass:null }, p.gamification || {});
       state.profile = Object.assign({ name: 'Otaku Tracker', rank: 'basico', bio: '', accent: 'purple', avatar: '' }, p.profile || {});
     }
   } catch (e) { console.warn('Storage corrupto, se usará demo:', e); }
@@ -926,7 +926,7 @@ async function restoreDisk(force) {
     if (Array.isArray(p.activity) && p.activity.length === 7) state.activity = p.activity;
     if (typeof p.folder === 'string') state.folder = p.folder;
     if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
-    state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null }, p.gamification || {});
+    state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null, seasonPass:null }, p.gamification || {});
     state.profile = Object.assign({ name: 'Otaku Tracker', rank: 'basico', bio: '', accent: 'purple', avatar: '' }, p.profile || {});
     applyAppearance();
     recomputeStats(); renderDashboard(); renderScrobblerUI(); setupSettings(); icons();
@@ -2991,6 +2991,57 @@ const RARITY_LABEL = { comun: 'Común', raro: 'Raro', epico: 'Épico', legendari
 let storeItems = null;
 let storeInventory = null;
 
+const PASS_MAX_TIER = 30;
+const PASS_XP_PER_TIER = 120;
+const PASS_SEASONS = ['W', 'SP', 'SU', 'F']; 
+const SEASON_NAME = { W: 'Invierno', SP: 'Primavera', SU: 'Verano', F: 'Otoño' };
+function passSeasonKey(now) {
+  now = now || new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth() + 1;
+  if (m <= 3) return y + '-W';
+  if (m <= 6) return y + '-SP';
+  if (m <= 9) return y + '-SU';
+  return y + '-F';
+}
+const PASS_REWARDS = {
+  1:  { type: 'coins', amount: 25, label: '25 🪙' },
+  2:  { type: 'xp', amount: 30, label: '+30 XP' },
+  3:  { type: 'coins', amount: 40, label: '40 🪙' },
+  4:  { type: 'frame', item_id: 'pass_frame1', name: 'Marco Edición Season', value: '0 0 0 2px #38bdf8, 0 0 16px rgba(56,189,248,.5)', label: 'Marco Season' },
+  5:  { type: 'coins', amount: 60, label: '60 🪙' },
+  6:  { type: 'xp', amount: 50, label: '+50 XP' },
+  7:  { type: 'coins', amount: 80, label: '80 🪙' },
+  8:  { type: 'banner', item_id: 'pass_banner1', name: 'Banner Premium Season', value: 'linear-gradient(135deg,#38bdf8,#a855f7,#f472b6)', label: 'Banner Premium' },
+  9:  { type: 'coins', amount: 100, label: '100 🪙' },
+  10: { type: 'xp', amount: 80, label: '+80 XP' },
+  11: { type: 'coins', amount: 120, label: '120 🪙' },
+  12: { type: 'frame', item_id: 'pass_frame2', name: 'Marco Neón Season', value: '0 0 0 2px #a855f7, 0 0 18px rgba(168,85,247,.6)', label: 'Marco Neón' },
+  13: { type: 'coins', amount: 140, label: '140 🪙' },
+  14: { type: 'xp', amount: 100, label: '+100 XP' },
+  15: { type: 'coins', amount: 160, label: '160 🪙' },
+  16: { type: 'banner', item_id: 'pass_banner2', name: 'Banner Sintético Season', value: 'linear-gradient(135deg,#f43f5e,#f59e0b,#fbbf24)', label: 'Banner Sintético' },
+  17: { type: 'coins', amount: 180, label: '180 🪙' },
+  18: { type: 'xp', amount: 130, label: '+130 XP' },
+  19: { type: 'coins', amount: 200, label: '200 🪙' },
+  20: { type: 'frame', item_id: 'pass_frame3', name: 'Marco Ámbar Season', value: '0 0 0 2px #fbbf24, 0 0 18px rgba(251,191,36,.6)', label: 'Marco Ámbar' },
+  21: { type: 'coins', amount: 220, label: '220 🪙' },
+  22: { type: 'xp', amount: 160, label: '+160 XP' },
+  23: { type: 'coins', amount: 240, label: '240 🪙' },
+  24: { type: 'banner', item_id: 'pass_banner3', name: 'Banner Real Season', value: 'linear-gradient(135deg,#a855f7,#db2777,#fbbf24)', label: 'Banner Real' },
+  25: { type: 'coins', amount: 260, label: '260 🪙' },
+  26: { type: 'xp', amount: 200, label: '+200 XP' },
+  27: { type: 'coins', amount: 280, label: '280 🪙' },
+  28: { type: 'frame', item_id: 'pass_frame4', name: 'Marco Legendario Season', value: '0 0 0 3px #fbbf24, 0 0 22px rgba(251,191,36,.75)', label: 'Marco Legendario' },
+  29: { type: 'coins', amount: 300, label: '300 🪙' },
+  30: { type: 'frame', item_id: 'pass_legend', name: 'Marco Maestro Season', value: '0 0 0 3px #f472b6, 0 0 24px rgba(244,114,182,.75)', label: 'Marco Maestro ✨' }
+};
+const PASS_MISSIONS = [
+  { id: 'eps', label: 'Ver episodios esta temporada', target: 30, icon: '▶️', reward: '120 🪙' },
+  { id: 'new', label: 'Ver estrenos del trimestre', target: 3, icon: '🆕', reward: '150 🪙' },
+  { id: 'complete', label: 'Alcanzar el nivel 30 del pase', target: 1, icon: '👑', reward: 'Marco Maestro' }
+];
+
 const TROPHY_DEFS = [
   { id: 'first_episode', name: 'Primer Paso', description: 'Registra tu primer episodio', rarity: 'comun' },
   { id: 'ep10', name: 'Veterano', description: 'Registra 10 episodios', rarity: 'comun' },
@@ -3036,6 +3087,8 @@ function awardEpisode(a) {
   if (g.marathon >= 3) { coins = Math.round(coins * 1.5); xp = Math.round(xp * 1.5); }
   addCoins(coins); addXP(xp);
   recordEpisodeToDB(a, coins, xp);
+  const isSeasonNew = a.year === new Date().getFullYear() && (a.watched || 0) <= 1;
+  trackPassEpisode(isSeasonNew);
 
   if (g.marathon >= 3) toast('🔥 Maratón x' + g.marathon + '! +' + coins + ' 🪙', 'ok');
   else toast('+' + coins + ' 🪙 y +' + xp + ' XP', 'info');
@@ -3180,6 +3233,7 @@ function renderGamification() {
   renderTrophies();
   renderScrobbleHistory();
   renderProfileSidebar();
+  renderSeasonPass();
 }
 
 function renderScrobbleHistory() {
@@ -3219,7 +3273,7 @@ function rankOfUser() {
 function renderProfileSidebar() {
   const name = state.profile.name || 'Otaku Tracker';
   const rk = rankOfUser();
-  const meta = PROFILE_RANKS[rk] || PROFILE_RANKS.novato;
+  const meta = PROFILE_RANKS[rk] || PROFILE_RANKS.basico;
   const labelName = document.getElementById('profileNameLabel');
   const labelRank = document.getElementById('profileRankLabel');
   const avatarEl = document.getElementById('profileAvatar');
@@ -3249,16 +3303,16 @@ function renderProfileModal() {
   const p = state.profile || {};
   const g = state.gamification || {};
   const rk = rankOfUser();
-  const meta = PROFILE_RANKS[rk] || PROFILE_RANKS.novato;
+  const meta = PROFILE_RANKS[rk] || PROFILE_RANKS.basico;
   const a = p.accent || 'purple';
 
   const card = document.getElementById('profileRankCard');
   if (card) {
     const bannerGrad = { purple: 'linear-gradient(135deg,#7c3aed,#db2777)', pink: 'linear-gradient(135deg,#db2777,#f59e0b)', cyan: 'linear-gradient(135deg,#0891b2,#2563eb)', amber: 'linear-gradient(135deg,#d97706,#f59e0b)', emerald: 'linear-gradient(135deg,#059669,#84cc16)', sky: 'linear-gradient(135deg,#0284c7,#22d3ee)', rose: 'linear-gradient(135deg,#e11d48,#f97316)' }[a] || 'linear-gradient(135deg,#7c3aed,#db2777)';
     card.innerHTML =
-      '<div class="h-20 rounded-xl mb-[-36px] relative overflow-hidden" style="background:' + bannerGrad + '"></div>' +
+      '<div id="profileBannerEl" class="h-20 rounded-xl mb-[-36px] relative overflow-hidden" style="background:' + bannerGrad + '"></div>' +
       '<div class="relative">' +
-        '<div class="w-20 h-20 mx-auto rounded-2xl border-4 edge overflow-hidden bg-ink-900 flex items-center justify-center text-2xl font-display font-bold ' + (p.avatar ? 'p-0' : '') + '">' +
+        '<div id="profilePicWrap" class="w-20 h-20 mx-auto rounded-2xl border-4 edge overflow-hidden bg-ink-900 flex items-center justify-center text-2xl font-display font-bold ' + (p.avatar ? 'p-0' : '') + '">' +
           (p.avatar ? '<img src="' + p.avatar + '" class="w-full h-full object-cover">' : initials(p.name || 'Otaku Tracker')) +
         '</div>' +
         '<div class="font-display font-bold text-lg text-white mt-2">' + esc(p.name || 'Otaku Tracker') + '</div>' +
@@ -3270,6 +3324,7 @@ function renderProfileModal() {
         '<div class="rounded-xl bg-white/[.04] edge py-2"><div class="font-display font-bold text-amber-300 text-sm leading-tight">' + (g.xp || 0) + '</div><div class="text-[9px] text-slate-500 mt-0.5 uppercase tracking-wide">XP</div></div>' +
         '<div class="rounded-xl bg-white/[.04] edge py-2"><div class="font-display font-bold text-amber-300 text-sm leading-tight">' + (g.coins || 0) + '</div><div class="text-[9px] text-slate-500 mt-0.5 uppercase tracking-wide">Coins</div></div>' +
       '</div>';
+    applyProfileStyle();
   }
 
   const nameInput = document.getElementById('profileName');
@@ -3510,6 +3565,118 @@ function setupStoreUI() {
   const enter = document.getElementById('unsplashQuery');
   if (enter) enter.addEventListener('keydown', e => { if (e.key === 'Enter') unsplashSearch(enter.value); });
   applyWallpaper();
+}
+
+async function initSeasonPass(forceFallback) {
+  const key = passSeasonKey();
+  let sp = state.gamification.seasonPass;
+  if (sp && sp.key === key) { renderSeasonPass(); return; }
+  if (window.electronAPI && window.electronAPI.seasonGet && !forceFallback) {
+    try { sp = (await window.electronAPI.seasonGet(key)) || null; } catch (e) { sp = null; }
+  }
+  if (!sp || sp.id !== key) {
+    sp = { key, tier: 1, xp: 0, redeemed: {}, missions: { eps: 0, new: 0, complete: 0 } };
+  }
+  state.gamification.seasonPass = sp;
+  saveSeasonPass();
+  renderSeasonPass();
+}
+
+function saveSeasonPass() {
+  const sp = state.gamification.seasonPass || { key: passSeasonKey(), tier: 1, xp: 0, redeemed: {}, missions: { eps: 0, new: 0, complete: 0 } };
+  state.gamification.seasonPass = sp;
+  save();
+  if (window.electronAPI && window.electronAPI.seasonSave) {
+    window.electronAPI.seasonSave({ id: sp.key, tier: sp.tier, xp: sp.xp, redeemed: sp.redeemed || {}, missions: sp.missions || {} });
+  }
+}
+
+function addPassXP(amount) {
+  const sp = state.gamification.seasonPass || { key: passSeasonKey(), tier: 1, xp: 0, redeemed: {}, missions: { eps: 0, new: 0 } };
+  if (!sp.key || sp.key !== passSeasonKey()) initSeasonPass();
+  sp.xp = (sp.xp || 0) + amount;
+  let leveled = false;
+  while (sp.tier < PASS_MAX_TIER && sp.xp >= PASS_XP_PER_TIER) {
+    sp.xp -= PASS_XP_PER_TIER;
+    sp.tier++;
+    leveled = true;
+    const rw = PASS_REWARDS[sp.tier];
+    if (rw && (rw.type === 'frame' || rw.type === 'banner')) {
+      grantPassCosmetic(rw.item_id, rw.name, rw.type, rw.value);
+    }
+  }
+  if (sp.tier >= PASS_MAX_TIER) sp.xp = Math.min(sp.xp, PASS_XP_PER_TIER);
+  if (state.gamification.seasonPass) state.gamification.seasonPass = sp;
+  if (leveled) toast('🎖️ ¡Subiste al <b>nivel ' + sp.tier + '</b> del Pase de Temporada!', 'ok');
+  saveSeasonPass();
+  renderSeasonPass();
+}
+
+function grantPassCosmetic(item_id, name, kind, value) {
+  if (window.electronAPI && window.electronAPI.seasonGrantItem) {
+    window.electronAPI.seasonGrantItem({ item_id, name, kind, value });
+  }
+}
+
+function passMissionProgress() {
+  const sp = state.gamification.seasonPass || { missions: { eps: 0, new: 0 } };
+  const m = sp.missions || {};
+  const seasonNew = (state.animeList || []).filter(a => a.status === 'watching' && a.year === new Date().getFullYear() && (a.watched || 0) > 0).length;
+  return {
+    eps: m.eps || 0,
+    new: Math.min(m.new || seasonNew, 3),
+    complete: sp.tier >= PASS_MAX_TIER ? 1 : 0
+  };
+}
+
+function trackPassEpisode(watchedNew) {
+  const sp = state.gamification.seasonPass;
+  if (!sp) return;
+  sp.missions = sp.missions || { eps: 0, new: 0 };
+  sp.missions.eps = (sp.missions.eps || 0) + 1;
+  if (watchedNew) sp.missions.new = (sp.missions.new || 0) + 1;
+  if (sp.tier >= PASS_MAX_TIER) sp.missions.complete = 1;
+  addPassXP(25);
+}
+
+function renderSeasonPass() {
+  const el = document.getElementById('seasonPassBox');
+  if (!el) return;
+  const sp = state.gamification.seasonPass || { key: passSeasonKey(), tier: 1, xp: 0, redeemed: {}, missions: {} };
+  const key = sp.key;
+  const y = key ? key.split('-')[0] : new Date().getFullYear();
+  const code = key ? key.split('-')[1] : 'SU';
+  const name = SEASON_NAME[code] || 'Temporada';
+  const pct = Math.round((sp.xp / PASS_XP_PER_TIER) * 100);
+  const maxed = sp.tier >= PASS_MAX_TIER;
+  const missions = passMissionProgress();
+  const stamp = new Date();
+  const dayLeft = 90 - Math.floor(((stamp.getMonth() + 1) % 3 === 0 ? 3 : (stamp.getMonth() + 1) % 3) );
+  el.innerHTML =
+    '<div class="glass edge rounded-2xl p-4">' +
+      '<div class="flex items-center justify-between mb-1"><div class="text-[12px] font-bold text-white flex items-center gap-1.5">🎖️ Pase de Temporada · ' + name + ' ' + y + '</div><span class="text-[10px] text-slate-400">Nivel ' + sp.tier + '/30</span></div>' +
+      '<div class="w-full h-3 rounded-full bg-white/5 edge overflow-hidden mt-2"><div class="h-full accent-gradient transition-all" style="width:' + Math.min(100, pct) + '%"></div></div>' +
+      '<div class="text-[10px] text-slate-500 mt-1">' + (maxed ? '<span class="text-amber-300 font-semibold">Pase completado 👑</span>' : sp.xp + ' / ' + PASS_XP_PER_TIER + ' XP para el nivel ' + (sp.tier + 1)) + '</div>' +
+      '<div class="grid grid-cols-2 gap-2 mt-3">' +
+        PASS_MISSIONS.map(ms => {
+          const cur = missions[ms.id] || 0;
+          const done = cur >= ms.target;
+          return '<div class="rounded-xl bg-white/[.04] edge p-2 ' + (done ? 'opacity-60' : '') + '"><div class="text-[11px] text-slate-200">' + ms.icon + ' ' + esc(ms.label) + '</div>' +
+            '<div class="w-full h-1.5 rounded-full bg-white/10 mt-1.5"><div class="h-full accent-gradient" style="width:' + Math.min(100, Math.round(cur / ms.target * 100)) + '%"></div></div>' +
+            '<div class="text-[10px] text-slate-500 mt-1">' + cur + '/' + ms.target + ' · ' + esc(ms.reward) + (done ? ' ✓' : '') + '</div></div>';
+        }).join('') +
+      '</div>' +
+      '<div class="grid grid-cols-6 gap-1 mt-3">' + Array.from({ length: PASS_MAX_TIER }, (_, i) => {
+        const t = i + 1;
+        const reached = t <= sp.tier;
+        const rw = PASS_REWARDS[t];
+        return '<div class="aspect-square rounded-lg flex items-center justify-center text-[10px] font-bold ' + (reached ? 'accent-gradient text-white' : 'bg-white/5 text-slate-600') + '" title="Nivel ' + t + ': ' + (rw ? rw.label : '—') + '">' + t + '</div>';
+      }).join('') + '</div>' +
+    '</div>';
+}
+
+function setupSeasonUI() {
+  initSeasonPass();
 }
 
 function stopScrobble() {

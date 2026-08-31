@@ -42,5 +42,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   storeUpsert: (items) => ipcRenderer.invoke('store:upsert', items),
   storePurchase: (itemId, rank) => ipcRenderer.invoke('store:purchase', itemId, rank),
   storeEquip: (itemId, on) => ipcRenderer.invoke('store:equip', itemId, on),
-  storeInventory: () => ipcRenderer.invoke('store:inventory')
+  storeInventory: () => ipcRenderer.invoke('store:inventory'),
+  seasonGet: (id) => ipcRenderer.invoke('season:get', id),
+  seasonSave: (s) => ipcRenderer.invoke('season:save', s),
+  seasonGrantItem: (item) => ipcRenderer.invoke('season:grant-item', item)
 });

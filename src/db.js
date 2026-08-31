@@ -123,6 +123,15 @@ function createDB(userDataDir) {
       equipped INTEGER DEFAULT 0
     );
     CREATE INDEX IF NOT EXISTS idx_inventory_kind ON inventory(kind);
+
+    CREATE TABLE IF NOT EXISTS season_pass (
+      id TEXT PRIMARY KEY,
+      tier INTEGER DEFAULT 1,
+      xp INTEGER DEFAULT 0,
+      redeemed TEXT,
+      missions TEXT,
+      updated_at INTEGER NOT NULL
+    );
   `);
 
   const dbPath = path.join(userDataDir, 'animepulse-state.json');
@@ -194,7 +203,7 @@ function createDB(userDataDir) {
   }
 
   function wipe() {
-    db.exec('DELETE FROM app_state; DELETE FROM anime_list; DELETE FROM user_stats; DELETE FROM trophies; DELETE FROM trophies_history; DELETE FROM scrobble_history; DELETE FROM coin_tx; DELETE FROM xp_tx; DELETE FROM marathons; DELETE FROM store_items; DELETE FROM inventory;');
+    db.exec('DELETE FROM app_state; DELETE FROM anime_list; DELETE FROM user_stats; DELETE FROM trophies; DELETE FROM trophies_history; DELETE FROM scrobble_history; DELETE FROM coin_tx; DELETE FROM xp_tx; DELETE FROM marathons; DELETE FROM store_items; DELETE FROM inventory; DELETE FROM season_pass;');
     return { ok: true };
   }
 
@@ -413,6 +422,38 @@ function createDB(userDataDir) {
     return db.prepare('SELECT item_id, kind, name, value, equipped FROM inventory ORDER BY acquired_at').all();
   }
 
+  function ipcSeasonGet(id) {
+    const r = db.prepare('SELECT tier, xp, redeemed, missions, updated_at FROM season_pass WHERE id = ?').get(String(id || 'current'));
+    if (!r) return null;
+    let redeemed = {}, missions = {};
+    try { redeemed = JSON.parse(r.redeemed || '{}'); } catch (e) {}
+    try { missions = JSON.parse(r.missions || '{}'); } catch (e) {}
+    return { id: String(id || 'current'), tier: Number(r.tier), xp: Number(r.xp), redeemed, missions };
+  }
+
+  function ipcSeasonSave(s) {
+    if (!s) return { ok: false };
+    db.prepare(
+      'INSERT INTO season_pass (id, tier, xp, redeemed, missions, updated_at) VALUES (?, ?, ?, ?, ?, ?) ' +
+      'ON CONFLICT(id) DO UPDATE SET tier = excluded.tier, xp = excluded.xp, redeemed = excluded.redeemed, ' +
+      'missions = excluded.missions, updated_at = excluded.updated_at'
+    ).run(
+      String(s.id || 'current'), Number(s.tier || 1), Number(s.xp || 0),
+      JSON.stringify(s.redeemed || {}), JSON.stringify(s.missions || {}), Date.now()
+    );
+    return { ok: true };
+  }
+
+  function ipcSeasonGrantItem(item) {
+    if (!item || !item.item_id) return { ok: false };
+    const exists = db.prepare('SELECT 1 FROM inventory WHERE item_id = ?').get(String(item.item_id));
+    if (exists) return { ok: true, already: true };
+    db.prepare(
+      'INSERT INTO inventory (id, item_id, kind, name, value, acquired_at, equipped) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    ).run(String(item.item_id), String(item.item_id), String(item.kind || 'frame'), String(item.name || item.item_id), String(item.value || ''), Date.now(), 0);
+    return { ok: true, already: false };
+  }
+
   function close() {
     try { db.close(); } catch (e) { /* noop */ }
   }
@@ -433,7 +474,10 @@ function createDB(userDataDir) {
     storeUpsert: ipcStoreUpsert,
     storePurchase: ipcStorePurchase,
     storeEquip: ipcStoreEquip,
-    storeInventory: ipcStoreInventory
+    storeInventory: ipcStoreInventory,
+    seasonGet: ipcSeasonGet,
+    seasonSave: ipcSeasonSave,
+    seasonGrantItem: ipcSeasonGrantItem
   };
 }
 

@@ -279,6 +279,15 @@ ipcMain.handle('store:equip', (e, itemId, on) => {
 ipcMain.handle('store:inventory', () => {
   try { return appDB ? appDB.storeInventory() : []; } catch (e) { return []; }
 });
+ipcMain.handle('season:get', (e, id) => {
+  try { return appDB ? appDB.seasonGet(id) : null; } catch (e) { return null; }
+});
+ipcMain.handle('season:save', (e, s) => {
+  try { return appDB ? appDB.seasonSave(s) : { ok: false }; } catch (e) { return { ok: false }; }
+});
+ipcMain.handle('season:grant-item', (e, item) => {
+  try { return appDB ? appDB.seasonGrantItem(item) : { ok: false }; } catch (e) { return { ok: false }; }
+});
 
 const { createWatcher } = require('./folder-watcher');
 const watcher = createWatcher(fresh => {
