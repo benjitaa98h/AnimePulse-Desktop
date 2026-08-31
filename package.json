@@ -1,0 +1,41 @@
+{
+  "name": "animepulse-desktop",
+  "productName": "AnimePulse Desktop",
+  "version": "2.0.0",
+  "description": "Next-Gen anime tracker para PC inspirado en Taiga con la estética de AniList/Netflix. Integra la API de Jikan (MyAnimeList) y un Auto-Scrobbler simulado.",
+  "main": "main.js",
+  "author": "Otaku Tracker",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.animepulse.desktop",
+    "productName": "AnimePulse Desktop",
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "AnimePulse Desktop"
+    }
+  },
+  "devDependencies": {
+    "electron": "^44.0.0",
+    "electron-builder": "^26.15.3"
+  }
+}

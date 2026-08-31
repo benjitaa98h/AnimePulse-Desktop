@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnimePulse Desktop — Next-Gen Tracker</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a855f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='6 3 20 12 6 21 6 3'/%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter','system-ui','sans-serif'], display: ['Sora','Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+      colors: { ink: { 950:'#08080f', 900:'#0c0c15', 850:'#10101a', 800:'#14141f', 700:'#1b1b2a' } }
+    }
+  }
+};
+</script>
+<style>
+  * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.12) transparent; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.18); border: 2px solid transparent; background-clip: content-box; }
+  html, body { height: 100%; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #08080f; overflow: hidden; -webkit-user-select: none; user-select: none; }
+  input, select, textarea { -webkit-user-select: text; user-select: text; }
+  .glass { background: rgba(18,18,28,.55); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+  .glass-soft { background: rgba(255,255,255,.035); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  .edge { border: 1px solid rgba(255,255,255,.07); }
+  .titlebar { -webkit-app-region: drag; }
+  .titlebar button, .titlebar input { -webkit-app-region: no-drag; }
+  .anim-in { animation: fadeUp .38s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .anim-pop { animation: pop .28s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes pop { from { opacity: 0; transform: scale(.96) translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+  .live-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+  @keyframes bars { 0%,100% { transform: scaleY(.35); } 50% { transform: scaleY(1); } }
+  .eq-bar { transform-origin: bottom; animation: bars 1s ease-in-out infinite; }
+  @keyframes shimmerMove { to { background-position: -200% 0; } }
+  .shimmer { background: linear-gradient(110deg, rgba(255,255,255,.03) 25%, rgba(255,255,255,.09) 50%, rgba(255,255,255,.03) 75%); background-size: 200% 100%; animation: shimmerMove 1.4s linear infinite; }
+  .grad-text { background: linear-gradient(110deg,#c084fc,#ec4899 45%,#22d3ee); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .accent-gradient { background: linear-gradient(110deg,#7c3aed,#db2777 50%,#0891b2); }
+  .btn-primary { background: linear-gradient(110deg,#7c3aed,#db2777); transition: filter .15s ease, transform .1s ease, box-shadow .2s ease; }
+  .btn-primary:hover { filter: brightness(1.15); box-shadow: 0 8px 28px -8px rgba(168,85,247,.55); }
+  .btn-primary:active { transform: scale(.97); }
+  .poster-wrap { position: relative; overflow: hidden; }
+  .poster-wrap .poster-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.6rem; letter-spacing: .02em; color: rgba(255,255,255,.9); z-index: 0; }
+  .poster-wrap img { position: relative; z-index: 1; transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+  .card-hover:hover img { transform: scale(1.06); }
+  .tab-active { background: linear-gradient(110deg,#7c3aed,#db2777); color:#fff; box-shadow: 0 6px 20px -6px rgba(168,85,247,.5); border-color: transparent !important; }
+  .nav-item.active { background: rgba(168,85,247,.12); color: #fff; box-shadow: inset 0 0 0 1px rgba(168,85,247,.25); }
+  .nav-item.active .nav-ind { opacity: 1; transform: scale(1); }
+  .nav-ind { opacity: 0; transform: scale(0); transition: all .2s ease; }
+  select, input[type="number"] { color-scheme: dark; }
+  select.native-dark { background-color: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: .5rem; color: #e5e7eb; font-size: .75rem; padding: .28rem .6rem; outline: none; }
+  select.native-dark:focus { border-color: rgba(168,85,247,.5); }
+  .modal-backdrop { background: radial-gradient(1200px 600px at 50% 0%, rgba(124,58,237,.12), transparent 60%), rgba(5,5,10,.72); }
+  @keyframes toastIn { from { opacity:0; transform: translateX(24px); } to { opacity:1; transform:none; } }
+  .toast-in { animation: toastIn .3s cubic-bezier(.2,.8,.2,1) both; }
+  .search-res-item:hover { background: rgba(168,85,247,.10); }
+  .result-card { transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+  .result-card:hover { transform: translateY(-4px); border-color: rgba(168,85,247,.4); box-shadow: 0 16px 40px -18px rgba(168,85,247,.4); }
+  .row-hover:hover { background: rgba(255,255,255,.04); }
+  textarea, input { outline: none; }
+  input:focus, textarea:focus { border-color: rgba(168,85,247,.55) !important; box-shadow: 0 0 0 3px rgba(168,85,247,.15); }
+  .fade-section { transition: opacity .18s ease; }
+  body.section-loading .fade-section { opacity: .55; pointer-events: none; }
+</style>
+</head>
+<body class="bg-ink-950 text-slate-200 antialiased">
+
+<div id="titlebar" class="titlebar h-11 flex items-center justify-between px-3 bg-ink-900/90 edge border-x-0 border-t-0 select-none shrink-0">
+  <div class="flex items-center gap-2 pl-1">
+    <span class="w-2.5 h-2.5 rounded-full accent-gradient"></span>
+    <span class="font-display font-bold text-[13px] tracking-wide text-slate-100">AnimePulse <span class="text-slate-500 font-medium">Desktop</span></span>
+    <span class="ml-1 text-[10px] px-1.5 py-0.5 rounded-md bg-white/5 edge text-slate-400 font-medium">v2.0 · Next-Gen</span>
+  </div>
+  <div class="flex items-center gap-2 mr-1">
+    <span id="apiPill" class="hidden sm:flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-full border border-emerald-400/20 bg-emerald-400/10 text-emerald-300 font-medium">
+      <i data-lucide="wifi" class="w-3 h-3"></i> Jikan API
+    </span>
+    <div class="flex items-center gap-0.5">
+      <button id="btnMin" title="Minimizar" class="w-10 h-7 rounded-lg flex items-center justify-center hover:bg-white/10 text-slate-400 hover:text-white transition">
+        <i data-lucide="minus" class="w-4 h-4"></i>
+      </button>
+      <button id="btnMax" title="Maximizar" class="w-10 h-7 rounded-lg flex items-center justify-center hover:bg-white/10 text-slate-400 hover:text-white transition">
+        <i data-lucide="square" class="w-3.5 h-3.5"></i>
+      </button>
+      <button id="btnClose" title="Cerrar" class="w-10 h-7 rounded-lg flex items-center justify-center hover:bg-rose-500/80 hover:text-white text-slate-400 transition">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="flex h-[calc(100%-44px)]">
+
+  <aside class="w-60 shrink-0 flex flex-col bg-ink-900/70 edge border-y-0 border-l-0 border-b-0">
+    <div class="p-4 flex items-center gap-3">
+      <div class="relative w-10 h-10 rounded-xl accent-gradient flex items-center justify-center shadow-lg shadow-purple-900/40">
+        <i data-lucide="clapperboard" class="w-5 h-5 text-white"></i>
+        <span class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-ink-900 live-dot"></span>
+      </div>
+      <div class="min-w-0">
+        <div class="font-display font-bold text-[15px] leading-tight text-white truncate">AnimePulse</div>
+        <div class="text-[10px] text-slate-500 font-medium flex items-center gap-1">
+          <i data-lucide="monitor" class="w-3 h-3"></i> Desktop Edition
+        </div>
+      </div>
+    </div>
+
+    <nav class="px-3 space-y-1 mt-2">
+      <button class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition"
+              data-section="dashboard">
+        <i data-lucide="layout-dashboard" class="w-[18px] h-[18px]"></i>
+        <span class="flex-1 text-left">Mi Lista</span>
+        <span id="navCount" class="text-[10px] font-bold text-slate-500 bg-white/5 px-1.5 py-0.5 rounded-md"></span>
+        <span class="nav-ind w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 ml-1"></span>
+      </button>
+      <button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition"
+              data-section="explore">
+        <i data-lucide="compass" class="w-[18px] h-[18px]"></i>
+        <span class="flex-1 text-left">Explorar / Tendencias</span>
+        <span class="nav-ind w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 ml-1"></span>
+      </button>
+      <button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition"
+              data-section="calendar">
+        <i data-lucide="calendar-days" class="w-[18px] h-[18px]"></i>
+        <span class="flex-1 text-left">Calendario de Emisión</span>
+        <span class="nav-ind w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 ml-1"></span>
+      </button>
+      <button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition"
+              data-section="stats">
+        <i data-lucide="bar-chart-3" class="w-[18px] h-[18px]"></i>
+        <span class="flex-1 text-left">Estadísticas</span>
+        <span class="nav-ind w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 ml-1"></span>
+      </button>
+      <button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition"
+              data-section="settings">
+        <i data-lucide="sliders-horizontal" class="w-[18px] h-[18px]"></i>
+        <span class="flex-1 text-left">Ajustes del Tracker</span>
+        <span class="nav-ind w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 ml-1"></span>
+      </button>
+    </nav>
+
+    <div class="mx-3 mt-4 px-3 py-3 rounded-xl glass edge">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Auto-Scrobbler</span>
+        <span id="scrobStatePill" class="text-[9px] px-1.5 py-0.5 rounded-md bg-slate-500/10 text-slate-400 font-semibold">IDLE</span>
+      </div>
+      <div id="scrobMini" class="flex items-center gap-2 text-[11px] text-slate-400">
+        <div class="flex items-end gap-[2px] h-3">
+          <span class="eq-bar w-[3px] h-full bg-slate-500/60 rounded-sm" style="animation-delay:0ms"></span>
+          <span class="eq-bar w-[3px] h-full bg-slate-500/60 rounded-sm" style="animation-delay:120ms"></span>
+          <span class="eq-bar w-[3px] h-full bg-slate-500/60 rounded-sm" style="animation-delay:240ms"></span>
+          <span class="eq-bar w-[3px] h-full bg-slate-500/60 rounded-sm" style="animation-delay:360ms"></span>
+        </div>
+        <span id="scrobMiniText" class="truncate">Sin reproducción detectada</span>
+      </div>
+    </div>
+
+    <div class="mt-auto p-4">
+      <div class="p-3 rounded-xl glass edge flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full accent-gradient flex items-center justify-center font-display font-bold text-sm text-white shrink-0">OT</div>
+        <div class="min-w-0 flex-1">
+          <div class="text-[13px] font-semibold text-white truncate">Otaku Tracker</div>
+          <div class="text-[10px] text-slate-500">Perfil Pro · PC</div>
+        </div>
+        <i data-lucide="chevrons-up" class="w-4 h-4 text-purple-400"></i>
+      </div>
+      <div class="grid grid-cols-3 gap-2 mt-3 text-center">
+        <div class="glass edge rounded-xl py-2">
+          <div id="jqTotal" class="font-display font-bold text-white text-sm leading-tight">0</div>
+          <div class="text-[9px] text-slate-500 mt-0.5 uppercase tracking-wide">Animes</div>
+        </div>
+        <div class="glass edge rounded-xl py-2">
+          <div id="jqEps" class="font-display font-bold text-white text-sm leading-tight">0</div>
+          <div class="text-[9px] text-slate-500 mt-0.5 uppercase tracking-wide">Episodios</div>
+        </div>
+        <div class="glass edge rounded-xl py-2">
+          <div id="jqDays" class="font-display font-bold text-white text-sm leading-tight">0</div>
+          <div class="text-[9px] text-slate-500 mt-0.5 uppercase tracking-wide">Días</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="flex-1 min-w-0 flex flex-col bg-ink-950 relative overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(900px_400px_at_70%_-10%,rgba(168,85,247,.14),transparent_60%),radial-gradient(700px_350px_at_10%_110%,rgba(34,211,238,.08),transparent_60%)]"></div>
+
+    <div class="relative z-10 px-6 pt-4">
+      <div class="relative max-w-xl">
+        <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
+        <input id="globalSearch" type="text" autocomplete="off" spellcheck="false" placeholder="Buscar en el catálogo de MyAnimeList…"
+          class="w-full bg-white/[.04] edge rounded-xl pl-10 pr-4 py-2.5 text-[13px] text-slate-200 placeholder:text-slate-500 focus:bg-white/[.06] transition">
+        <div id="searchDropdown" class="hidden absolute top-full mt-2 w-full glass edge rounded-2xl overflow-hidden shadow-2xl shadow-black/50 z-50"></div>
+      </div>
+    </div>
+
+    <div class="relative z-10 flex-1 overflow-y-auto px-6 py-4 pb-10">
+
+      <section id="section-dashboard" class="fade-section anim-in">
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+          <h2 class="font-display font-bold text-xl text-white flex items-center gap-2">
+            Mi Lista
+            <span id="listCount" class="text-[11px] font-semibold px-2 py-1 rounded-lg bg-white/5 text-slate-400 edge"></span>
+          </h2>
+          <div class="ml-auto flex items-center gap-2">
+            <span class="text-[11px] text-slate-500 font-medium mr-1 no-select">Vista</span>
+            <div class="flex items-center p-1 glass edge rounded-xl">
+              <button data-view="grid" id="viewGrid" class="view-btn px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 text-[11px] font-medium transition">
+                <i data-lucide="grid-3x3" class="w-3.5 h-3.5"></i> Cuadrícula
+              </button>
+              <button data-view="list" id="viewList" class="view-btn px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 text-[11px] font-medium transition">
+                <i data-lucide="list" class="w-3.5 h-3.5"></i> Lista
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="filterBar" class="flex flex-wrap items-center gap-2 mb-5"></div>
+        <div id="animeContainer"></div>
+      </section>
+
+      <section id="section-explore" class="fade-section hidden">
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+          <h2 class="font-display font-bold text-xl text-white">Explorar / Tendencias</h2>
+          <div class="ml-auto flex items-center gap-2">
+            <div class="relative">
+              <input id="exploreSearch" type="text" placeholder="Buscar anime…"
+                class="w-64 bg-white/[.04] edge rounded-xl pl-9 pr-3 py-2 text-[13px] text-slate-200 placeholder:text-slate-500 focus:bg-white/[.06] transition">
+              <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500"></i>
+            </div>
+            <button id="exploreBtn" class="btn-primary px-3.5 py-2 rounded-xl text-[12px] font-semibold text-white flex items-center gap-1.5">
+              <i data-lucide="search" class="w-3.5 h-3.5"></i> Buscar
+            </button>
+            <button id="trendingBtn" class="px-3.5 py-2 rounded-xl text-[12px] font-semibold text-slate-300 bg-white/5 edge hover:bg-white/10 transition flex items-center gap-1.5">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-400"></i> Tendencias del momento
+            </button>
+          </div>
+        </div>
+        <p id="exploreHint" class="text-[12px] text-slate-500 mb-4">Resultados en tiempo real desde la API pública de Jikan (MyAnimeList). Haz clic en cualquier tarjeta para previsualizar y añadir a tu lista.</p>
+        <div id="exploreSkeleton" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"></div>
+        <div id="exploreResults" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"></div>
+      </section>
+
+      <section id="section-calendar" class="fade-section hidden">
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+          <h2 class="font-display font-bold text-xl text-white">Calendario de Emisión</h2>
+          <span class="text-[11px] text-slate-500 edge bg-white/5 px-2 py-1 rounded-lg">Horario JST (Japón) · Jikan /schedules</span>
+        </div>
+        <div id="calDays" class="flex flex-wrap gap-2 mb-5"></div>
+        <div id="calList" class="space-y-2"></div>
+      </section>
+
+      <section id="section-stats" class="fade-section hidden">
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+          <h2 class="font-display font-bold text-xl text-white">Estadísticas Personales</h2>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="glass edge rounded-2xl p-4 flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-purple-500/15 flex items-center justify-center text-purple-400"><i data-lucide="film" class="w-5 h-5"></i></div>
+            <div><div id="statAnime" class="font-display font-bold text-2xl text-white leading-none">0</div><div class="text-[11px] text-slate-500 mt-1">Animes en lista</div></div>
+          </div>
+          <div class="glass edge rounded-2xl p-4 flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-pink-500/15 flex items-center justify-center text-pink-400"><i data-lucide="clapperboard" class="w-5 h-5"></i></div>
+            <div><div id="statEps" class="font-display font-bold text-2xl text-white leading-none">0</div><div class="text-[11px] text-slate-500 mt-1">Episodios vistos</div></div>
+          </div>
+          <div class="glass edge rounded-2xl p-4 flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-cyan-500/15 flex items-center justify-center text-cyan-400"><i data-lucide="clock" class="w-5 h-5"></i></div>
+            <div><div id="statDays" class="font-display font-bold text-2xl text-white leading-none">0</div><div class="text-[11px] text-slate-500 mt-1">Días invertidos</div></div>
+          </div>
+          <div class="glass edge rounded-2xl p-4 flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-400"><i data-lucide="star" class="w-5 h-5"></i></div>
+            <div><div id="statAvg" class="font-display font-bold text-2xl text-white leading-none">0.0</div><div class="text-[11px] text-slate-500 mt-1">Nota media</div></div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+          <div class="glass edge rounded-2xl p-5 lg:col-span-2">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-display font-semibold text-sm text-white flex items-center gap-2"><i data-lucide="activity" class="w-4 h-4 text-emerald-400"></i> Actividad · últimos 7 días</h3>
+              <span id="activityTotal" class="text-[11px] text-slate-500"></span>
+            </div>
+            <canvas id="activityChart" width="640" height="220" class="w-full"></canvas>
+          </div>
+          <div class="glass edge rounded-2xl p-5">
+            <h3 class="font-display font-semibold text-sm text-white flex items-center gap-2 mb-4"><i data-lucide="pie-chart" class="w-4 h-4 text-purple-400"></i> Distribución</h3>
+            <div class="space-y-3 mb-5">
+              <div class="flex justify-between text-[11px]"><span class="text-slate-400">Viendo</span><span id="distWatching" class="font-semibold text-white">0</span></div>
+              <div class="flex justify-between text-[11px]"><span class="text-slate-400">Completados</span><span id="distCompleted" class="font-semibold text-white">0</span></div>
+              <div class="flex justify-between text-[11px]"><span class="text-slate-400">Pendientes</span><span id="distPlan" class="font-semibold text-white">0</span></div>
+            </div>
+            <div id="distBar" class="flex h-2.5 rounded-full overflow-hidden gap-0.5"></div>
+          </div>
+        </div>
+        <div class="glass edge rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-display font-semibold text-sm text-white flex items-center gap-2"><i data-lucide="tags" class="w-4 h-4 text-pink-400"></i> Géneros favoritos</h3>
+          </div>
+          <div id="genreDeck" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2.5"></div>
+        </div>
+      </section>
+
+      <section id="section-settings" class="fade-section hidden">
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+          <h2 class="font-display font-bold text-xl text-white">Ajustes del Auto-Scrobbler</h2>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="glass edge rounded-2xl p-5">
+            <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="monitor" class="w-4 h-4 text-cyan-400"></i> Detección de reproductores</h3>
+            <div class="space-y-3">
+              <label class="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[.03] hover:bg-white/[.06] transition cursor-pointer">
+                <div class="flex items-center gap-3">
+                  <i data-lucide="radio" class="w-4 h-4 text-purple-400"></i>
+                  <div><div class="text-[13px] font-medium text-slate-200">Detección automática de PC</div><div class="text-[11px] text-slate-500">Escanea reproductores VLC / MPV / PotPlayer en ejecución</div></div>
+                </div>
+                <input type="checkbox" data-setting="detectPlayers" class="accent-purple-500 w-4 h-4">
+              </label>
+              <label class="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[.03] hover:bg-white/[.06] transition cursor-pointer">
+                <div class="flex items-center gap-3">
+                  <i data-lucide="move-vertical" class="w-4 h-4 text-pink-400"></i>
+                  <div><div class="text-[13px] font-medium text-slate-200">Incremento automático</div><div class="text-[11px] text-slate-500">Marca el episodio visto al terminar la reproducción</div></div>
+                </div>
+                <input type="checkbox" data-setting="autoIncrement" class="accent-purple-500 w-4 h-4">
+              </label>
+              <label class="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[.03] hover:bg-white/[.06] transition cursor-pointer">
+                <div class="flex items-center gap-3">
+                  <i data-lucide="volume-2" class="w-4 h-4 text-amber-400"></i>
+                  <div><div class="text-[13px] font-medium text-slate-200">Notificaciones de episodio</div><div class="text-[11px] text-slate-500">Aviso al completar cada episodio vigilado</div></div>
+                </div>
+                <input type="checkbox" data-setting="notifications" class="accent-purple-500 w-4 h-4">
+              </label>
+            </div>
+          </div>
+
+          <div class="glass edge rounded-2xl p-5">
+            <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="flask-conical" class="w-4 h-4 text-emerald-400"></i> Simulador de reproducción</h3>
+            <p class="text-[12px] text-slate-500 mb-4">Prueba el flujo completo del Auto-Scrobbler: abre un archivo local ficticio, deja que "se reproduzca" y mira cómo se incrementan tus episodios automáticamente.</p>
+            <div class="space-y-3">
+              <div>
+                <label class="text-[11px] text-slate-500 font-medium mb-1.5 block">Archivo local simulado (.mkv / .mp4)</label>
+                <select id="simFile" class="native-dark w-full text-[12px]"></select>
+              </div>
+              <button id="simBtn" class="btn-primary w-full px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center justify-center gap-2">
+                <i data-lucide="play" class="w-4 h-4"></i> Iniciar reproducción simulada
+              </button>
+              <div id="simProgressWrap" class="hidden">
+                <div class="flex justify-between text-[11px] text-slate-500 mb-1"><span id="simFileNow">—</span><span id="simPct">0%</span></div>
+                <div class="h-1.5 rounded-full bg-white/10 overflow-hidden"><div id="simBar" class="h-full w-0 accent-gradient rounded-full transition-[width] duration-200"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass edge rounded-2xl p-5">
+            <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="database" class="w-4 h-4 text-sky-400"></i> Datos locales (localStorage)</h3>
+            <p class="text-[12px] text-slate-500 mb-4">Tu lista, progreso, notas y configuración se guardan automáticamente en este dispositivo.</p>
+            <div class="flex flex-wrap gap-2">
+              <button id="exportBtn" class="px-3.5 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition flex items-center gap-1.5"><i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar JSON</button>
+              <button id="importBtn" class="px-3.5 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition flex items-center gap-1.5"><i data-lucide="upload" class="w-3.5 h-3.5"></i> Importar JSON</button>
+              <button id="resetBtn" class="px-3.5 py-2 rounded-xl text-[12px] font-semibold bg-rose-500/10 edge border-rose-400/20 text-rose-300 hover:bg-rose-500/20 transition flex items-center gap-1.5"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Restablecer demo</button>
+            </div>
+            <input type="file" id="importFile" accept="application/json" class="hidden">
+          </div>
+
+          <div class="glass edge rounded-2xl p-5">
+            <h3 class="font-display font-semibold text-sm text-white mb-4 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4 text-slate-400"></i> Acerca de</h3>
+            <div class="text-[12px] text-slate-400 space-y-2 leading-relaxed">
+              <p><span class="text-white font-semibold">AnimePulse Desktop v2.0</span> — inspirado en la potencia de Taiga con la estética de AniList y Netflix.</p>
+              <p>Integración en tiempo real con la <span class="text-purple-300 font-medium">API pública de Jikan (MyAnimeList)</span>.</p>
+              <p>Listo para empaquetar con <span class="text-cyan-300 font-medium">Electron</span> o <span class="text-emerald-300 font-medium">Tauri</span> (.exe).</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<div id="detailModal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+  <div class="glass edge rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-2xl shadow-black/60 anim-pop flex flex-col">
+    <div id="detailBody" class="overflow-y-auto"></div>
+  </div>
+</div>
+
+<div id="toasts" class="fixed top-14 right-4 z-[80] space-y-2 w-80 max-w-[calc(100vw-2rem)] pointer-events-none"></div>
+
+<div id="confirmModal" class="hidden fixed inset-0 z-[70] modal-backdrop flex items-center justify-center p-4">
+  <div class="glass edge rounded-2xl w-full max-w-xs p-6 anim-pop">
+    <div class="font-display font-semibold text-white text-sm mb-2">¿Eliminar de la lista?</div>
+    <p id="confirmMsg" class="text-[12px] text-slate-400 mb-5 leading-relaxed">Se quitará el anime de tu lista. El progreso guardado se perderá.</p>
+    <div class="flex gap-2 justify-end">
+      <button id="confirmCancel" class="px-4 py-2 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">Cancelar</button>
+      <button id="confirmOk" class="px-4 py-2 rounded-xl text-[12px] font-semibold bg-rose-500 text-white hover:bg-rose-400 transition">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<script>'use strict';
+
+const LS_KEY = 'animepulse.v2.state';
+const JIKAN = 'https://api.jikan.moe/v4';
+
+const STATUS_META = {
+  watching:  { label: 'Viendo',      color: '#34d399' },
+  plan:      { label: 'Pendientes',  color: '#38bdf8' },
+  completed: { label: 'Completados', color: '#a78bfa' },
+  onhold:    { label: 'En pausa',    color: '#fbbf24' },
+  dropped:   { label: 'Abandonados', color: '#fb7185' }
+};
+const STATUS_ORDER = ['watching','plan','completed','onhold','dropped'];
+
+const MOCK_ANIME = [
+  { id:'mal_21', title:'One Piece', studio:'Toei Animation', genres:['Shonen','Adventure','Action','Fantasy'], year:1999, malScore:8.72, malEpisodes:0, airing:true, watched:12, status:'watching', rating:null, trailerId:'', posterHue:null,
+    image:'https://cdn.myanimelist.net/images/anime/1244/138851.jpg', synopsis:'Sigue las aventuras de Monkey D. Luffy y su tripulación pirata en su búsqueda del legendario tesoro One Piece.' },
+  { id:'mal_40748', title:'Jujutsu Kaisen', studio:'MAPPA', genres:['Shonen','Action','Supernatural'], year:2020, malScore:8.63, malEpisodes:24, airing:false, watched:24, status:'completed', rating:9, trailerId:'pCcZ9M3u2_E', posterHue:null,
+    image:'https://cdn.myanimelist.net/images/anime/1171/109222.jpg', synopsis:'Un estudiante se traga un dedo maldito y se convierte en el anfitrión de un demonio ancestral.' },
+  { id:'mal_52991', title:'Sousou no Frieren', studio:'Madhouse', genres:['Fantasy','Adventure','Drama'], year:2023, malScore:9.33, malEpisodes:28, airing:false, watched:4, status:'watching', rating:10, trailerId:'9kFtxe9Lbso', posterHue:null,
+    image:'https://cdn.myanimelist.net/images/anime/1015/138006.jpg', synopsis:'Tras derrotar al Rey Demonio, la elfa Frieren emprende un viaje para entender la efímera vida de los humanos.' },
+  { id:'mal_40028', title:'Shingeki no Kyojin', studio:'MAPPA', genres:['Shonen','Action','Drama','Mystery'], year:2013, malScore:8.55, malEpisodes:25, airing:false, watched:20, status:'watching', rating:8, trailerId:'', posterHue:null,
+    image:'https://cdn.myanimelist.net/images/anime/1571/134525.jpg', synopsis:'La humanidad se refugia tras tres murallas para protegerse de los titanes.' },
+  { id:'mal_44511', title:'Chainsaw Man', studio:'MAPPA', genres:['Shonen','Action','Horror'], year:2022, malScore:8.51, malEpisodes:12, airing:false, watched:0, status:'plan', rating:null, trailerId:'loT-HX0I7hg', posterHue:null,
+    image:'https://cdn.myanimelist.net/images/anime/1806/126216.jpg', synopsis:'Denji, un cazador de demonios endeudado, se fusiona con su mascota demonio para convertirse en Chainsaw Man.' },
+  { id:'mal_38000', title:'Kimetsu no Yaiba', studio:'ufotable', genres:['Shonen','Action','Supernatural'], year:2019, malScore:8.38, malEpisodes:26, airing:false, watched:12, status:'watching', rating:8, trailerId:'yjUQEAjTm2E', posterHue:null,
+    image:'https://cdn.myanimelist.net/images/anime/1286/128707.jpg', synopsis:'Tanjiro se convierte en cazador de demonios para devolver a su hermana a la forma humana.' },
+  { id:'mal_5114', title:'Fullmetal Alchemist: Brotherhood', studio:'Bones', genres:['Shonen','Action','Adventure','Drama','Fantasy'], year:2009, malScore:9.09, malEpisodes:64, airing:false, watched:0, status:'plan', rating:null, trailerId:'', posterHue:null,
+    image:'https://cdn.myanimelist.net/images/anime/1223/96541.jpg', synopsis:'Dos hermanos alquimistas buscan la piedra filosofal para restaurar sus cuerpos.' },
+  { id:'mal_37999', title:'Kaguya-sama: Love is War', studio:'A-1 Pictures', genres:['Romance','Comedy','School'], year:2019, malScore:8.4, malEpisodes:12, airing:false, watched:12, status:'completed', rating:7, trailerId:'', posterHue:null,
+    image:'https://cdn.myanimelist.net/images/anime/1295/106551.jpg', synopsis:'Dos prodigios del consejo estudiantil libran una guerra romántica de orgullo.' },
+  { id:'mal_9253', title:'Steins;Gate', studio:'White Fox', genres:['Sci-Fi','Thriller','Drama'], year:2011, malScore:9.03, malEpisodes:24, airing:false, watched:6, status:'watching', rating:null, trailerId:'', posterHue:null,
+    image:'https://cdn.myanimelist.net/images/anime/1935/127974.jpg', synopsis:'Un científico loco descubre que puede enviar mensajes al pasado.' },
+  { id:'mal_33352', title:'Violet Evergarden', studio:'Kyoto Animation', genres:['Drama','Fantasy','Slice of Life'], year:2018, malScore:8.74, malEpisodes:13, airing:false, watched:13, status:'completed', rating:10, trailerId:'', posterHue:null,
+    image:'https://cdn.myanimelist.net/images/anime/1795/95088.jpg', synopsis:'Una ex-soldado se convierte en Auto Memories Doll escribiendo cartas para otros.' },
+  { id:'mal_4752', title:'Bakemonogatari', studio:'Shaft', genres:['Mystery','Supernatural','Romance'], year:2009, malScore:8.9, malEpisodes:15, airing:false, watched:2, status:'onhold', rating:null, trailerId:'', posterHue:null,
+    image:'https://cdn.myanimelist.net/images/anime/1956/94915.jpg', synopsis:'Un estudiante se involucra con chicas afectadas por apariciones sobrenaturales.' },
+  { id:'mal_30654', title:'Tokyo Ghoul', studio:'Pierrot', genres:['Seinen','Action','Horror','Drama'], year:2014, malScore:7.82, malEpisodes:12, airing:false, watched:4, status:'dropped', rating:4, trailerId:'', posterHue:null,
+    image:'https://cdn.myanimelist.net/images/anime/1498/101851.jpg', synopsis:'Un universitario se convierte en medio ghoul tras un trasplante de órganos.' }
+];
+
+let state = {
+  filter: 'watching',
+  view: 'grid',
+  settings: { detectPlayers: true, autoIncrement: true, notifications: true },
+  animeList: [],
+  activity: [2,3,1,4,2,5,3],
+  calendarDay: 'monday',
+  scrobbler: { running: false, player: 'VLC Player', animeId: null, episodeNow: 0, progress: 0, fileName: null, timer: null },
+  searchCache: {},
+  lastSearch: ''
+};
+
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+const hashHue = str => { let h = 0; for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0; return Math.abs(h) % 360; };
+const initials = str => String(str || '').split(' ').slice(0, 3).map(w => w[0] || '').join('').toUpperCase();
+const uid = () => 'uid_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+
+function posterHtml(anime, extraCls) {
+  const hue = hashHue(anime.title);
+  const hue2 = (hue + 120) % 360;
+  return '<div class="poster-wrap w-full h-full rounded-xl' + (extraCls || '') + '" style="background:linear-gradient(150deg,hsl(' + hue + ',65%,26%),hsl(' + hue2 + ',60%,16%))">' +
+    '<span class="poster-fallback">' + initials(anime.title) + '</span>' +
+    '<img src="' + esc(anime.image || '') + '" alt="' + esc(anime.title) + '" loading="lazy" class="w-full h-full object-cover" onerror="this.remove()">' +
+    '</div>';
+}
+
+function airBadge(anime) {
+  if (anime.airing) return '<span class="absolute top-2 left-2 z-[2] flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/90 text-white no-select"><span class="w-1.5 h-1.5 rounded-full bg-white live-dot"></span> EN EMISIÓN</span>';
+  return '<span class="absolute top-2 left-2 z-[2] text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-slate-800/90 text-slate-300 no-select">FINALIZADO</span>';
+}
+
+function totalEps(a) { return a.malEpisodes || a.totalEpisodes || 0; }
+function epText(a) { const t = totalEps(a); return t ? a.watched + ' / ' + t : a.watched + ' ep'; }
+function progressPct(a) { const t = totalEps(a); if (!t) return a.watched > 0 ? 100 : 0; return clamp(Math.round((a.watched / t) * 100), 0, 100); }
+
+function statusChip(a) {
+  const m = STATUS_META[a.status] || STATUS_META.watching;
+  return '<span class="absolute bottom-2 right-2 z-[2] text-[9px] font-bold px-2 py-0.5 rounded-md no-select" style="background:' + m.color + '22;color:' + m.color + '">' + m.label + '</span>';
+}
+
+function statusSelect(a) {
+  return '<select data-role="status" data-id="' + esc(a.id) + '" class="native-dark" title="Cambiar estado">' +
+    STATUS_ORDER.map(s => '<option value="' + s + '"' + (a.status === s ? ' selected' : '') + '>' + STATUS_META[s].label + '</option>').join('') + '</select>';
+}
+
+function ratingSelect(a, zeroLabel) {
+  let opts = '<option value="0"' + (a.rating == null ? ' selected' : '') + '>' + (zeroLabel || '— Nota —') + '</option>';
+  for (let i = 10; i >= 1; i--) opts += '<option value="' + i + '"' + (a.rating === i ? ' selected' : '') + '>' + i + '★</option>';
+  return '<select data-role="rating" data-id="' + esc(a.id) + '" class="native-dark" title="Puntuar">' + opts + '</select>';
+}
+
+function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) { console.warn('No se pudo guardar:', e); } }
+
+function load() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      const p = JSON.parse(raw);
+      state = Object.assign(state, p);
+      state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notifications:true }, p.settings || {});
+      state.scrobbler = Object.assign({ running:false, player:'VLC Player', animeId:null, episodeNow:0, progress:0, fileName:null, timer:null }, p.scrobbler || {});
+      state.scrobbler.timer = null;
+      if (Array.isArray(p.animeList)) state.animeList = p.animeList;
+      if (Array.isArray(p.activity)) state.activity = p.activity.slice(0, 7);
+    }
+  } catch (e) { console.warn('Storage corrupto, se usará demo:', e); }
+  if (!state.animeList || !state.animeList.length) state.animeList = MOCK_ANIME.map(a => Object.assign({}, a));
+  if (!Array.isArray(state.activity) || state.activity.length !== 7) state.activity = [2,3,1,4,2,5,3];
+}
+
+function icons() { if (window.lucide) lucide.createIcons(); }
+
+function toast(msg, type) {
+  const kinds = {
+    ok:   { ic:'check-circle-2', bar:'bg-emerald-400', txt:'text-emerald-300' },
+    info: { ic:'info',            bar:'bg-sky-400',     txt:'text-sky-300' },
+    warn: { ic:'alert-triangle',  bar:'bg-amber-400',   txt:'text-amber-300' },
+    err:  { ic:'x-circle',        bar:'bg-rose-400',    txt:'text-rose-300' }
+  };
+  const k = kinds[type] || kinds.info;
+  const el = document.createElement('div');
+  el.className = 'pointer-events-auto glass edge rounded-xl overflow-hidden anim-in relative';
+  el.innerHTML = '<div class="absolute left-0 top-0 bottom-0 w-1 ' + k.bar + '"></div>' +
+    '<div class="flex items-start gap-2.5 px-3.5 py-3">' +
+    '<i data-lucide="' + k.ic + '" class="w-4 h-4 mt-0.5 ' + k.txt + ' shrink-0"></i>' +
+    '<div class="text-[12px] text-slate-200 leading-snug pr-2">' + msg + '</div>' +
+    '<button class="ml-auto text-slate-500 hover:text-white transition shrink-0 toast-close"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>';
+  document.getElementById('toasts').appendChild(el);
+  icons();
+  const kill = () => { el.style.transition = 'opacity .25s, transform .25s'; el.style.opacity = '0'; el.style.transform = 'translateX(20px)'; setTimeout(() => el.remove(), 260); };
+  el.querySelector('.toast-close').addEventListener('click', kill);
+  setTimeout(kill, 3600);
+}
+
+function recomputeStats() {
+  const by = { watching:0, plan:0, completed:0, onhold:0, dropped:0 };
+  let eps = 0; const rated = []; const genres = {};
+  state.animeList.forEach(a => {
+    by[a.status] = (by[a.status] || 0) + 1;
+    eps += a.watched || 0;
+    if (a.rating != null && a.rating > 0) rated.push(a.rating);
+    (a.genres || []).forEach(g => { genres[g] = (genres[g] || 0) + 1; });
+  });
+  const total = state.animeList.length;
+  const avg = rated.length ? (rated.reduce((x, y) => x + y, 0) / rated.length).toFixed(1) : '—';
+  const days = (eps * 24) / 60 / 24;
+  const dStr = days < 1 ? '<1' : (Math.round(days * 10) / 10);
+  document.getElementById('navCount').textContent = total;
+  document.getElementById('jqTotal').textContent = total;
+  document.getElementById('jqEps').textContent = eps;
+  document.getElementById('jqDays').textContent = dStr;
+  document.getElementById('statAnime').textContent = total;
+  document.getElementById('statEps').textContent = eps;
+  document.getElementById('statDays').textContent = dStr;
+  document.getElementById('statAvg').textContent = avg;
+  document.getElementById('distWatching').textContent = by.watching;
+  document.getElementById('distCompleted').textContent = by.completed;
+  document.getElementById('distPlan').textContent = by.plan;
+  const col = { watching:'#34d399', plan:'#38bdf8', completed:'#a78bfa', onhold:'#fbbf24', dropped:'#fb7185' };
+  const totalCount = Math.max(1, total);
+  const db = document.getElementById('distBar');
+  if (db) {
+    db.innerHTML = STATUS_ORDER.map(s => by[s] ? '<div style="width:' + (by[s] / totalCount * 100) + '%;background:' + col[s] + '" title="' + STATUS_META[s].label + ': ' + by[s] + '" class="h-full"></div>' : '').join('');
+  }
+  const deck = document.getElementById('genreDeck');
+  if (deck) {
+    const sorted = Object.entries(genres).sort((a, b) => b[1] - a[1]);
+    const max = Math.max(1, ...sorted.map(g => g[1]));
+    deck.innerHTML = sorted.length ? sorted.map(g => {
+      const hue = hashHue(g[0]);
+      return '<div class="flex items-center gap-3 p-2.5 rounded-xl bg-white/[.03] hover:bg-white/[.06] transition">' +
+        '<span class="w-8 h-8 rounded-lg flex items-center justify-center font-display font-bold text-[11px] text-white shrink-0" style="background:hsla(' + hue + ',70%,55%,.22);color:hsl(' + hue + ',80%,70%)">' + initials(g[0]) + '</span>' +
+        '<div class="flex-1 min-w-0"><div class="flex justify-between text-[12px] mb-1"><span class="text-slate-300 truncate">' + esc(g[0]) + '</span><span class="font-semibold text-white ml-2">' + g[1] + '</span></div>' +
+        '<div class="h-1.5 rounded-full bg-white/10 overflow-hidden"><div style="width:' + Math.round(g[1] / max * 100) + '%;background:linear-gradient(90deg,hsl(' + hue + ',80%,60%),hsl(' + ((hue + 60) % 360) + ',80%,60%))" class="h-full rounded-full"></div></div></div></div>';
+    }).join('') : '<div class="text-[12px] text-slate-500 py-4 text-center col-span-full">Sin datos de géneros todavía.</div>';
+  }
+  drawActivity();
+  renderFilterBar();
+}
+
+const DAY_LABELS = { monday:'LUN', tuesday:'MAR', wednesday:'MIÉ', thursday:'JUE', friday:'VIE', saturday:'SÁB', sunday:'DOM' };
+
+function drawActivity() {
+  const c = document.getElementById('activityChart');
+  if (!c || !c.getContext) return;
+  const ctx = c.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const W = c.parentElement.clientWidth || 640, H = 220;
+  c.width = W * dpr; c.height = H * dpr; c.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  const padL = 34, padR = 12, padT = 16, padB = 30;
+  const data = state.activity;
+  const max = Math.max(1, ...data);
+  const bw = (W - padL - padR) / data.length;
+  const block = Math.min(bw * 0.55, 44);
+  const now = new Date();
+  const total = data.reduce((a, b) => a + b, 0);
+  document.getElementById('activityTotal').textContent = total + ' episodios esta semana';
+  const grad = ctx.createLinearGradient(0, padT, 0, H - padB);
+  grad.addColorStop(0, 'rgba(236,72,153,.9)');
+  grad.addColorStop(1, 'rgba(139,92,246,.55)');
+  ctx.textAlign = 'right'; ctx.font = '10px Inter, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.35)';
+  const steps = 4;
+  for (let i = 0; i <= steps; i++) {
+    const val = Math.round(max / steps * i);
+    const y = H - padB - (val / max) * (H - padB - padT);
+    ctx.fillText(val, padL - 8, y + 3);
+    ctx.strokeStyle = 'rgba(255,255,255,.05)';
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+  }
+  data.forEach((v, i) => {
+    const x = padL + i * bw + (bw - block) / 2;
+    const h = (v / max) * (H - padB - padT);
+    const y = H - padB - h;
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x, y, block, h, [6, 6, 0, 0]); else ctx.rect(x, y, block, h);
+    ctx.fill();
+    const d = new Date(now); d.setDate(now.getDate() - (6 - i));
+    ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.4)';
+    ctx.fillText(d.toLocaleDateString('es', { weekday:'short' }), x + block / 2, H - padB + 16);
+    if (i === data.length - 1) {
+      ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.font = 'bold 10px Inter, sans-serif';
+      ctx.fillText(v, x + block / 2, y - 6); ctx.font = '10px Inter, sans-serif';
+    }
+  });
+}
+
+function renderFilterBar() {
+  const bar = document.getElementById('filterBar');
+  const counts = {};
+  state.animeList.forEach(a => { counts[a.status] = (counts[a.status] || 0) + 1; });
+  bar.innerHTML = STATUS_ORDER.map(s => {
+    const active = state.filter === s;
+    return '<button data-filter="' + s + '" class="filter-btn px-3.5 py-2 rounded-full text-[12px] font-semibold transition border ' +
+      (active ? 'tab-active' : 'bg-white/[.03] border-white/10 text-slate-400 hover:text-white hover:bg-white/[.07]') + '">' +
+      STATUS_META[s].label + ' <span class="ml-1 opacity-70">' + (counts[s] || 0) + '</span></button>';
+  }).join('');
+}
+
+function renderDashboard() {
+  renderFilterBar();
+  const list = state.animeList.filter(a => a.status === state.filter);
+  const wrap = document.getElementById('animeContainer');
+  if (!list.length) {
+    wrap.innerHTML = '<div class="glass edge rounded-2xl py-16 flex flex-col items-center justify-center gap-3">' +
+      '<div class="w-16 h-16 rounded-2xl bg-white/[.04] flex items-center justify-center"><i data-lucide="package-open" class="w-7 h-7 text-slate-600"></i></div>' +
+      '<div class="font-display font-semibold text-sm text-slate-300">No hay animes en ' + STATUS_META[state.filter].label.toLowerCase() + '</div>' +
+      '<div class="text-[12px] text-slate-500 max-w-sm text-center">Busca en Explorar o usa el buscador superior para añadir tu primer anime.</div></div>';
+    document.getElementById('listCount').textContent = '0 animes';
+    icons();
+    return;
+  }
+  document.getElementById('listCount').textContent = list.length + ' anime' + (list.length === 1 ? '' : 's');
+  wrap.innerHTML = state.view === 'grid' ? renderGrid(list) : renderList(list);
+  icons();
+}
+
+function renderGrid(list) {
+  return '<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">' + list.map(gridCard).join('') + '</div>';
+}
+
+function gridCard(a) {
+  const pct = progressPct(a);
+  const hue = hashHue(a.title);
+  return '<div class="group card-hover relative rounded-2xl overflow-hidden edge bg-ink-800 shadow-lg shadow-black/30 anim-in">' +
+    '<button data-action="open-detail" data-id="' + esc(a.id) + '" class="absolute inset-0 w-full h-full z-[1]" title="Ver ficha"><span class="sr-only">Detalle</span></button>' +
+    '<div class="relative aspect-[2/3]" style="background:linear-gradient(150deg,hsl(' + hue + ',65%,26%),hsl(' + ((hue + 120) % 360) + ',60%,16%))">' +
+      posterHtml(a).replace('poster-wrap w-full h-full rounded-xl', 'poster-wrap w-full h-full rounded-none') + airBadge(a) +
+      (a.malScore ? '<span class="absolute top-2 right-2 z-[2] text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-900/80 backdrop-blur text-amber-300 no-select">★ ' + a.malScore.toFixed(1) + '</span>' : '') +
+      '<div class="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/95 via-black/60 to-transparent"></div>' +
+      '<div class="absolute z-[2] bottom-0 inset-x-0 p-3">' +
+        '<div class="font-display font-semibold text-[13px] text-white leading-tight mb-0.5 truncate">' + esc(a.title) + '</div>' +
+        '<div class="text-[10px] text-slate-400 mb-1.5 truncate">' + (a.studio ? esc(a.studio) : 'Poster') + '</div>' +
+        '<div class="flex items-center gap-1.5 mb-1.5"><div class="flex-1 h-1 rounded-full bg-white/15 overflow-hidden"><div class="h-full rounded-full accent-gradient transition-[width] duration-300" style="width:' + pct + '%"></div></div>' +
+        '<span class="text-[10px] text-slate-300 font-semibold no-select whitespace-nowrap">' + epText(a) + '</span></div>' +
+        '<div class="mt-2 flex items-center gap-1.5 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition duration-200">' +
+          '<button data-action="inc" data-id="' + esc(a.id) + '" title="+1 Episodio" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-emerald-400/80 text-white backdrop-blur flex items-center justify-center transition shrink-0"><i data-lucide="plus" class="w-4 h-4"></i></button>' +
+          '<button data-action="dec" data-id="' + esc(a.id) + '" title="-1 Episodio" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-amber-400/80 text-white backdrop-blur flex items-center justify-center transition shrink-0"><i data-lucide="minus" class="w-4 h-4"></i></button>' +
+          statusSelect(a) +
+          ratingSelect(a, '0★') +
+          '<button data-action="delete" data-id="' + esc(a.id) + '" title="Eliminar" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-rose-500/80 text-white flex items-center justify-center transition shrink-0"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>' +
+        '</div>' +
+      '</div>' +
+    '</div>' + statusChip(a) + '</div>';
+}
+
+function renderList(list) {
+  return '<div class="glass edge rounded-2xl overflow-hidden">' +
+    '<div class="overflow-x-auto"><table class="w-full text-left border-collapse min-w-[760px]">' +
+    '<thead><tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-white/5 bg-white/[.02]">' +
+    '<th class="py-3 px-4 font-semibold">Anime</th><th class="py-3 px-3 font-semibold">Estado</th>' +
+    '<th class="py-3 px-3 font-semibold text-center">Progreso</th><th class="py-3 px-3 font-semibold text-center">Episodios</th>' +
+    '<th class="py-3 px-3 font-semibold text-center">Nota</th><th class="py-3 px-3 font-semibold text-right">Acciones</th></tr></thead><tbody>' +
+    list.map(listRow).join('') + '</tbody></table></div></div>' +
+    '<div class="mt-3 text-[11px] text-slate-600 text-center no-select">Tip: usa + y − para registrar episodios al instante, como en Taiga.</div>';
+}
+
+function listRow(a) {
+  const pct = progressPct(a);
+  const t = totalEps(a);
+  return '<tr class="row-hover border-b border-white/[.04] transition">' +
+    '<td class="py-2.5 px-4"><div class="flex items-center gap-3">' +
+      '<button data-action="open-detail" data-id="' + esc(a.id) + '" class="relative w-11 h-[62px] rounded-lg overflow-hidden shrink-0 edge"><span class="sr-only">Detalle</span>' + posterHtml(a).replace('poster-wrap w-full h-full rounded-xl', 'poster-wrap absolute inset-0 rounded-lg') + '</button>' +
+      '<div class="min-w-0"><div class="font-display font-semibold text-[13px] text-white truncate max-w-[240px]">' + esc(a.title) + '</div>' +
+      '<div class="text-[11px] text-slate-500 truncate max-w-[240px]">' + (a.studio ? esc(a.studio) : '—') + (a.year ? ' · ' + a.year : '') + '</div>' +
+      '<div class="flex gap-1 mt-0.5 flex-wrap">' + (a.genres || []).slice(0, 3).map(g => '<span class="text-[9px] px-1.5 py-0.5 rounded bg-white/[.06] text-slate-400">' + esc(g) + '</span>').join('') + '</div></div></div></td>' +
+    '<td class="py-2.5 px-3">' + statusSelect(a) + '</td>' +
+    '<td class="py-2.5 px-3"><div class="flex items-center gap-1.5 min-w-[130px]">' +
+      '<button data-action="dec" data-id="' + esc(a.id) + '" ' + (a.watched > 0 ? '' : 'disabled') + ' class="w-7 h-7 rounded-lg bg-white/5 hover:bg-amber-400/80 text-slate-300 flex items-center justify-center transition shrink-0 ' + (a.watched > 0 ? '' : 'opacity-30 cursor-not-allowed') + '"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button>' +
+      '<button data-action="inc" data-id="' + esc(a.id) + '" class="w-7 h-7 rounded-lg bg-emerald-400/15 hover:bg-emerald-400 text-emerald-300 hover:text-white flex items-center justify-center transition shrink-0"><i data-lucide="plus" class="w-3.5 h-3.5"></i></button>' +
+      '<div class="h-1.5 flex-1 rounded-full bg-white/10 overflow-hidden"><div class="h-full rounded-full accent-gradient transition-[width] duration-300" style="width:' + pct + '%"></div></div></div></td>' +
+    '<td class="py-2.5 px-3 text-center no-select"><span class="font-mono text-[13px] font-semibold text-white">' + epText(a) + '</span>' +
+      (t > 0 && a.watched >= t ? '<div class="text-[9px] text-emerald-400 font-semibold">COMPLETADO</div>' : '') + '</td>' +
+    '<td class="py-2.5 px-3">' + ratingSelect(a) + '</td>' +
+    '<td class="py-2.5 px-3"><div class="flex items-center justify-end gap-1">' +
+      '<button data-action="open-detail" data-id="' + esc(a.id) + '" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 text-slate-300 flex items-center justify-center transition" title="Editar / notas"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>' +
+      '<button data-action="delete" data-id="' + esc(a.id) + '" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-rose-500/80 text-slate-300 hover:text-white flex items-center justify-center transition" title="Eliminar"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>' +
+    '</div></td></tr>';
+}
+
+function findAnime(id) { return state.animeList.find(a => a.id === id); }
+
+function updateProgress(id, delta) {
+  const a = findAnime(id);
+  if (!a) return;
+  const t = totalEps(a);
+  const next = clamp((a.watched || 0) + delta, 0, t > 0 ? t : 99999);
+  if (next === a.watched) return;
+  a.watched = next;
+  const pct = progressPct(a);
+  const completedNow = t > 0 && next >= t && a.status === 'watching';
+  if (delta > 0) {
+    state.activity = state.activity.slice(1).concat([0]);
+    state.activity[6] += 1;
+  }
+  if (completedNow) {
+    a.status = 'completed';
+    if (state.settings.notifications) toast('<b>' + esc(a.title) + '</b> completado. ¡Felicidades!', 'ok');
+  } else if (delta > 0 && state.settings.notifications) {
+    toast('+1 episodio · <b>' + esc(a.title) + '</b> (' + epText(a) + (t ? ' · ' + pct + '%' : '') + ')', 'ok');
+  }
+  save();
+  renderDashboard();
+  recomputeStats();
+  renderScrobblerUI();
+  if (document.getElementById('detailModal') && !document.getElementById('detailModal').classList.contains('hidden')) refreshDetail();
+}
+
+function setStatus(id, status) {
+  const a = findAnime(id);
+  if (!a) return;
+  a.status = status;
+  save();
+  renderDashboard(); recomputeStats(); renderScrobblerUI();
+  if (state.settings.notifications) toast('Estado actualizado: <b>' + STATUS_META[status].label + '</b>', 'info');
+}
+
+function setRating(id, rating) {
+  const a = findAnime(id);
+  if (!a) return;
+  a.rating = rating > 0 ? rating : null;
+  save();
+  renderDashboard(); recomputeStats();
+  if (rating > 0) toast('Puntuación de <b>' + esc(a.title) + '</b> → <b>' + rating + '/10</b>', 'info');
+}
+
+function addAnimeFrom(item, status) {
+  const existing = state.animeList.find(a => a.id === item.id);
+  if (existing) { toast('<b>' + esc(item.title) + '</b> ya está en tu lista', 'warn'); return existing; }
+  const entry = {
+    id: item.id,
+    title: item.title,
+    title_english: item.title_english || '',
+    image: item.image || '',
+    studio: item.studio,
+    genres: item.genres || [],
+    year: item.year || null,
+    malScore: item.malScore || null,
+    malEpisodes: item.malEpisodes || 0,
+    synopsis: item.synopsis || '',
+    trailerId: item.trailerId || '',
+    airing: !!item.airing,
+    watched: 0,
+    status: status || 'watching',
+    rating: null,
+    notes: '',
+    addedAt: Date.now()
+  };
+  state.animeList.unshift(entry);
+  save();
+  state.filter = entry.status;
+  renderDashboard(); recomputeStats(); renderScrobblerUI();
+  toast('<b>' + esc(item.title) + '</b> añadido a <b>' + STATUS_META[entry.status].label + '</b>', 'ok');
+  return entry;
+}
+
+function removeAnime(id) {
+  const a = findAnime(id);
+  state.animeList = state.animeList.filter(x => x.id !== id);
+  save();
+  renderDashboard(); recomputeStats(); renderScrobblerUI();
+  if (a) toast('<b>' + esc(a.title) + '</b> eliminado de tu lista', 'warn');
+}
+
+let pendingDeleteId = null;
+function askDelete(id) {
+  const a = findAnime(id);
+  if (!a) return;
+  pendingDeleteId = id;
+  document.getElementById('confirmMsg').innerHTML = 'Se eliminará <b class="text-white">' + esc(a.title) + '</b> de tu lista. El progreso guardado se perderá.';
+  document.getElementById('confirmModal').classList.remove('hidden');
+}function ytEmbed(id) {
+  return id ? '<iframe class="w-full aspect-video rounded-xl edge" src="https://www.youtube-nocookie.com/embed/' + esc(id) + '?rel=0" title="Tráiler" allowfullscreen loading="lazy"></iframe>' : '';
+}
+
+function airBadgeChip(a) {
+  if (a.airing) return '<span class="text-[10px] font-bold px-2 py-1 rounded-md bg-emerald-500/15 text-emerald-300 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span> EN EMISIÓN</span>';
+  return '<span class="text-[10px] font-bold px-2 py-1 rounded-md bg-slate-500/10 text-slate-400">FINALIZADO</span>';
+}
+
+function detailOfLocal(a) {
+  const t = totalEps(a);
+  const pct = progressPct(a);
+  return '<div class="p-6">' +
+    '<div class="flex items-start gap-4">' +
+      '<div class="w-32 md:w-36 shrink-0 aspect-[2/3] rounded-2xl overflow-hidden edge shadow-xl shadow-black/50 relative">' + posterHtml(a).replace('poster-wrap w-full h-full rounded-xl', 'poster-wrap absolute inset-0 rounded-2xl') + '</div>' +
+      '<div class="flex-1 min-w-0">' +
+        '<div class="flex items-center gap-2 flex-wrap"><div class="font-display font-bold text-lg text-white leading-tight">' + esc(a.title) + '</div>' + airBadgeChip(a) + '</div>' +
+        (a.title_english && a.title_english !== a.title ? '<div class="text-[12px] text-slate-500 mt-0.5">' + esc(a.title_english) + '</div>' : '') +
+        '<div class="flex items-center gap-3 mt-2 flex-wrap text-[12px]">' +
+          '<span class="flex items-center gap-1 text-slate-400"><i data-lucide="building-2" class="w-3.5 h-3.5 text-slate-500"></i>' + (a.studio ? esc(a.studio) : 'Desconocido') + '</span>' +
+          (a.year ? '<span class="text-slate-500">·</span><span class="text-slate-400">' + a.year + '</span>' : '') +
+          (a.malScore ? '<span class="text-slate-500">·</span><span class="text-amber-300 font-semibold">★ ' + a.malScore.toFixed(1) + '</span><span class="text-slate-600">MAL</span>' : '') + '</div>' +
+        '<div class="flex flex-wrap gap-1.5 mt-2">' + (a.genres || []).map(g => '<span class="text-[10px] px-2 py-0.5 rounded bg-white/[.06] text-slate-300">' + esc(g) + '</span>').join('') + '</div>' +
+        '<div class="flex gap-2 mt-4 flex-wrap">' +
+          '<div class="px-3 py-2 rounded-xl bg-white/[.04] edge text-center"><div class="font-mono font-bold text-white text-sm leading-none">' + (t ? a.watched + ' / ' + t : a.watched) + '</div><div class="text-[9px] text-slate-500 mt-1 uppercase tracking-wide">Episodios</div></div>' +
+          '<div class="px-3 py-2 rounded-xl bg-white/[.04] edge text-center"><div class="font-mono font-bold text-white text-sm leading-none">' + pct + '%</div><div class="text-[9px] text-slate-500 mt-1 uppercase tracking-wide">Progreso</div></div>' +
+        '</div>' +
+      '</div></div>' +
+    '<div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">' +
+      '<div><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-1.5">Editar progreso</div>' +
+        '<div class="flex items-center gap-2">' +
+          '<button data-mdl="dec" data-id="' + esc(a.id) + '" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-amber-400/80 text-slate-200 flex items-center justify-center transition"><i data-lucide="minus" class="w-4 h-4"></i></button>' +
+          '<input data-mdl="ep" data-id="' + esc(a.id) + '" type="number" min="0" value="' + a.watched + '" class="w-20 text-center bg-white/[.05] edge rounded-xl py-2 font-mono font-bold text-white text-sm">' +
+          '<button data-mdl="inc" data-id="' + esc(a.id) + '" class="w-9 h-9 rounded-xl bg-emerald-400/15 hover:bg-emerald-400 text-emerald-300 hover:text-white flex items-center justify-center transition"><i data-lucide="plus" class="w-4 h-4"></i></button>' +
+          '<span class="text-[11px] text-slate-500 ml-1">de ' + (t || '∞') + '</span></div>' +
+        '<div class="h-1.5 rounded-full bg-white/10 overflow-hidden mt-3"><div style="width:' + pct + '%" class="h-full rounded-full accent-gradient transition-[width] duration-300"></div></div>' +
+        '<div class="flex items-center gap-3 mt-4 flex-wrap">' +
+          '<label class="text-[11px] text-slate-500">Estado</label>' +
+          '<select data-mdl="status" data-id="' + esc(a.id) + '" class="native-dark">' + STATUS_ORDER.map(s => '<option value="' + s + '"' + (a.status === s ? ' selected' : '') + '>' + STATUS_META[s].label + '</option>').join('') + '</select>' +
+          '<label class="text-[11px] text-slate-500">Nota</label>' +
+          '<select data-mdl="rating" data-id="' + esc(a.id) + '" class="native-dark">' + (function () { let o = '<option value="0"' + (a.rating == null ? ' selected' : '') + '>Sin nota</option>'; for (let i = 1; i <= 10; i++) o += '<option value="' + i + '"' + (a.rating === i ? ' selected' : '') + '>' + i + '/10</option>'; return o; })() + '</select></div>' +
+      '</div>' +
+      '<div><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-1.5">Notas personales</div>' +
+        '<textarea data-mdl="notes" data-id="' + esc(a.id) + '" rows="3" placeholder="Tus impresiones, recomendaciones…" class="w-full bg-white/[.04] edge rounded-xl p-3 text-[12px] text-slate-200 placeholder:text-slate-600 resize-none">' + esc(a.notes || '') + '</textarea>' +
+      '</div></div>' +
+    '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Sinopsis</div>' +
+      '<p class="text-[12px] text-slate-400 leading-relaxed">' + (a.synopsis ? esc(a.synopsis) : 'Sin sinopsis disponible.') + '</p></div>' +
+    (a.trailerId ? '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Tráiler</div>' + ytEmbed(a.trailerId) + '</div>' : '') +
+    '<div class="flex items-center justify-end gap-2 mt-6">' +
+      '<button data-mdl="delete" data-id="' + esc(a.id) + '" class="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-rose-500/10 edge border-rose-400/20 text-rose-300 hover:bg-rose-500/20 transition flex items-center gap-1.5"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Eliminar</button>' +
+      '<button data-mdl="close" class="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">Cerrar</button>' +
+    '</div></div>';
+}
+
+function detailOfApi(item) {
+  const inList = state.animeList.find(a => a.id === item.id);
+  return '<div class="p-6">' +
+    '<div class="flex items-start gap-4">' +
+      '<div class="w-32 md:w-36 shrink-0 aspect-[2/3] rounded-2xl overflow-hidden edge shadow-xl shadow-black/50 relative">' + posterHtml(item).replace('poster-wrap w-full h-full rounded-xl', 'poster-wrap absolute inset-0 rounded-2xl') + '</div>' +
+      '<div class="flex-1 min-w-0">' +
+        '<div class="flex items-center gap-2 flex-wrap"><div class="font-display font-bold text-lg text-white leading-tight">' + esc(item.title) + '</div>' + airBadgeChip(item) + '</div>' +
+        (item.title_english && item.title_english !== item.title ? '<div class="text-[12px] text-slate-500 mt-0.5">' + esc(item.title_english) + '</div>' : '') +
+        '<div class="flex items-center gap-3 mt-2 flex-wrap text-[12px]">' +
+          '<span class="flex items-center gap-1 text-slate-400"><i data-lucide="building-2" class="w-3.5 h-3.5 text-slate-500"></i>' + (item.studio ? esc(item.studio) : 'Desconocido') + '</span>' +
+          (item.year ? '<span class="text-slate-500">·</span><span class="text-slate-400">' + item.year + '</span>' : '') +
+          '<span class="text-slate-500">·</span><span class="text-amber-300 font-semibold">★ ' + (item.malScore ? item.malScore.toFixed(1) : '—') + '</span><span class="text-slate-600">MAL</span></div>' +
+        '<div class="flex flex-wrap gap-1.5 mt-2">' + (item.genres || []).map(g => '<span class="text-[10px] px-2 py-0.5 rounded bg-white/[.06] text-slate-300">' + esc(g) + '</span>').join('') + '</div>' +
+        '<div class="px-3 py-2 rounded-xl bg-white/[.04] edge inline-block mt-3"><div class="font-mono font-bold text-white text-sm leading-none">' + (item.malEpisodes ? item.malEpisodes + ' episodios' : 'En emisión continuada') + '</div><div class="text-[9px] text-slate-500 mt-1 uppercase tracking-wide">Desde MAL</div></div>' +
+      '</div></div>' +
+    '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Sinopsis</div>' +
+      '<p class="text-[12px] text-slate-400 leading-relaxed max-h-40 overflow-y-auto pr-1">' + (item.synopsis ? esc(item.synopsis) : 'Sin sinopsis disponible.') + '</p></div>' +
+    (item.trailerId ? '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Tráiler</div>' + ytEmbed(item.trailerId) + '</div>' : '') +
+    '<div class="flex flex-wrap items-center gap-2 mt-6">' +
+      (inList
+        ? '<span class="text-[12px] text-emerald-300 font-semibold flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Ya está en tu lista (' + STATUS_META[inList.status].label + ')</span>'
+        : '<button data-mdl="add" data-id="' + esc(item.id) + '" class="btn-primary px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center gap-2"><i data-lucide="bookmark-plus" class="w-4 h-4"></i> Añadir a Mi Lista</button>') +
+      '<button data-mdl="add-plan" data-id="' + esc(item.id) + '" class="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">Añadir como Pendiente</button>' +
+      '<button data-mdl="close" class="ml-auto px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">Cerrar</button>' +
+    '</div></div>';
+}
+
+let apiDetailCache = {};
+
+function openDetail(id) {
+  const a = findAnime(id);
+  if (!a) return;
+  document.getElementById('detailBody').innerHTML = detailOfLocal(a);
+  document.getElementById('detailModal').classList.remove('hidden');
+  icons();
+}
+
+function openApiDetail(item) {
+  document.getElementById('detailBody').innerHTML = detailOfApi(item);
+  document.getElementById('detailModal').classList.remove('hidden');
+  icons();
+}
+
+function refreshDetail() {
+  const body = document.getElementById('detailBody');
+  const editInputs = body.querySelectorAll('[data-mdl]');
+  if (!editInputs.length) return;
+  const idEl = body.querySelector('[data-id]');
+  if (!idEl) return;
+  const a = findAnime(idEl.getAttribute('data-id'));
+  if (!a) return;
+  body.innerHTML = detailOfLocal(a);
+  icons();
+}
+
+function closeModal() {
+  document.getElementById('detailModal').classList.add('hidden');
+  document.getElementById('detailBody').innerHTML = '';
+}
+
+async function apiFetch(url) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 9000);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal, headers: { 'Accept': 'application/json' } });
+    if (res.status === 429) { toast('Límite de la API de Jikan alcanzado. Espera un momento…', 'warn'); return null; }
+    if (!res.ok) { toast('La API devolvió el error ' + res.status, 'err'); return null; }
+    return await res.json();
+  } catch (e) {
+    if (e && e.name === 'AbortError') toast('La API de Jikan tardó demasiado. Revisa tu conexión.', 'err');
+    else toast('Error de red al conectar con Jikan.', 'err');
+    return null;
+  } finally { clearTimeout(timer); }
+}
+
+function mapJikanItem(d) {
+  return {
+    id: 'mal_' + d.mal_id,
+    title: d.title || d.title_english || 'Sin título',
+    title_english: d.title_english || '',
+    image: (d.images && (d.images.jpg.large_image_url || d.images.jpg.image_url)) || '',
+    studio: (d.studios && d.studios[0] && d.studios[0].name) || 'Desconocido',
+    genres: (d.genres || []).map(g => g.name),
+    year: (d.year || (d.aired && d.aired.prop && d.aired.prop.from && d.aired.prop.from.year)) || null,
+    malScore: d.score || null,
+    malEpisodes: d.episodes || 0,
+    synopsis: d.synopsis || '',
+    trailerId: (d.trailer && d.trailer.youtube_id) || '',
+    airing: !!d.airing
+  };
+}
+
+let globalSearchTimer = null;
+let globalSearchSeq = 0;
+
+function setupGlobalSearch() {
+  const input = document.getElementById('globalSearch');
+  const dd = document.getElementById('searchDropdown');
+  input.addEventListener('input', () => {
+    clearTimeout(globalSearchTimer);
+    const q = input.value.trim();
+    if (!q) { dd.classList.add('hidden'); dd.innerHTML = ''; return; }
+    globalSearchTimer = setTimeout(() => runGlobalSearch(q), 260);
+  });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const q = input.value.trim();
+      if (q) {
+        dd.classList.add('hidden');
+        switchSection('explore');
+        runExploreSearch(q, true);
+      }
+    }
+    if (e.key === 'Escape') { dd.classList.add('hidden'); input.blur(); }
+  });
+  document.addEventListener('click', e => {
+    if (!dd.classList.contains('hidden') && !dd.contains(e.target) && e.target !== input) dd.classList.add('hidden');
+  });
+  dd.addEventListener('click', e => {
+    const card = e.target.closest('[data-jikan]');
+    if (!card) return;
+    const malId = card.getAttribute('data-jikan');
+    const cached = state.searchCache['id_' + malId] || apiDetailCache[malId];
+    dd.classList.add('hidden');
+    if (cached) { openApiDetail(cached); return; }
+    openApiDetailFromJikan(malId);
+  });
+}
+
+async function runGlobalSearch(q) {
+  const seq = ++globalSearchSeq;
+  const dd = document.getElementById('searchDropdown');
+  let raw = state.searchCache['g_' + q.toLowerCase()];
+  if (!raw) {
+    const json = await apiFetch(JIKAN + '/anime?q=' + encodeURIComponent(q) + '&limit=6&sfw=true');
+    if (seq !== globalSearchSeq) return;
+    if (!json) return;
+    raw = json.data || [];
+    state.searchCache['g_' + q.toLowerCase()] = raw;
+  }
+  if (seq !== globalSearchSeq) return;
+  if (!raw.length) {
+    dd.innerHTML = '<div class="px-4 py-4 text-[12px] text-slate-500">Sin resultados para “' + esc(q) + '”.</div>';
+    dd.classList.remove('hidden');
+    return;
+  }
+  dd.innerHTML = raw.map(d => {
+    const item = mapJikanItem(d);
+    const hue = hashHue(item.title);
+    return '<button data-jikan="' + d.mal_id + '" class="search-res-item w-full flex items-center gap-3 px-3 py-2.5 text-left transition">' +
+      '<span class="relative w-8 h-11 rounded-md overflow-hidden shrink-0" style="background:linear-gradient(150deg,hsl(' + hue + ',65%,28%),hsl(' + ((hue + 120) % 360) + ',60%,16%))">' +
+      '<span class="poster-fallback" style="font-size:.7rem">' + initials(item.title) + '</span>' +
+      (item.image ? '<img src="' + esc(item.image) + '" class="w-full h-full object-cover relative z-[1]" loading="lazy" onerror="this.remove()">' : '') + '</span>' +
+      '<span class="min-w-0 flex-1"><span class="block text-[12px] font-semibold text-white truncate">' + esc(item.title) + '</span>' +
+      '<span class="block text-[10px] text-slate-500 truncate">' + (item.studio ? esc(item.studio) : '') + (item.year ? ' · ' + item.year : '') + '</span></span>' +
+      (item.malScore ? '<span class="text-[11px] font-bold text-amber-300 shrink-0 no-select">★ ' + item.malScore.toFixed(1) + '</span>' : '') + '</button>';
+  }).join('') + '<div class="px-3 py-2 border-t border-white/5 flex items-center justify-between"><button id="openExploreFromDrop" class="text-[11px] font-semibold text-purple-300 hover:text-purple-200 transition">Ver resultados completos en Explorar <i data-lucide="arrow-right" class="inline w-3 h-3"></i></button><span class="text-[10px] text-slate-600">vía api.jikan.moe</span></div>';
+  dd.classList.remove('hidden');
+  icons();
+  dd.querySelector('#openExploreFromDrop').addEventListener('click', () => {
+    dd.classList.add('hidden');
+    switchSection('explore');
+    document.getElementById('exploreSearch').value = q;
+    runExploreSearch(q, true);
+  });
+  raw.forEach(d => { if (!apiDetailCache[d.mal_id] && !state.searchCache['id_' + d.mal_id]) state.searchCache['id_' + d.mal_id] = mapJikanItem(d); });
+}
+
+async function openApiDetailFromJikan(malId) {
+  let item = state.searchCache['id_' + malId] || apiDetailCache[malId];
+  if (!item) {
+    const json = await apiFetch(JIKAN + '/anime/' + malId);
+    if (!json || !json.data) { toast('No se pudo cargar la ficha.', 'err'); return; }
+    item = mapJikanItem(json.data);
+    state.searchCache['id_' + malId] = item;
+  }
+  apiDetailCache[malId] = item;
+  openApiDetail(item);
+}
+
+function showSkeleton(on) {
+  const sk = document.getElementById('exploreSkeleton');
+  if (!on) { sk.innerHTML = ''; return; }
+  let cards = '';
+  for (let i = 0; i < 10; i++) {
+    cards += '<div class="rounded-2xl edge overflow-hidden shimmer"><div class="aspect-[2/3]"></div><div class="p-3 space-y-2"><div class="h-3 rounded bg-white/10 w-4/5"></div><div class="h-2 rounded bg-white/10 w-2/3"></div></div></div>';
+  }
+  sk.innerHTML = cards;
+}
+
+let skeletonTimeout = null;
+function setBodyLoading(on) {
+  clearTimeout(skeletonTimeout);
+  document.body.classList.toggle('section-loading', on);
+  if (on) skeletonTimeout = setTimeout(() => document.body.classList.remove('section-loading'), 12000);
+}
+
+const exploreKeyCache = {};
+async function runExploreSearch(q, force) {
+  q = (q || '').trim();
+  if (!q) { toast('Escribe un título para buscar.', 'warn'); return; }
+  document.getElementById('exploreHint').textContent = 'Buscando “' + q + '”…';
+  document.getElementById('exploreResults').innerHTML = '';
+  showSkeleton(true); setBodyLoading(true);
+  const key = 'e_' + q.toLowerCase();
+  let raw = force ? null : exploreKeyCache[key];
+  if (!raw) {
+    const json = await apiFetch(JIKAN + '/anime?q=' + encodeURIComponent(q) + '&limit=24&sfw=true');
+    if (json) { raw = json.data || []; exploreKeyCache[key] = raw; }
+  }
+  showSkeleton(false); setBodyLoading(false);
+  if (!raw) { document.getElementById('exploreHint').textContent = 'No se pudieron cargar resultados. Inténtalo de nuevo.'; return; }
+  if (!raw.length) { document.getElementById('exploreHint').textContent = 'Sin resultados para “' + q + '”. Prueba con otro título.'; return; }
+  document.getElementById('exploreHint').textContent = raw.length + ' resultados en tiempo real para “' + q + '” desde MyAnimeList.';
+  renderExploreItems(raw.map(mapJikanItem));
+}
+
+let trendingRaw = null;
+async function loadTrending() {
+  document.getElementById('exploreHint').textContent = 'Cargando tendencias del momento…';
+  document.getElementById('exploreResults').innerHTML = '';
+  showSkeleton(true); setBodyLoading(true);
+  if (!trendingRaw) {
+    const json = await apiFetch(JIKAN + '/top/anime?filter=bypopularity&limit=24&sfw=true');
+    if (json) trendingRaw = json.data || [];
+  }
+  showSkeleton(false); setBodyLoading(false);
+  if (!trendingRaw) { document.getElementById('exploreHint').textContent = 'No se pudieron cargar las tendencias.'; return; }
+  document.getElementById('exploreHint').textContent = 'Tendencias actuales según la popularidad en MyAnimeList. Haz clic en cualquier tarjeta para previsualizar.';
+  renderExploreItems(trendingRaw.map(mapJikanItem));
+}
+
+function renderExploreItems(items) {
+  const wrap = document.getElementById('exploreResults');
+  wrap.innerHTML = items.map((it, idx) => {
+    const inList = state.animeList.some(a => a.id === it.id);
+    const hue = hashHue(it.title);
+    return '<div data-jikan="' + esc(it.id.replace('mal_', '')) + '" class="result-card group relative rounded-2xl overflow-hidden edge bg-ink-800 cursor-pointer anim-in" style="animation-delay:' + Math.min(idx * 50, 350) + 'ms">' +
+      '<div class="relative aspect-[2/3]" style="background:linear-gradient(150deg,hsl(' + hue + ',65%,26%),hsl(' + ((hue + 120) % 360) + ',60%,16%))">' +
+        posterHtml(it).replace('poster-wrap w-full h-full rounded-xl', 'poster-wrap w-full h-full rounded-none') +
+        '<div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/95 via-black/60 to-transparent"></div>' +
+        (it.airing ? '<span class="absolute top-2 left-2 z-[2] flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/90 text-white"><span class="w-1.5 h-1.5 rounded-full bg-white live-dot"></span> EN EMISIÓN</span>' : '') +
+        (it.malScore ? '<span class="absolute top-2 right-2 z-[2] text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-900/80 text-amber-300">★ ' + it.malScore.toFixed(1) + '</span>' : '') +
+        '<div class="absolute z-[2] bottom-0 inset-x-0 p-3">' +
+          '<div class="font-display font-semibold text-[13px] text-white leading-tight truncate">' + esc(it.title) + '</div>' +
+          '<div class="text-[10px] text-slate-400 truncate mt-0.5">' + (it.studio ? esc(it.studio) : '') + (it.year ? ' · ' + it.year : '') + '</div>' +
+          '<div class="text-[10px] text-slate-500 mt-0.5 truncate">' + (it.malEpisodes ? it.malEpisodes + ' ep' : 'En emisión') + '</div></div>' +
+        '<div class="absolute top-0 left-0 right-0 bottom-0 z-[3] flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/30">' +
+          '<span class="px-3 py-1.5 rounded-full glass edge text-[11px] font-semibold text-white backdrop-blur flex items-center gap-1.5"><i data-lucide="eye" class="w-3.5 h-3.5"></i> ' + (inList ? 'En tu lista' : 'Previsualizar') + '</span></div>' +
+      '</div></div>';
+  }).join('');
+  icons();
+}
+
+function openExploreDetail(div) {
+  const malId = div.getAttribute('data-jikan');
+  if (!malId) return;
+  const rr = exploreKeyCache ? Object.values(exploreKeyCache) : [];
+  let item = apiDetailCache[malId] || state.searchCache['id_' + malId] || null;
+  if (!item) {
+    const idx = trendingRaw ? trendingRaw.findIndex(d => d.mal_id == malId) : -1;
+    if (idx >= 0) item = mapJikanItem(trendingRaw[idx]);
+  }
+  if (!item) {
+    const all = [].concat(trendingRaw || [], ...Object.values(exploreKeyCache), ...Object.values(state.searchCache)).filter(Boolean);
+    const found = all.find(d => d.mal_id == malId || (d.id && d.id === 'mal_' + malId));
+    if (found) item = found.mal_id ? mapJikanItem(found) : found;
+  }
+  if (!item) { openApiDetailFromJikan(malId); return; }
+  openApiDetail(item);
+}
+
+const CAL_DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+const CAL_NAMES = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const CAL_MOCK = {
+  monday:    [{ title:'Kimetsu no Yaiba', studio:'ufotable', time:'21:00' }],
+  tuesday:   [{ title:'One Piece', studio:'Toei Animation', time:'09:30' }],
+  thursday:  [{ title:'Steins;Gate', studio:'White Fox', time:'22:30' }],
+  saturday:  [{ title:'Jujutsu Kaisen 2', studio:'MAPPA', time:'23:00' }],
+  sunday:    [{ title:'Chainsaw Man', studio:'MAPPA', time:'23:00' }]
+};
+
+function renderCalendar() {
+  const tabs = document.getElementById('calDays');
+  tabs.innerHTML = CAL_DAYS.map(d => {
+    const active = state.calendarDay === d;
+    return '<button data-day="' + d + '" class="cal-day px-3.5 py-2 rounded-xl text-[12px] font-semibold transition border ' +
+      (active ? 'tab-active' : 'bg-white/[.03] border-white/10 text-slate-400 hover:text-white hover:bg-white/[.07]') + '">' + CAL_NAMES[CAL_DAYS.indexOf(d)] + '</button>';
+  }).join('');
+  const wrap = document.getElementById('calList');
+  wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
+    [
+      ...(CAL_MOCK[state.calendarDay] || []).map(m => scheduleCard(m, true)),
+      '<div class="col-span-full text-[11px] text-slate-500 mt-1">Cargando emisiones en tiempo real desde Jikan…</div>'
+    ].join('') + '</div>';
+  loadSchedule(state.calendarDay);
+}
+
+function scheduleCard(m, isMock) {
+  const hue = hashHue(m.title);
+  return '<div class="flex items-center gap-3 p-3 rounded-xl glass edge anim-in">' +
+    '<div class="relative w-10 h-14 rounded-lg overflow-hidden shrink-0" style="background:linear-gradient(150deg,hsl(' + hue + ',65%,28%),hsl(' + ((hue + 120) % 360) + ',60%,16%))">' +
+    '<span class="poster-fallback" style="font-size:.75rem">' + initials(m.title) + '</span>' +
+    (m.image ? '<img src="' + esc(m.image) + '" class="w-full h-full object-cover relative z-[1]" loading="lazy" onerror="this.remove()">' : '') + '</div>' +
+    '<div class="flex-1 min-w-0"><div class="text-[13px] font-semibold text-white truncate">' + esc(m.title) + '</div>' +
+    '<div class="text-[11px] text-slate-500 truncate">' + esc(m.studio || '') + '</div></div>' +
+    '<div class="text-right shrink-0 no-select"><div class="font-mono font-bold text-white text-[13px]">' + m.time + '</div><div class="text-[9px] text-slate-500 uppercase tracking-wide">JST' + (isMock ? ' · demo' : '') + '</div></div></div>';
+}
+
+async function loadSchedule(day) {
+  let items = CAL_MOCK[day] || [];
+  const wrap = document.getElementById('calList');
+  if (!wrap) return;
+  wrap.dataset.day = day;
+  const json = await apiFetch(JIKAN + '/schedules/' + day);
+  if (wrap.dataset.day !== day) return;
+  const gotApi = json && Array.isArray(json.data) && json.data.length;
+  if (gotApi) {
+    items = json.data.slice(0, 20).map(d => ({
+      title: d.title || d.title_english || 'Sin título',
+      studio: (d.studios && d.studios[0] && d.studios[0].name) || '',
+      time: d.broadcast ? (d.broadcast.string || '').split(' at ')[1] || 'TBD' : 'TBD',
+      image: (d.images && d.images.jpg.small_image_url) || '',
+      mal_id: d.mal_id
+    }));
+  }
+  wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
+    items.map(m => scheduleCard(m, !gotApi)).join('') + '</div>';
+}
+
+function setupScrobblerUI() {
+  const sel = document.getElementById('simFile');
+  sel.innerHTML = [
+    { file:'VLC Player 3.2 — Jujutsu.Kaisen.S01E24.mkv', id:'mal_40748' },
+    { file:'MPV — Frieren.E04.mp4', id:'mal_52991' },
+    { file:'VLC Player 3.2 — One.Piece.Episode.1100.mkv', id:'mal_21' },
+    { file:'MPV — Chainsaw.Man.Part1.mkv', id:'mal_44511' },
+    { file:'PotPlayer — Steins.Gate.S01E07.mkv', id:'mal_9253' },
+    { file:'MPV — Kimetsu.no.Yaiba.E13.mp4', id:'mal_38000' }
+  ].map(f => '<option value="' + f.id + '" data-file="' + esc(f.file) + '">' + esc(f.file) + '</option>').join('');
+  const btn = document.getElementById('simBtn');
+  btn.addEventListener('click', () => { if (state.scrobbler.running) stopScrobble(); else startScrobble(); });
+  sel.addEventListener('change', () => { if (!state.scrobbler.running) { state.scrobbler.fileName = sel.selectedOptions[0].dataset.file; state.scrobbler.animeId = sel.value; } });
+  state.scrobbler.fileName = sel.selectedOptions[0].dataset.file;
+  state.scrobbler.animeId = sel.value;
+}
+
+function startScrobble() {
+  const a = findAnime(state.scrobbler.animeId);
+  if (!a) { toast('Elige un anime válido para simular.', 'warn'); return; }
+  if (state.scrobbler.running) return;
+  const player = document.getElementById('simFile').selectedOptions[0].textContent.split(' — ')[0];
+  state.scrobbler.running = true;
+  state.scrobbler.player = player;
+  state.scrobbler.episodeNow = a.watched + 1;
+  state.scrobbler.progress = 0;
+  const wrap = document.getElementById('simProgressWrap');
+  wrap.classList.remove('hidden');
+  const nowF = document.getElementById('simFileNow');
+  const pctF = document.getElementById('simPct');
+  const bar = document.getElementById('simBar');
+  const btn = document.getElementById('simBtn');
+  btn.innerHTML = '<i data-lucide="square" class="w-4 h-4"></i> Detener reproducción';
+  icons();
+  toast('<b>' + esc(a.title) + '</b> detectado por el Auto-Scrobbler («' + esc(player) + '»)', 'ok');
+  state.scrobbler.timer = setInterval(() => {
+    state.scrobbler.progress += 2 + Math.random() * 3;
+    if (state.scrobbler.progress >= 100) {
+      state.scrobbler.progress = 100;
+      const p = Math.round(state.scrobbler.progress);
+      pctF.textContent = p + '%';
+      bar.style.width = p + '%';
+      nowF.innerHTML = 'Reproduciendo <b class="text-white">Ep ' + state.scrobbler.episodeNow + '</b> · ' + state.scrobbler.fileName;
+      finishEpisode();
+    } else {
+      const p = Math.round(state.scrobbler.progress);
+      pctF.textContent = p + '%';
+      bar.style.width = p + '%';
+      nowF.innerHTML = 'Reproduciendo <b class="text-white">Ep ' + state.scrobbler.episodeNow + '</b> · ' + state.scrobbler.fileName;
+    }
+  }, 700);
+  renderScrobblerUI();
+}
+
+function finishEpisode() {
+  if (state.scrobbler.running) {
+    const a = findAnime(state.scrobbler.animeId);
+    if (a && state.settings.autoIncrement) {
+      a.watched = clamp(a.watched + 1, 0, totalEps(a) > 0 ? totalEps(a) : 99999);
+      state.activity = state.activity.slice(1).concat([0]);
+      state.activity[6] += 1;
+      save();
+      renderDashboard(); recomputeStats();
+      if (state.settings.notifications) toast('<b>' + esc(a.title) + '</b> — Episodio ' + (a.watched) + ' registrado por Auto-Scrobbler ✓', 'ok');
+    }
+  }
+  if (state.scrobbler.running) {
+    const a = findAnime(state.scrobbler.animeId);
+    const rec = a && totalEps(a) > 0 && a.watched >= totalEps(a);
+    if (rec) { stopScrobble(); toast('<b>' + esc(a.title) + '</b> completado por Auto-Scrobbler. ¡Felicidades!', 'ok'); return; }
+  }
+  state.scrobbler.progress = 5;
+  if (state.scrobbler.running) {
+    const a = findAnime(state.scrobbler.animeId);
+    if (a) state.scrobbler.episodeNow = a.watched + 1;
+  }
+  renderScrobblerUI();
+}
+
+function stopScrobble() {
+  clearInterval(state.scrobbler.timer);
+  state.scrobbler.running = false;
+  state.scrobbler.timer = null;
+  const btn = document.getElementById('simBtn');
+  if (btn) btn.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Iniciar reproducción simulada';
+  const wrap = document.getElementById('simProgressWrap');
+  if (wrap) wrap.classList.add('hidden');
+  icons();
+  renderScrobblerUI();
+}
+
+function renderScrobblerUI() {
+  const s = state.scrobbler;
+  const pill = document.getElementById('scrobStatePill');
+  const miniText = document.getElementById('scrobMiniText');
+  const miniBars = document.querySelectorAll('#scrobMini .eq-bar');
+  const a = s.animeId ? findAnime(s.animeId) : null;
+  if (pill) {
+    pill.textContent = s.running ? 'ACTIVE' : 'IDLE';
+    pill.className = 'text-[9px] px-1.5 py-0.5 rounded-md font-semibold ' + (s.running ? 'bg-emerald-400/15 text-emerald-300' : 'bg-slate-500/10 text-slate-400');
+  }
+  if (miniBars.length) {
+    miniBars.forEach(b => { b.style.backgroundColor = s.running ? '#34d399' : 'rgba(100,116,139,.5)'; b.classList.toggle('live-dot', s.running); });
+  }
+  if (a) {
+    const t = totalEps(a);
+    const now = s.episodeNow || (a.watched + 1);
+    miniText.innerHTML = s.running
+      ? '<b class="text-emerald-300">' + esc(s.player.split('— ')[0].replace('VLC Player 3.2','VLC Player')) + '</b>: ' + esc(a.title) + ' — Ep ' + now + (t ? '/' + t : '')
+      : 'Sin reproducción detectada';
+  } else if (miniText) miniText.textContent = 'Sin reproducción detectada';
+}
+
+function switchSection(section) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.section === section));
+  document.querySelectorAll('.fade-section').forEach(sec => sec.classList.add('hidden'));
+  const target = document.getElementById('section-' + section);
+  if (target) target.classList.remove('hidden');
+  if (section === 'stats') drawActivity();
+  if (section === 'calendar') renderCalendar();
+  if (section === 'explore') {
+    const q = (document.getElementById('globalSearch').value || '').trim();
+    if (q && !exploreKeyCache['e_' + q.toLowerCase()]) { document.getElementById('exploreSearch').value = q; runExploreSearch(q, true); }
+    else if (!exploreKeyCache['e_' + (document.getElementById('exploreSearch').value || '').trim().toLowerCase()] && !trendingRaw && !document.getElementById('exploreResults').innerHTML.trim()) loadTrending();
+  }
+}
+
+function setupSettings() {
+  document.querySelectorAll('input[data-setting]').forEach(cb => {
+    cb.checked = !!state.settings[cb.dataset.setting];
+    cb.addEventListener('change', () => { state.settings[cb.dataset.setting] = cb.checked; save(); toast('Configuración actualizada', 'info'); });
+  });
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url; link.download = 'animepulse-backup.json'; link.click();
+    URL.revokeObjectURL(url);
+    toast('Datos exportados como JSON ✓', 'ok');
+  });
+  document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+  document.getElementById('importFile').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const p = JSON.parse(reader.result);
+        state = Object.assign(state, p);
+        state.animeList = Array.isArray(p.animeList) ? p.animeList : state.animeList;
+        save();
+        renderDashboard(); recomputeStats(); renderScrobblerUI(); setupSettings();
+        toast('Datos importados correctamente ✓', 'ok');
+      } catch (err) { toast('El archivo JSON no es válido.', 'err'); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    localStorage.removeItem(LS_KEY);
+    localStorage.removeItem('animepulse.v2.backup');
+    state.animeList = MOCK_ANIME.map(a => Object.assign({}, a));
+    state.activity = [2,3,1,4,2,5,3];
+    state.settings = { detectPlayers: true, autoIncrement: true, notifications: true };
+    stopScrobble();
+    renderDashboard(); recomputeStats(); renderFilterBar(); renderScrobblerUI(); setupSettings();
+    toast('Datos de demo restablecidos ✓', 'ok');
+  });
+}
+
+function wireActions() {
+  document.getElementById('animeContainer').addEventListener('click', e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const id = btn.getAttribute('data-id');
+    const action = btn.getAttribute('data-action');
+    if (action === 'inc') updateProgress(id, 1);
+    else if (action === 'dec') updateProgress(id, -1);
+    else if (action === 'open-detail') openDetail(id);
+    else if (action === 'delete') askDelete(id);
+  });
+  document.addEventListener('change', e => {
+    const statusSel = e.target.closest('select[data-role="status"]');
+    if (statusSel) { setStatus(statusSel.getAttribute('data-id'), statusSel.value); return; }
+    const rateSel = e.target.closest('select[data-role="rating"]');
+    if (rateSel) { setRating(rateSel.getAttribute('data-id'), parseInt(rateSel.value, 10) || 0); return; }
+  });
+  document.getElementById('filterBar').addEventListener('click', e => {
+    const btn = e.target.closest('[data-filter]');
+    if (!btn) return;
+    state.filter = btn.getAttribute('data-filter');
+    renderDashboard();
+  });
+  document.querySelectorAll('.view-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      state.view = b.getAttribute('data-view');
+      document.querySelectorAll('.view-btn').forEach(v => {
+        const on = v.getAttribute('data-view') === state.view;
+        v.classList.toggle('tab-active', on);
+        v.classList.toggle('text-slate-400', !on);
+        v.classList.toggle('text-white', on);
+      });
+      renderDashboard();
+    });
+  });
+  document.getElementById('detailBody').addEventListener('click', e => {
+    const b = e.target.closest('[data-mdl]');
+    if (!b) return;
+    const action = b.getAttribute('data-mdl');
+    const id = b.getAttribute('data-id');
+    if (action === 'close') closeModal();
+    else if (action === 'inc') updateProgress(id, 1);
+    else if (action === 'dec') updateProgress(id, -1);
+    else if (action === 'delete') { closeModal(); askDelete(id); }
+    else if (action === 'add') { const numId = b.getAttribute('data-id').replace('mal_', ''); const it = apiDetailCache[numId] || state.searchCache['id_' + numId]; if (it) { closeModal(); addAnimeFrom(it, 'watching'); } }
+    else if (action === 'add-plan') { const numId = b.getAttribute('data-id').replace('mal_', ''); const it = apiDetailCache[numId] || state.searchCache['id_' + numId]; if (it) { closeModal(); addAnimeFrom(it, 'plan'); } }
+  });
+  document.getElementById('detailBody').addEventListener('change', e => {
+    const el = e.target.closest('[data-mdl]');
+    if (!el) return;
+    const action = el.getAttribute('data-mdl');
+    const id = el.getAttribute('data-id');
+    const a = findAnime(id);
+    if (!a) return;
+    if (action === 'ep') { a.watched = clamp(parseInt(el.value, 10) || 0, 0, totalEps(a) > 0 ? totalEps(a) : 99999); save(); refreshDetail(); recomputeStats(); }
+    else if (action === 'status') setStatus(id, el.value);
+    else if (action === 'rating') setRating(id, parseInt(el.value, 10) || 0);
+    else if (action === 'notes') { a.notes = el.value; save(); }
+  });
+  document.getElementById('exploreResults').addEventListener('click', e => {
+    const card = e.target.closest('.result-card');
+    if (card) openExploreDetail(card);
+  });
+  document.getElementById('exploreBtn').addEventListener('click', () => runExploreSearch(document.getElementById('exploreSearch').value, true));
+  document.getElementById('exploreSearch').addEventListener('keydown', e => { if (e.key === 'Enter') runExploreSearch(e.target.value, true); });
+  document.getElementById('trendingBtn').addEventListener('click', loadTrending);
+  document.addEventListener('click', e => {
+    const nav = e.target.closest('.nav-item[data-section]');
+    if (nav) switchSection(nav.getAttribute('data-section'));
+  });
+  document.getElementById('exploreSkeleton').addEventListener('click', () => {});
+  document.getElementById('detailModal').addEventListener('click', e => { if (e.target === document.getElementById('detailModal')) closeModal(); });
+  document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === document.getElementById('confirmModal')) { document.getElementById('confirmModal').classList.add('hidden'); pendingDeleteId = null; } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (!document.getElementById('detailModal').classList.contains('hidden')) closeModal(); document.getElementById('confirmModal').classList.add('hidden'); pendingDeleteId = null; } });
+  document.getElementById('confirmCancel').addEventListener('click', () => { document.getElementById('confirmModal').classList.add('hidden'); pendingDeleteId = null; });
+  document.getElementById('confirmOk').addEventListener('click', () => {
+    if (pendingDeleteId) removeAnime(pendingDeleteId);
+    document.getElementById('confirmModal').classList.add('hidden');
+    pendingDeleteId = null;
+  });
+  document.getElementById('btnMin').addEventListener('click', () => { if (window.electronAPI && window.electronAPI.minimize) window.electronAPI.minimize(); else toast('Minimizar (simulado) — accede a la bandeja del sistema.', 'info'); });
+  document.getElementById('btnMax').addEventListener('click', () => { if (window.electronAPI && window.electronAPI.toggleMaximize) window.electronAPI.toggleMaximize(); else { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => toast('Maximizar disponible al empaquetar como .exe', 'info')); } });
+  document.getElementById('btnClose').addEventListener('click', () => { if (window.electronAPI && window.electronAPI.close) window.electronAPI.close(); else toast('Cerrar (simulado) — al empaquetar como .exe con Electron se cerrará la app.', 'info'); });
+  window.addEventListener('resize', () => { if (state && !document.getElementById('section-stats').classList.contains('hidden')) drawActivity(); });
+}
+
+function init() {
+  load();
+  recomputeStats();
+  renderDashboard();
+  setupSettings();
+  setupGlobalSearch();
+  setupScrobblerUI();
+  renderScrobblerUI();
+  renderCalendar();
+  document.querySelectorAll('.view-btn').forEach(v => {
+    const on = v.getAttribute('data-view') === state.view;
+    v.classList.toggle('tab-active', on);
+    v.classList.toggle('text-slate-400', !on);
+    v.classList.toggle('text-white', on);
+  });
+  wireActions();
+  icons();
+  if (window.electronAPI && window.electronAPI.onMaximized) {
+    window.electronAPI.onMaximized(max => {
+      const bmax = document.getElementById('btnMax');
+      if (bmax) { bmax.innerHTML = max ? '<i data-lucide="copy" class="w-3.5 h-3.5"></i>' : '<i data-lucide="square" class="w-3.5 h-3.5"></i>'; icons(); }
+    });
+  }
+  if (navigator.onLine) {
+    const pill = document.getElementById('apiPill');
+    pill.innerHTML = '<i data-lucide="wifi" class="w-3 h-3"></i> Jikan API'; icons();
+    setTimeout(() => apiFetch(JIKAN + '/random/anime').then(j => { if (j && j.data) { document.getElementById('apiPill').querySelector('i').className = 'w-3 h-3'; toast('Conexión con la API de Jikan verificada ✓', 'ok'); } }), 500);
+  } else {
+    document.getElementById('apiPill').className = 'hidden sm:flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-full border border-rose-400/20 bg-rose-400/10 text-rose-300 font-medium';
+    document.getElementById('apiPill').innerHTML = '<i data-lucide="wifi-off" class="w-3 h-3"></i> Offline'; icons();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
