@@ -67,6 +67,16 @@ async function getTitles() {
   }
   if (platform === 'linux') {
     try {
+      const { stdout } = await execFile('hyprctl', ['clients', '-j'], { timeout: 4000, maxBuffer: 8 * 1024 * 1024 });
+      const arr = JSON.parse((stdout || '').trim() || '[]');
+      if (Array.isArray(arr)) {
+        const out = arr
+          .filter(c => c && c.title && String(c.title).trim())
+          .map(c => ({ name: String(c.class || 'hyprland'), title: String(c.title).trim() }));
+        if (out.length) return out;
+      }
+    } catch (e) { /* fallthrough */ }
+    try {
       const { stdout } = await execFile('xdotool', ['search', '--name', '', 'getwindowname', '%1', 'getwindowpid', '%1'], { timeout: 4000, maxBuffer: 8 * 1024 * 1024 });
       const lines = (stdout || '').trim().split('\n').filter(Boolean);
       const out = [];
@@ -75,15 +85,18 @@ async function getTitles() {
         const pid = (lines[i + 1] || '').trim();
         if (title && pid) out.push({ name: 'pid:' + pid, title });
       }
-      return out;
-    } catch (e) {
+      if (out.length) return out;
+    } catch (e) { /* fallthrough */ }
+    try {
       const { stdout } = await execFile('wmctrl', ['-l'], { timeout: 3000 });
-      return (stdout || '').trim().split('\n').filter(Boolean).map(line => {
+      const out = (stdout || '').trim().split('\n').filter(Boolean).map(line => {
         const parts = line.split(/\s+/);
         const title = parts.slice(2).join(' ');
         return { name: 'wmctrl', title };
       });
-    }
+      if (out.length) return out;
+    } catch (e) { /* noop */ }
+    return [];
   }
   if (platform === 'darwin') {
     const { stdout } = await execFile('osascript', ['-e', 'tell application "System Events" to get {name, UNIX id} of every process whose background only is false'], { timeout: 4000, maxBuffer: 8 * 1024 * 1024 });

@@ -30,28 +30,36 @@ function pollWindowTitles() {
         return list.filter(w => w && w.t && w.n && !/animepulse/i.test(w.t));
       });
   } else if (platform === 'linux') {
-    promise = execFileAsync('xdotool', ['search', '--name', '', 'getwindowname', '%1', 'getwindowpid', '%1'], { timeout: 4500, maxBuffer: 8 * 1024 * 1024 })
+    promise = execFileAsync('hyprctl', ['clients', '-j'], { timeout: 4500, maxBuffer: 8 * 1024 * 1024 })
       .then(({ stdout }) => {
-        const lines = (stdout || '').trim().split('\n').filter(Boolean);
-        const list = [];
-        for (let i = 0; i < lines.length; i += 2) {
-          const title = (lines[i] || '').trim();
-          const pid = (lines[i + 1] || '').trim();
-          if (title && pid) list.push({ t: title, n: 'pid:' + pid });
-        }
-        return list.filter(w => w.t && !/animepulse/i.test(w.t));
+        const arr = JSON.parse((stdout || '').trim() || '[]');
+        if (!Array.isArray(arr)) return [];
+        return arr
+          .filter(c => c && c.title && String(c.title).trim() && !/animepulse/i.test(String(c.title)) && !/opencode/i.test(String(c.title)))
+          .map(c => ({ t: String(c.title).trim(), n: String(c.class || 'hyprland') }));
       })
-      .catch(() => {
-        return execFileAsync('wmctrl', ['-l'], { timeout: 3000 })
-          .then(({ stdout }) => {
-            return (stdout || '').trim().split('\n').filter(Boolean).map(line => {
-              const parts = line.split(/\s+/);
-              const title = parts.slice(2).join(' ');
-              return { t: title, n: 'wmctrl' };
-            }).filter(w => w.t && !/animepulse/i.test(w.t));
-          })
-          .catch(() => []);
-      });
+      .catch(() => execFileAsync('xdotool', ['search', '--name', '', 'getwindowname', '%1', 'getwindowpid', '%1'], { timeout: 4500, maxBuffer: 8 * 1024 * 1024 })
+        .then(({ stdout }) => {
+          const lines = (stdout || '').trim().split('\n').filter(Boolean);
+          const list = [];
+          for (let i = 0; i < lines.length; i += 2) {
+            const title = (lines[i] || '').trim();
+            const pid = (lines[i + 1] || '').trim();
+            if (title && pid) list.push({ t: title, n: 'pid:' + pid });
+          }
+          return list.filter(w => w.t && !/animepulse/i.test(w.t));
+        })
+        .catch(() => {
+          return execFileAsync('wmctrl', ['-l'], { timeout: 3000 })
+            .then(({ stdout }) => {
+              return (stdout || '').trim().split('\n').filter(Boolean).map(line => {
+                const parts = line.split(/\s+/);
+                const title = parts.slice(2).join(' ');
+                return { t: title, n: 'wmctrl' };
+              }).filter(w => w.t && !/animepulse/i.test(w.t));
+            })
+            .catch(() => []);
+        }));
   } else if (platform === 'darwin') {
     promise = execFileAsync('osascript', ['-e', 'tell application "System Events" to get {name, UNIX id} of every process whose background only is false'], { timeout: 4500, maxBuffer: 8 * 1024 * 1024 })
       .then(({ stdout }) => {
