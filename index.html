@@ -931,19 +931,34 @@ function closeModal() {
   document.getElementById('detailBody').innerHTML = '';
 }
 
-async function apiFetch(url) {
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function apiFetch(url, attempt) {
+  attempt = attempt || 0;
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 9000);
+  const timer = setTimeout(() => ctrl.abort(), 12000);
+  let res;
   try {
-    const res = await fetch(url, { signal: ctrl.signal, headers: { 'Accept': 'application/json' } });
-    if (res.status === 429) { toast('Límite de la API de Jikan alcanzado. Espera un momento…', 'warn'); return null; }
-    if (!res.ok) { toast('La API devolvió el error ' + res.status, 'err'); return null; }
-    return await res.json();
+    res = await fetch(url, { signal: ctrl.signal, headers: { 'Accept': 'application/json' } });
   } catch (e) {
-    if (e && e.name === 'AbortError') toast('La API de Jikan tardó demasiado. Revisa tu conexión.', 'err');
-    else toast('Error de red al conectar con Jikan.', 'err');
+    clearTimeout(timer);
+    if (attempt < 2) { await sleep(900 + attempt * 700); return apiFetch(url, attempt + 1); }
+    toast('Error de red al conectar con Jikan. Verifica tu conexión a internet.', 'err');
     return null;
-  } finally { clearTimeout(timer); }
+  }
+  clearTimeout(timer);
+  if (res.status === 429) {
+    if (attempt < 2) { await sleep(1600); return apiFetch(url, attempt + 1); }
+    toast('Límite de la API de Jikan alcanzado. Espera unos segundos e inténtalo otra vez.', 'warn');
+    return null;
+  }
+  if (!res.ok) {
+    if (attempt < 2) { await sleep(1200 + attempt * 800); return apiFetch(url, attempt + 1); }
+    toast('La API de Jikan no responde (error ' + res.status + '). Suele ser temporal; inténtalo en unos segundos.', 'err');
+    return null;
+  }
+  try { return await res.json(); }
+  catch (e) { toast('Respuesta inválida de la API de Jikan.', 'err'); return null; }
 }
 
 function mapJikanItem(d) {
@@ -1082,7 +1097,12 @@ async function runExploreSearch(q, force) {
     if (json) { raw = json.data || []; exploreKeyCache[key] = raw; }
   }
   showSkeleton(false); setBodyLoading(false);
-  if (!raw) { document.getElementById('exploreHint').textContent = 'No se pudieron cargar resultados. Inténtalo de nuevo.'; return; }
+  if (!raw) {
+    document.getElementById('exploreHint').innerHTML = 'No se pudo conectar con la API de Jikan (suele estar saturada o no hay internet). <button id="retrySearch" class="ml-1 text-purple-300 font-semibold underline underline-offset-2 hover:text-purple-200 transition">Reintentar búsqueda</button>';
+    const rb = document.getElementById('retrySearch');
+    if (rb) rb.addEventListener('click', () => runExploreSearch(q, true));
+    return;
+  }
   if (!raw.length) { document.getElementById('exploreHint').textContent = 'Sin resultados para “' + q + '”. Prueba con otro título.'; return; }
   document.getElementById('exploreHint').textContent = raw.length + ' resultados en tiempo real para “' + q + '” desde MyAnimeList.';
   renderExploreItems(raw.map(mapJikanItem));
@@ -1095,10 +1115,18 @@ async function loadTrending() {
   showSkeleton(true); setBodyLoading(true);
   if (!trendingRaw) {
     const json = await apiFetch(JIKAN + '/top/anime?filter=bypopularity&limit=24&sfw=true');
-    if (json) trendingRaw = json.data || [];
+    if (json && Array.isArray(json.data) && json.data.length) trendingRaw = json.data;
+    else trendingRaw = 'offline';
   }
   showSkeleton(false); setBodyLoading(false);
   if (!trendingRaw) { document.getElementById('exploreHint').textContent = 'No se pudieron cargar las tendencias.'; return; }
+  if (trendingRaw === 'offline') {
+    document.getElementById('exploreHint').innerHTML = 'Jikan sin conexión: mostrando <b>tendencias de demostración</b>. Cuando vuelva, reintenta el feed o usa el buscador. <button id="retryTrending" class="ml-1 text-purple-300 font-semibold underline underline-offset-2 hover:text-purple-200 transition">Reintentar</button>';
+    renderExploreItems(MOCK_ANIME.map(a => Object.assign({}, a)));
+    const rb = document.getElementById('retryTrending');
+    if (rb) rb.addEventListener('click', () => { trendingRaw = null; loadTrending(); });
+    return;
+  }
   document.getElementById('exploreHint').textContent = 'Tendencias actuales según la popularidad en MyAnimeList. Haz clic en cualquier tarjeta para previsualizar.';
   renderExploreItems(trendingRaw.map(mapJikanItem));
 }
