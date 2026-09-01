@@ -9,17 +9,6 @@
 
 ---
 
-## 📸 Capturas
-
-![Mi Lista](screenshots/mi-lista.png)
-
-![Explorar / Tendencias](screenshots/explorar-tendencias.png)
-
-![Estadísticas](screenshots/estadisticas.png)
-
-![Ficha de anime](screenshots/ficha-anime.png)
-
----
 
 ## ✨ ¿Por qué ZXS?
 
