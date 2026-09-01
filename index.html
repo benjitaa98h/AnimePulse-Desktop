@@ -1275,6 +1275,10 @@ function setStatus(id, status) {
   const a = findAnime(id);
   if (!a) return;
   a.status = status;
+  if (status === 'completed') {
+    const t = totalEps(a);
+    if (t > 0 && (!a.watched || a.watched < t)) { a.watched = t; }
+  }
   save();
   renderDashboard(); recomputeStats(); renderScrobblerUI();
   refreshDetail();
