@@ -3268,10 +3268,10 @@ function finishEpisode() {
 const RARITY = { comun: { color: '#94a3b8' }, raro: { color: '#38bdf8' }, epico: { color: '#a855f7' }, legendario: { color: '#fbbf24' } };
 
 const PROFILE_RANKS = {
-  basico:     { label: 'Básico (Novato)', desc: 'Perfil inicial. Registra episodios para ganar EXP, AnimeCoins y subir de rango.', color: '#94a3b8', minLevel: 1, icon: '🌱' },
-  pro:        { label: 'Pro (Otaku Dedicado)', desc: 'Nivel 15 o 50 episodios. Estadísticas avanzadas, colores personalizados y acceso al catálogo extendido de la tienda. Multiplicador 1.1x.', color: '#38bdf8', minLevel: 15, icon: '🔥' },
-  master:     { label: 'Master (Elite Hunter)', desc: 'Nivel 35. Efectos de luz, medallas para Discord y multiplicador 1.25x.', color: '#a855f7', minLevel: 35, icon: '👑' },
-  legendario: { label: 'Legendario (Anime Master)', desc: 'Nivel 50+. Todos los cosméticos, marco dorado y multiplicador 1.5x permanente.', color: '#fbbf24', minLevel: 50, icon: '✨' }
+  basico:     { label: 'Básico (Novato)', desc: 'Perfil inicial. Gratis desde el arranque.', color: '#94a3b8', minLevel: 1, icon: '🌱', cost: 0, benefits: ['Perfil básico', '1 fondo de tienda', 'Multiplicador 1x'] },
+  pro:        { label: 'Pro (Otaku Dedicado)', desc: 'Estadísticas avanzadas, catálogo extendido de la tienda y EXP acelerado.', color: '#38bdf8', minLevel: 15, icon: '🔥', cost: 300, benefits: ['Estadísticas avanzadas', 'Fondos raros en tienda', 'Multiplicador EXP 1.1x', 'Color de acento personalizado'] },
+  master:     { label: 'Master (Elite Hunter)', desc: 'Elite con efectos especiales y catálogo épico.', color: '#a855f7', minLevel: 35, icon: '👑', cost: 600, benefits: ['Fondos épicos en tienda', 'Medallas para Discord', 'Efectos de luz en perfil', 'Multiplicador EXP 1.25x'] },
+  legendario: { label: 'Legendario (Anime Master)', desc: 'El rango más alto. Todo el catálogo y el marco dorado.', color: '#fbbf24', minLevel: 50, icon: '✨', cost: 1000, benefits: ['Todos los cosméticos', 'Marco dorado exclusivo', 'Banner legendario', 'Multiplicador EXP 1.5x permanente'] }
 };
 const RANK_KEYS = { basico: 0, pro: 1, master: 2, legendario: 3 };
 function normRank(r) { r = (r || 'basico'); if (r === 'novato') r = 'basico'; return RANK_KEYS[r] != null ? r : 'basico'; }
@@ -3293,7 +3293,14 @@ const WALLPAPER_PRESETS = [
   { id: 'synthwave', name: 'Retro Synthwave', css: 'linear-gradient(180deg,#1a0933 0%,#4a1a5a 55%,#b3236b 100%)' },
   { id: 'sakura', name: 'Cerezo en Flor', css: 'linear-gradient(160deg,#2a1622 0%,#4a1f38 50%,#7a2f50 100%)' },
   { id: 'aurora', name: 'Aurora', css: 'linear-gradient(135deg,#0b3b3a 0%,#0f3057 50%,#1b2a4a 100%)' },
-  { id: 'midnight', name: 'Medianoche', css: 'linear-gradient(180deg,#0b1026 0%,#16204a 60%,#0b1026 100%)' }
+  { id: 'midnight', name: 'Medianoche', css: 'linear-gradient(180deg,#0b1026 0%,#16204a 60%,#0b1026 100%)' },
+  { id: 'nebulosa', name: 'Nebulosa', css: 'linear-gradient(135deg,#312e81 0%,#7c3aed 55%,#db2777 100%)' },
+  { id: 'volcan', name: 'Volcán', css: 'linear-gradient(160deg,#0b0f1a 0%,#7f1d1d 55%,#f97316 100%)' },
+  { id: 'oceano', name: 'Océano Profundo', css: 'linear-gradient(180deg,#020617 0%,#0c4a6e 55%,#22d3ee 100%)' },
+  { id: 'bosque', name: 'Bosque Encantado', css: 'linear-gradient(150deg,#052e16 0%,#16a34a 55%,#84cc16 100%)' },
+  { id: 'bloodmoon', name: 'Luna de Sangre', css: 'radial-gradient(900px 600px at 75% 20%,#7f1d1d 0%,#450a0a 55%,#0a0a0a 100%)' },
+  { id: 'samurai', name: 'Samurai', css: 'linear-gradient(160deg,#111 0%,#3f1d0d 55%,#b45309 100%)' },
+  { id: 'space', name: 'Espacio Estelar', css: 'radial-gradient(1200px 700px at 20% 10%,#1e1b4b 0%,#0f172a 45%,#020617 100%)' }
 ];
 const WALLPAPER_PRESET_MAP = Object.fromEntries(WALLPAPER_PRESETS.map(p => [p.id, p]));
 
@@ -3307,7 +3314,24 @@ const STORE_ITEMS = [
   { id: 'banner_flame', kind: 'banner', name: 'Banner Llama', rarity: 'raro', cost: 120, min_rank: 'pro', value: 'linear-gradient(135deg,#ef4444,#f97316,#facc15)', preview: 'linear-gradient(135deg,#ef4444,#f97316,#facc15)' },
   { id: 'banner_neon', kind: 'banner', name: 'Banner Neón', rarity: 'raro', cost: 120, min_rank: 'pro', value: 'linear-gradient(135deg,#00e5ff,#7c5cff)', preview: 'linear-gradient(135deg,#00e5ff,#7c5cff)' },
   { id: 'banner_gold', kind: 'banner', name: 'Banner Dorado', rarity: 'legendario', cost: 400, min_rank: 'legendario', value: 'linear-gradient(135deg,#fbbf24,#d97706,#fbbf24)', preview: 'linear-gradient(135deg,#fbbf24,#d97706,#fbbf24)' },
-  { id: 'frame_gold', kind: 'frame', name: 'Marco Dorado', rarity: 'legendario', cost: 500, min_rank: 'legendario', value: '0 0 0 3px #fbbf24, 0 0 18px rgba(251,191,36,.6)', preview: 'gold' }
+  { id: 'frame_gold', kind: 'frame', name: 'Marco Dorado', rarity: 'legendario', cost: 500, min_rank: 'legendario', value: '0 0 0 3px #fbbf24, 0 0 18px rgba(251,191,36,.6)', preview: 'gold' },
+  { id: 'wp_space', kind: 'wallpaper', name: 'Fondo Espacio Estelar', rarity: 'comun', cost: 70, min_rank: 'basico', value: 'space', preview: 'radial-gradient(1200px 700px at 20% 10%,#1e1b4b 0%,#0f172a 45%,#020617 100%)' },
+  { id: 'wp_nebula', kind: 'wallpaper', name: 'Fondo Nebulosa', rarity: 'epico', cost: 300, min_rank: 'master', value: 'nebulosa', preview: 'linear-gradient(135deg,#312e81,#7c3aed,#db2777)' },
+  { id: 'wp_volcano', kind: 'wallpaper', name: 'Fondo Volcán', rarity: 'raro', cost: 160, min_rank: 'pro', value: 'volcan', preview: 'linear-gradient(160deg,#0b0f1a,#7f1d1d,#f97316)' },
+  { id: 'wp_ocean', kind: 'wallpaper', name: 'Fondo Océano Profundo', rarity: 'raro', cost: 160, min_rank: 'pro', value: 'oceano', preview: 'linear-gradient(180deg,#020617,#0c4a6e,#22d3ee)' },
+  { id: 'wp_forest', kind: 'wallpaper', name: 'Fondo Bosque Encantado', rarity: 'raro', cost: 160, min_rank: 'pro', value: 'bosque', preview: 'linear-gradient(150deg,#052e16,#16a34a,#84cc16)' },
+  { id: 'wp_bloodmoon', kind: 'wallpaper', name: 'Fondo Luna de Sangre', rarity: 'epico', cost: 320, min_rank: 'master', value: 'bloodmoon', preview: 'radial-gradient(900px 600px at 75% 20%,#7f1d1d 0%,#450a0a 55%,#0a0a0a 100%)' },
+  { id: 'wp_samurai', kind: 'wallpaper', name: 'Fondo Samurai', rarity: 'epico', cost: 350, min_rank: 'master', value: 'samurai', preview: 'linear-gradient(160deg,#111,#3f1d0d,#b45309)' },
+  { id: 'banner_ice', kind: 'banner', name: 'Banner Hielo', rarity: 'comun', cost: 80, min_rank: 'basico', value: 'linear-gradient(135deg,#e0f2fe,#7dd3fc,#0284c7)', preview: 'linear-gradient(135deg,#e0f2fe,#7dd3fc,#0284c7)' },
+  { id: 'banner_fire', kind: 'banner', name: 'Banner Fuego', rarity: 'raro', cost: 140, min_rank: 'pro', value: 'linear-gradient(135deg,#fbbf24,#f97316,#ef4444)', preview: 'linear-gradient(135deg,#fbbf24,#f97316,#ef4444)' },
+  { id: 'banner_emerald', kind: 'banner', name: 'Banner Esmeralda', rarity: 'raro', cost: 140, min_rank: 'pro', value: 'linear-gradient(135deg,#a7f3d0,#10b981,#047857)', preview: 'linear-gradient(135deg,#a7f3d0,#10b981,#047857)' },
+  { id: 'banner_royal', kind: 'banner', name: 'Banner Real Púrpura', rarity: 'epico', cost: 280, min_rank: 'master', value: 'linear-gradient(135deg,#c4b5fd,#8b5cf6,#6d28d9)', preview: 'linear-gradient(135deg,#c4b5fd,#8b5cf6,#6d28d9)' },
+  { id: 'banner_sunset', kind: 'banner', name: 'Banner Atardecer', rarity: 'epico', cost: 300, min_rank: 'master', value: 'linear-gradient(135deg,#fde68a,#f472b6,#7c3aed)', preview: 'linear-gradient(135deg,#fde68a,#f472b6,#7c3aed)' },
+  { id: 'banner_void', kind: 'banner', name: 'Banner Vacío Cósmico', rarity: 'legendario', cost: 450, min_rank: 'legendario', value: 'linear-gradient(135deg,#0f172a,#1e1b4b,#7c3aed)', preview: 'linear-gradient(135deg,#0f172a,#1e1b4b,#7c3aed)' },
+  { id: 'frame_ice', kind: 'frame', name: 'Marco Hielo', rarity: 'raro', cost: 250, min_rank: 'pro', value: '0 0 0 3px #67e8f9, 0 0 16px rgba(103,232,249,.5)', preview: 'ice' },
+  { id: 'frame_emerald', kind: 'frame', name: 'Marco Esmeralda', rarity: 'epico', cost: 380, min_rank: 'master', value: '0 0 0 3px #34d399, 0 0 18px rgba(52,211,153,.55)', preview: 'emerald' },
+  { id: 'frame_rose', kind: 'frame', name: 'Marco Rosa Neón', rarity: 'epico', cost: 380, min_rank: 'master', value: '0 0 0 3px #f472b6, 0 0 18px rgba(244,114,182,.6)', preview: 'rose' },
+  { id: 'frame_plasma', kind: 'frame', name: 'Marco Plasma Violeta', rarity: 'legendario', cost: 550, min_rank: 'legendario', value: '0 0 0 3px #a855f7, 0 0 22px rgba(168,85,247,.65)', preview: 'plasma' }
 ];
 const STORE_KIND_LABEL = { wallpaper: 'Fondo', banner: 'Banner', frame: 'Marco' };
 const RARITY_LABEL = { comun: 'Común', raro: 'Raro', epico: 'Épico', legendario: 'Legendario' };
@@ -3651,9 +3675,10 @@ function renderProfileRanks() {
     if (creator || owned) btn = '<span class="px-2.5 py-1 rounded-lg text-[10px] font-bold ' + (active ? 'bg-white/15 text-white' : 'bg-white/5 text-slate-500') + '">' + (creator ? '👑 Creador' : '✓') + '</span>';
     else if ((g.coins || 0) < RANK_COSTS[key]) btn = '<button data-bu="' + key + '" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white/5 text-slate-500" disabled>🪙 ' + RANK_COSTS[key] + '</button>';
     else btn = '<button data-bu="' + key + '" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-400/15 text-amber-300 hover:bg-amber-400/25 transition">Comprar · ' + RANK_COSTS[key] + ' 🪙</button>';
-    html += '<div class="flex items-center justify-between gap-2 py-2 px-3 rounded-xl ' + (active ? 'bg-white/[.07]' : 'bg-white/[.03]') + '">' +
-      '<div class="min-w-0"><div class="text-[12px] font-semibold" style="color:' + m.color + '">' + m.icon + ' ' + m.label + '</div>' +
-      '<div class="text-[10px] text-slate-500 truncate">' + m.desc + '</div></div>' + btn + '</div>';
+    html += '<div class="py-2 px-3 rounded-xl ' + (active ? 'bg-white/[.07]' : 'bg-white/[.03]') + '">' +
+      '<div class="flex items-center justify-between gap-2 mb-1"><div class="min-w-0"><div class="text-[12px] font-semibold" style="color:' + m.color + '">' + m.icon + ' ' + m.label + '</div>' +
+      '<div class="text-[10px] text-slate-500">💰 ' + m.cost + ' 🪙</div></div>' + btn + '</div>' +
+      '<div class="flex flex-wrap gap-1 mt-1">' + (m.benefits || []).map(b => '<span class="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-slate-300">' + esc(b) + '</span>').join('') + '</div></div>';
   }
   if (!g.ownerVerified) {
     html += '<div class="mt-3 pt-3 border-t border-white/5">' +
