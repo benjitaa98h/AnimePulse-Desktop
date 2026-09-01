@@ -9,14 +9,6 @@
 
 ---
 
-## 📸 Capturas
-
-<!-- Agregá aquí 2 o 3 capturas de pantalla: Mi Lista, el modal de búsqueda con tráiler, y las estadísticas -->
-<!-- Vista de Mi Lista -->
-<!-- Modal de búsqueda con tráiler -->
-<!-- Estadísticas -->
-
----
 
 ## ✨ ¿Por qué AnimePulse?
 
