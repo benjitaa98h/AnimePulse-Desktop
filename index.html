@@ -69,6 +69,11 @@ tailwind.config = {
   select, input[type="number"] { color-scheme: dark; }
   select.native-dark { background-color: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: .5rem; color: #e5e7eb; font-size: .75rem; padding: .28rem .6rem; outline: none; }
   select.native-dark:focus { border-color: rgba(var(--a1-r),var(--a1-g),var(--a1-b),.5); }
+  .status-chip { font-size: .7rem; font-weight: 600; padding: .32rem .7rem; border-radius: .625rem; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05); color: #cbd5e1; transition: all .15s ease; cursor: pointer; }
+  .status-chip:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); }
+  .status-chip.on { background: color-mix(in srgb, var(--c) 22%, transparent); border-color: color-mix(in srgb, var(--c) 60%, transparent); color: var(--c); }
+  html[data-theme="light"] .status-chip { border-color: rgba(15,23,42,.14); background: rgba(15,23,42,.04); color: #334155; }
+  html[data-theme="light"] .status-chip:hover { background: rgba(15,23,42,.1); }
   .modal-backdrop { background: radial-gradient(1200px 600px at 50% 0%, rgba(var(--a1-r),var(--a1-g),var(--a1-b),.12), transparent 60%), rgba(5,5,10,.72); }
   @keyframes toastIn { from { opacity:0; transform: translateX(24px); } to { opacity:1; transform:none; } }
   .toast-in { animation: toastIn .3s cubic-bezier(.2,.8,.2,1) both; }
@@ -1365,10 +1370,11 @@ function detailOfLocal(a) {
           '<button data-mdl="inc" data-id="' + esc(a.id) + '" class="w-9 h-9 rounded-xl bg-emerald-400/15 hover:bg-emerald-400 text-emerald-300 hover:text-white flex items-center justify-center transition"><i data-lucide="plus" class="w-4 h-4"></i></button>' +
           '<span class="text-[11px] text-slate-500 ml-1">de ' + (t || '∞') + '</span></div>' +
         '<div class="h-1.5 rounded-full bg-white/10 overflow-hidden mt-3"><div style="width:' + pct + '%" class="h-full rounded-full accent-gradient transition-[width] duration-300"></div></div>' +
-        '<div class="flex items-center gap-3 mt-4 flex-wrap">' +
-          '<label class="text-[11px] text-slate-500">Estado</label>' +
-          '<select data-mdl="status" data-id="' + esc(a.id) + '" class="native-dark">' + STATUS_ORDER.map(s => '<option value="' + s + '"' + (a.status === s ? ' selected' : '') + '>' + STATUS_META[s].label + '</option>').join('') + '</select>' +
-          '<label class="text-[11px] text-slate-500">Nota</label>' +
+        '<div class="mt-4"><div class="text-[11px] text-slate-500 mb-1.5">Estado</div>' +
+          '<div class="flex flex-wrap gap-1.5">' + STATUS_ORDER.map(s =>
+            '<button data-mdl="status" data-id="' + esc(a.id) + '" data-val="' + s + '" class="' + (a.status === s ? 'status-chip on' : 'status-chip') + '" style="' + (a.status === s ? '--c:' + STATUS_META[s].color + ';' : '') + '">' + STATUS_META[s].label + '</button>'
+          ).join('') + '</div></div>' +
+        '<div class="mt-3"><label class="text-[11px] text-slate-500 mb-1.5 block">Mi nota</label>' +
           '<select data-mdl="rating" data-id="' + esc(a.id) + '" class="native-dark">' + (function () { let o = '<option value="0"' + (a.rating == null ? ' selected' : '') + '>Sin nota</option>'; for (let i = 1; i <= 10; i++) o += '<option value="' + i + '"' + (a.rating === i ? ' selected' : '') + '>' + i + '/10</option>'; return o; })() + '</select></div>' +
       '</div>' +
       '<div><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-1.5">Notas personales</div>' +
@@ -4156,6 +4162,7 @@ function wireActions() {
     if (action === 'close') closeModal();
     else if (action === 'inc') updateProgress(id, 1);
     else if (action === 'dec') updateProgress(id, -1);
+    else if (action === 'status') setStatus(id, b.getAttribute('data-val'));
     else if (action === 'delete') { closeModal(); askDelete(id); }
     else if (action === 'add') { const numId = b.getAttribute('data-id').replace('mal_', ''); const it = apiDetailCache[numId] || state.searchCache['id_' + numId]; if (it) { closeModal(); addAnimeFrom(it, 'watching'); if (it.al_id) maybeOfferPrequels(it); } }
     else if (action === 'add-plan') { const numId = b.getAttribute('data-id').replace('mal_', ''); const it = apiDetailCache[numId] || state.searchCache['id_' + numId]; if (it) { closeModal(); addAnimeFrom(it, 'plan'); } }
