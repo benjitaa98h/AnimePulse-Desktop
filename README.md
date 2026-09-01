@@ -10,6 +10,20 @@
 ---
 
 
+## 📸 Capturas
+
+![Mi Lista](screenshots/mi-lista.png)
+
+![Explorar / Tendencias](screenshots/explorar-tendencias.png)
+
+![Calendario de Emisión](screenshots/calendario.png)
+
+![Estadísticas](screenshots/estadisticas.png)
+
+![Ajustes](screenshots/ajustes.png)
+
+![Ficha de anime](screenshots/ficha-anime.png)
+
 ## ✨ ¿Por qué ZXS?
 
 A diferencia de otros trackers, ZXS combina:
