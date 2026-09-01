@@ -1701,7 +1701,7 @@ const AL_VIEWER = 'query { Viewer { id name avatar { large } } }';
 const AL_SAVE = 'mutation($mid: Int, $progress: Int, $status: MediaListStatus) { SaveMediaListEntry(mediaId: $mid, progress: $progress, status: $status) { id progress status } }';
 
 async function anilistQuery(query, variables, token) {
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (let attempt = 0; attempt < 3; attempt++) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 8000);
     try {
