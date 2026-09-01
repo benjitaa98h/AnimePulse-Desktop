@@ -3824,6 +3824,7 @@ function setupProfileUI() {
       if (typeof reader.result === 'string' && reader.result.length > 5000000) { toast('Imagen muy grande (máx 5 MB)', 'err'); return; }
       state.profile.avatar = reader.result;
       renderProfileModal();
+      renderProfileSidebar();
       toast('Foto cargada ✔', 'ok');
     };
     reader.readAsDataURL(f);
@@ -3833,6 +3834,7 @@ function setupProfileUI() {
     state.profile.avatar = '';
     if (picInput) picInput.value = '';
     renderProfileModal();
+    renderProfileSidebar();
   });
   document.querySelectorAll('[data-profile-theme]').forEach(btnTh => {
     btnTh.addEventListener('click', () => {
