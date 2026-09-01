@@ -1926,7 +1926,7 @@ function openExternalUrl(url) {
 function ytWrap(id, forId) {
   return '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Tráiler oficial</div>' +
     '<div class="rounded-xl edge overflow-hidden bg-black/30 aspect-video relative">' +
-    '<iframe data-trailer-of="' + esc(forId || '') + '" class="absolute inset-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/' + esc(id) + '?rel=0&autoplay=1&playsinline=1&color=white" title="Tráiler" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>' +
+    '<iframe data-trailer-of="' + esc(forId || '') + '" class="absolute inset-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/' + esc(id) + '?rel=0&autoplay=1&playsinline=1&color=white" title="Tráiler" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>' +
     '<button id="ytExternal" class="mt-2 flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 hover:text-white transition"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> Abrir en YouTube</button></div>';
 }
 
