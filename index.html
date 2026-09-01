@@ -1777,7 +1777,9 @@ function procesarTextoImportado(textoCrudo) {
     l = l.replace(/\s*\(\s*Movie\s*\)\s*$/i, '');
     l = l.replace(/\s*\(\s*(?:19|20)\d{2}\s*\)\s*$/i, '');
     l = l.replace(/\s*\((?:TV|Movie|OVA|Special|ONA)\s*(?:,.*)?\)\s*$/i, '');
+    l = l.replace(/\s\([^)]*\)\s*$/, '');
     l = l.replace(/\s+\([^)]*$/, '');
+    l = l.replace(/[Tt]\d+\s*$/, '');
     l = l.replace(/\s{2,}/g, ' ').trim();
     if (l && /[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ]/.test(l)) salida.push(l);
   }
