@@ -788,6 +788,8 @@ tailwind.config = {
       </label>
     </div>
 
+    <div id="profileRanks" class="mt-5"></div>
+
     <div class="text-[11px] text-slate-500 mt-4 mb-4 leading-relaxed" id="profileRankHint"></div>
 
     <button id="profileSave" class="w-full mt-1 px-4 py-2.5 rounded-xl text-[13px] font-semibold accent-gradient text-white hover:opacity-90 transition flex items-center justify-center gap-2"><i data-lucide="check" class="w-4 h-4"></i> Guardar perfil</button>
@@ -917,7 +919,7 @@ let state = {
   airNotified: {},
   folder: null,
   files: [],
-  gamification: { level: 1, xp: 0, coins: 0, marathon: 0, totalEpisodes: 0, totalCompleted: 0, lastAnimeId: null, seasonPass: null },
+  gamification: { level: 1, xp: 0, coins: 0, marathon: 0, totalEpisodes: 0, totalCompleted: 0, lastAnimeId: null, seasonPass: null, boughtRanks: [], ownerVerified: false },
   profile: { name: 'Otaku Tracker', rank: 'basico', bio: '', accent: 'purple', avatar: '' }
 };
 
@@ -988,7 +990,7 @@ state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notific
       if (Array.isArray(p.activity)) state.activity = p.activity.slice(0, 7);
       if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
       if (typeof p.folder === 'string') state.folder = p.folder;
-      state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null, seasonPass:null }, p.gamification || {});
+      state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null, seasonPass:null, boughtRanks: [], ownerVerified: false }, p.gamification || {});
       state.profile = Object.assign({ name: 'Otaku Tracker', rank: 'basico', bio: '', accent: 'purple', avatar: '' }, p.profile || {});
     }
   } catch (e) { console.warn('Storage corrupto, se usará demo:', e); }
@@ -1012,7 +1014,7 @@ async function restoreDisk(force) {
     if (Array.isArray(p.activity) && p.activity.length === 7) state.activity = p.activity;
     if (typeof p.folder === 'string') state.folder = p.folder;
     if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
-    state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null, seasonPass:null }, p.gamification || {});
+    state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null, seasonPass:null, boughtRanks: [], ownerVerified: false }, p.gamification || {});
     state.profile = Object.assign({ name: 'Otaku Tracker', rank: 'basico', bio: '', accent: 'purple', avatar: '' }, p.profile || {});
     applyAppearance();
     recomputeStats(); renderDashboard(); renderScrobblerUI(); setupSettings(); icons();
@@ -3589,8 +3591,84 @@ function themeLabel(t) {
   return ({ dark: 'Oscuro', oled: 'OLED Negro', light: 'Claro', cyberpunk: 'Cyberpunk', synthwave: 'Synthwave', sakura: 'Sakura', cerezo: 'Cerezo' })[t] || t;
 }
 function rankOfUser() {
-  return currentRank();
+  const g = state.gamification || {};
+  const levelRank = normRank(computeRank(g.level || 1));
+  let best = levelRank;
+  if (g.ownerVerified) best = 'legendario';
+  (g.boughtRanks || []).forEach(r => {
+    if (RANK_KEYS[r] != null && RANK_KEYS[r] > RANK_KEYS[best]) best = r;
+  });
+  return normRank(best);
 }
+
+const RANK_COSTS = { pro: 300, master: 600, legendario: 1000 };
+const OWNER_PASS = 'nashe1234';
+
+function hasRank(rank) {
+  const g = state.gamification || {};
+  if (g.ownerVerified) return true;
+  if ((g.boughtRanks || []).indexOf(rank) !== -1) return true;
+  return RANK_KEYS[rank] <= RANK_KEYS[computeRank(g.level || 1)];
+}
+
+function buyRank(rank) {
+  const g = state.gamification || {};
+  if (hasRank(rank)) return;
+  const cost = RANK_COSTS[rank];
+  if (cost == null) return;
+  if ((g.coins || 0) < cost) { toast('No tenés suficientes AnimeCoins 🪙', 'warn'); return; }
+  g.coins -= cost;
+  g.boughtRanks = g.boughtRanks || [];
+  g.boughtRanks.push(rank);
+  save();
+  renderProfileModal();
+  toast('Rango <b>' + PROFILE_RANKS[rank].label + '</b> comprado! 🎉', 'ok');
+}
+
+function verifyOwner(pass) {
+  if (String(pass) === OWNER_PASS) {
+    state.gamification.ownerVerified = true;
+    save();
+    renderProfileModal();
+    toast('👑 ¡Creador verificado! Rango máximo activado.', 'ok');
+  } else {
+    toast('Código de creador incorrecto', 'warn');
+  }
+}
+
+function renderProfileRanks() {
+  const holder = document.getElementById('profileRanks');
+  if (!holder) return;
+  const g = state.gamification || {};
+  const rk = rankOfUser();
+  let html = '<div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-1.5"><i data-lucide="crown" class="w-3.5 h-3.5"></i> Rangos</div>';
+  for (const key of ['pro', 'master', 'legendario']) {
+    const m = PROFILE_RANKS[key];
+    const owned = hasRank(key);
+    const active = RANK_KEYS[key] === RANK_KEYS[rk];
+    const creator = g.ownerVerified;
+    let btn;
+    if (creator || owned) btn = '<span class="px-2.5 py-1 rounded-lg text-[10px] font-bold ' + (active ? 'bg-white/15 text-white' : 'bg-white/5 text-slate-500') + '">' + (creator ? '👑 Creador' : '✓') + '</span>';
+    else if ((g.coins || 0) < RANK_COSTS[key]) btn = '<button data-bu="' + key + '" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white/5 text-slate-500" disabled>🪙 ' + RANK_COSTS[key] + '</button>';
+    else btn = '<button data-bu="' + key + '" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-400/15 text-amber-300 hover:bg-amber-400/25 transition">Comprar · ' + RANK_COSTS[key] + ' 🪙</button>';
+    html += '<div class="flex items-center justify-between gap-2 py-2 px-3 rounded-xl ' + (active ? 'bg-white/[.07]' : 'bg-white/[.03]') + '">' +
+      '<div class="min-w-0"><div class="text-[12px] font-semibold" style="color:' + m.color + '">' + m.icon + ' ' + m.label + '</div>' +
+      '<div class="text-[10px] text-slate-500 truncate">' + m.desc + '</div></div>' + btn + '</div>';
+  }
+  if (!g.ownerVerified) {
+    html += '<div class="mt-3 pt-3 border-t border-white/5">' +
+      '<div class="text-[11px] text-slate-400 mb-1.5">Sos el creador? Ingresá el código para el rango máximo 👑</div>' +
+      '<div class="flex gap-2"><input id="ownerPass" type="password" placeholder="Código" class="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg bg-white/5 edge text-[12px] text-white outline-none focus:ring-2 focus:ring-purple-400/40">' +
+      '<button id="ownerVerify" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-purple-500/15 text-purple-300 hover:bg-purple-500/25 transition">Verificar</button></div></div>';
+  }
+  holder.innerHTML = html;
+  holder.querySelectorAll('[data-bu]').forEach(b => {
+    b.addEventListener('click', () => { if (!b.disabled) buyRank(b.getAttribute('data-bu')); });
+  });
+  const vy = document.getElementById('ownerVerify');
+  if (vy) vy.addEventListener('click', () => { verifyOwner(document.getElementById('ownerPass').value); });
+}
+
 function renderProfileSidebar() {
   const name = state.profile.name || 'Otaku Tracker';
   const rk = rankOfUser();
@@ -3625,6 +3703,7 @@ function renderProfileModal() {
   const g = state.gamification || {};
   const rk = rankOfUser();
   const meta = PROFILE_RANKS[rk] || PROFILE_RANKS.basico;
+  renderProfileRanks();
   const a = p.accent || 'purple';
 
   const card = document.getElementById('profileRankCard');
