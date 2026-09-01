@@ -9,10 +9,15 @@
 
 ---
 
+## 📸 Capturas
 
-## ✨ ¿Por qué AnimePulse?
+![Mi Lista](screenshots/mi-lista.png)
 
-A diferencia de otros trackers, AnimePulse combina:
+---
+
+## ✨ ¿Por qué ZXS?
+
+A diferencia de otros trackers, ZXS combina:
 
 - **Doble fuente de datos**: AniList como API principal, con Jikan (MyAnimeList) como respaldo automático y transparente si la primera falla.
 - **Auto-Scrobbler real**: detecta lo que estás viendo en tu navegador o reproductor sin que tengas que hacer nada manualmente.
