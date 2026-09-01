@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell, dialog, clipboard } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog, clipboard, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -130,6 +130,21 @@ app.whenReady().then(() => {
   appDB = createDB(app.getPath('userData'));
   const migrated = appDB.migrateLegacy();
   if (migrated) console.log('[zxs] Copia de seguridad JSON migrada a SQLite.');
+
+  // Fix YouTube "Error 153": la app se carga con loadFile() (origen file://) y
+  // Chromium no envia header Referer desde un documento file:// a un subframe https.
+  // YouTube rechaza requests sin referrer y muestra Error 153
+  // (ERROR_CODE_EMBEDDER_IDENTITY_MISSING_REFERRER). Inyectamos un Referer valido
+  // solo en las peticiones a youtube-nocookie / youtube embed que lleguen sin referrer.
+  session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+    const headers = Object.assign({}, details.requestHeaders);
+    const host = (details.url || '').toLowerCase();
+    if ((host.indexOf('youtube-nocookie.com') !== -1 || host.indexOf('youtube.com/embed') !== -1) && !headers['Referer']) {
+      headers['Referer'] = 'https://animepulse.app/';
+    }
+    callback({ requestHeaders: headers });
+  });
+
   createWindow();
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 });
