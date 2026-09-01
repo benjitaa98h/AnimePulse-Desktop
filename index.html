@@ -1277,6 +1277,7 @@ function setStatus(id, status) {
   a.status = status;
   save();
   renderDashboard(); recomputeStats(); renderScrobblerUI();
+  refreshDetail();
   if (state.settings.notifications) toast('Estado actualizado: <b>' + STATUS_META[status].label + '</b>', 'info');
   alMaybeSync(id); kitsuMaybeSync(id);
 }
@@ -1465,6 +1466,7 @@ function refreshDetail() {
   body.innerHTML = detailOfLocal(a);
   icons();
   updatePlayerDetection();
+  loadSeasons(a.al_id || a.mal_id);
 }
 
 function closeModal() {
