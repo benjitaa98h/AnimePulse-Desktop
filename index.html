@@ -1714,7 +1714,10 @@ async function anilistQuery(query, variables, token) {
         signal: ctrl.signal
       });
       clearTimeout(timer);
-      if (res.status === 429) { await sleep(800); continue; }
+      if (res.status === 429) {
+        await sleep(2200 * (attempt + 1) + 400 * Math.random());
+        continue;
+      }
       if (!res.ok) {
         const txt = await res.text().catch(() => '');
         if (attempt < 1) { await sleep(700); continue; }
@@ -1813,13 +1816,13 @@ async function buscarCoincidenciasEnLote(titulos) {
     let found = null;
     try { if (/^\d{1,6}$/.test(t)) found = await buscarPorId(t); } catch (e) {}
     if (!found) {
-      await sleep(120);
+      await sleep(250);
       try { const arr = await searchAnimeFinal(t, 6); found = (arr && arr[0]) || null; } catch (e) { found = null; }
     }
     let yaEnLista = false;
     if (found) yaEnLista = !!state.animeList.find(a => a.id === found.id) || inListByTitle(found.title);
     resultados.push({ tituloOriginal: t, coincidenciaEncontrada: found, seleccionado: !!(found && !yaEnLista), yaEnLista });
-    await sleep(300);
+    await sleep(1600);
   }
   if (bar) bar.style.width = '100%';
   importBusy = false;
