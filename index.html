@@ -1187,7 +1187,7 @@ function gridCard(a) {
   const pct = progressPct(a);
   const hue = hashHue(a.title);
   return '<div class="group card-hover relative rounded-2xl overflow-hidden edge bg-ink-800 shadow-lg shadow-black/30 anim-in" data-card="' + esc(a.id) + '">' +
-    '<button data-action="open-detail" data-id="' + esc(a.id) + '" class="absolute inset-0 w-full h-full z-[1]" title="Ver ficha"><span class="sr-only">Detalle</span></button>' +
+    '<button data-action="open-detail" data-id="' + esc(a.id) + '" class="absolute inset-0 w-full h-full z-[2]" title="Ver ficha"><span class="sr-only">Detalle</span></button>' +
     '<div class="relative aspect-[2/3]" style="background:linear-gradient(150deg,hsl(' + hue + ',65%,26%),hsl(' + ((hue + 120) % 360) + ',60%,16%))">' +
       posterHtml(a).replace('poster-wrap w-full h-full rounded-xl', 'poster-wrap w-full h-full rounded-none') + airBadge(a) +
       (a.malScore ? '<span class="absolute top-2 right-2 z-[2] text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-900/80 backdrop-blur text-amber-300 no-select">★ ' + a.malScore.toFixed(1) + '</span>' : '') +
@@ -1388,7 +1388,9 @@ function detailOfLocal(a) {
     '<button data-mdl="share" data-id="' + esc(a.id) + '" class="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-sky-400/10 edge border-sky-400/20 text-sky-300 hover:bg-sky-400/20 transition flex items-center gap-1.5"><i data-lucide="share-2" class="w-3.5 h-3.5"></i> Compartir</button>' +
     '<button data-mdl="delete" data-id="' + esc(a.id) + '" class="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-rose-500/10 edge border-rose-400/20 text-rose-300 hover:bg-rose-500/20 transition flex items-center gap-1.5"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Eliminar</button>' +
       '<button data-mdl="close" class="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">Cerrar</button>' +
-    '</div></div>';
+    '</div>' +
+    '<div id="seasonsHolder"></div>' +
+    '</div>';
 }
 
 function detailOfApi(item) {
@@ -1415,10 +1417,24 @@ function detailOfApi(item) {
         : '<button data-mdl="add" data-id="' + esc(item.id) + '" class="btn-primary px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white flex items-center gap-2"><i data-lucide="bookmark-plus" class="w-4 h-4"></i> Añadir a Mi Lista</button>') +
       '<button data-mdl="add-plan" data-id="' + esc(item.id) + '" class="px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">Añadir como Pendiente</button>' +
       '<button data-mdl="close" class="ml-auto px-4 py-2.5 rounded-xl text-[12px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">Cerrar</button>' +
-    '</div></div>';
+    '</div>' +
+    '<div id="seasonsHolder"></div>' +
+    '</div>';
 }
 
 let apiDetailCache = {};
+
+async function loadSeasons(alId) {
+  const holder = document.getElementById('seasonsHolder');
+  if (!holder || !alId) return;
+  holder.innerHTML = '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Temporadas</div><div class="text-[12px] text-slate-500">Cargando…</div></div>';
+  try {
+    const seasons = await collectSeasons(alId);
+    const item = (state.animeList.find(x => x.al_id === alId || x.mal_id === alId));
+    if (seasons.length) holder.innerHTML = seasonsHTML(item || { title: '' }, seasons);
+    else holder.innerHTML = '';
+  } catch (e) { holder.innerHTML = ''; }
+}
 
 function openDetail(id) {
   const a = findAnime(id);
@@ -1427,6 +1443,7 @@ function openDetail(id) {
   document.getElementById('detailModal').classList.remove('hidden');
   icons();
   updatePlayerDetection();
+  loadSeasons(a.al_id || a.mal_id);
 }
 
 function openApiDetail(item) {
@@ -1434,6 +1451,7 @@ function openApiDetail(item) {
   document.getElementById('detailModal').classList.remove('hidden');
   icons();
   updatePlayerDetection();
+  loadSeasons(item.al_id || item.mal_id);
 }
 
 function refreshDetail() {
@@ -1963,6 +1981,39 @@ async function fetchRelations(alId) {
   const edges = (data && data.Media && data.Media.relations && data.Media.relations.edges) || [];
   relationsCache[alId] = edges || [];
   return relationsCache[alId];
+}
+
+async function collectSeasons(alId, maxDepth) {
+  const seen = new Set();
+  const seasons = [];
+  let id = alId, order = 1;
+  const limit = (maxDepth && maxDepth >= 1) ? maxDepth : 40;
+  while (id && seen.size < limit) {
+    if (seen.has(id)) break;
+    seen.add(id);
+    const edges = await fetchRelations(id);
+    const sequel = edges.find(e => e.relationType === 'SEQUEL' && e.node && e.node.id);
+    if (!sequel) break;
+    const n = sequel.node;
+    seasons.push({ order: order + 1, al_id: n.id, title: (n.title && (n.title.romaji || n.title.english)) || 'Temporada ' + (order + 1), episodes: n.episodes || 0 });
+    id = n.id;
+    order++;
+  }
+  return seasons;
+}
+
+function seasonsHTML(item, seasons) {
+  if (!seasons || !seasons.length) return '';
+  const hue = hashHue(item.title || '');
+  const rows = seasons.map(t =>
+    '<div class="flex items-center justify-between gap-2 py-1.5 border-b border-white/5 last:border-0">' +
+      '<div class="flex items-center gap-2 min-w-0">' +
+        '<span class="w-6 h-6 shrink-0 rounded-lg flex items-center justify-center text-[10px] font-bold text-white/90" style="background:linear-gradient(150deg,hsl(' + ((hue + t.order * 40) % 360) + ',60%,26%),hsl(' + ((hue + t.order * 40 + 90) % 360) + ',55%,14%))">' + t.order + '</span>' +
+        '<span class="text-[12px] text-slate-300 truncate">' + esc(t.title) + '</span>' +
+      '</div>' +
+      '<span class="text-[11px] font-mono text-slate-400 shrink-0">' + (t.episodes ? t.episodes + ' cap' : '—') + '</span>' +
+    '</div>').join('');
+  return '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-1.5"><i data-lucide="layers" class="w-3.5 h-3.5"></i>Temporadas</div><div class="rounded-xl bg-white/[.03] edge px-3 py-1">' + rows + '</div></div>';
 }
 
 function inListByTitle(title) {
