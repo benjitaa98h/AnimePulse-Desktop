@@ -968,7 +968,10 @@ async function restoreSecrets() {
   }
 }
 function serializeStateForDisk() {
-  const copy = Object.assign({}, state, { files: [] });
+  const copy = Object.assign({}, state, {
+    files: [],
+    scrobbler: { running: false, player: 'VLC Player', animeId: null, episodeNow: 0, progress: 0, fileName: null, timer: null, source: 'manual', increment: true }
+  });
   if (copy.settings) {
     const st = Object.assign({}, copy.settings);
     SECRET_SETTING_KEYS.forEach(k => { st[k] = ''; });
