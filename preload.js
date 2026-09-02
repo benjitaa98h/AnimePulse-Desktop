@@ -26,6 +26,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   clearPresence: () => ipcRenderer.invoke('discord:stop'),
   onDiscordStatus: (cb) => ipcRenderer.on('discord:status', (_e, s) => cb(s)),
   onUpdateStatus: (cb) => ipcRenderer.on('update:status', (_e, s) => cb(s)),
+  saveSecret: (key, value) => ipcRenderer.invoke('secret:save', key, value),
+  loadSecret: (key) => ipcRenderer.invoke('secret:load', key),
   updateCheckNow: () => ipcRenderer.invoke('update:check-now'),
   scrobbleNativeStart: () => ipcRenderer.invoke('scrobble:native-start'),
   scrobbleNativeStop: () => ipcRenderer.invoke('scrobble:native-stop'),

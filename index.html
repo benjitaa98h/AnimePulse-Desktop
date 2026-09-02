@@ -994,12 +994,37 @@ function cacheSetObj(obj) {
   return obj;
 }
 let diskSaveTimer = null;
+const SECRET_SETTING_KEYS = ['alToken','kitsuToken','kitsuSecret','kitsuEmail','asToken','unsplashKey'];
+function persistSecrets() {
+  if (!window.electronAPI || !window.electronAPI.saveSecret) return;
+  const st = state.settings || {};
+  SECRET_SETTING_KEYS.forEach(k => {
+    try { window.electronAPI.saveSecret(k, st[k] || ''); } catch (e) { /* noop */ }
+  });
+}
+async function restoreSecrets() {
+  if (!window.electronAPI || !window.electronAPI.loadSecret) return;
+  const st = state.settings = state.settings || {};
+  for (const k of SECRET_SETTING_KEYS) {
+    try {
+      const v = await window.electronAPI.loadSecret(k);
+      if (v) st[k] = v;
+      else if (st[k]) { await window.electronAPI.saveSecret(k, st[k]); st[k] = st[k]; }
+    } catch (e) { /* noop */ }
+  }
+}
 function serializeStateForDisk() {
   const copy = Object.assign({}, state, { files: [] });
+  if (copy.settings) {
+    const st = Object.assign({}, copy.settings);
+    SECRET_SETTING_KEYS.forEach(k => { st[k] = ''; });
+    copy.settings = st;
+  }
   return JSON.stringify(copy);
 }
 function save() {
   pruneCache();
+  persistSecrets();
   const json = serializeStateForDisk();
   try { localStorage.setItem(LS_KEY, json); } catch (e) { console.warn('No se pudo guardar:', e); }
   if (window.electronAPI && window.electronAPI.saveState) {
@@ -1008,6 +1033,7 @@ function save() {
   }
 }
 window.addEventListener('pagehide', () => {
+  persistSecrets();
   if (window.electronAPI && window.electronAPI.saveState) { try { window.electronAPI.saveState(serializeStateForDisk()); } catch (e) { /* noop */ } }
 });
 
@@ -1036,6 +1062,7 @@ state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notific
     if (state.animeList.length && state.animeList.every(a => demoIds.has(a.id))) state.animeList = [];
   }
   if (!Array.isArray(state.activity) || state.activity.length !== 7) state.activity = [0,0,0,0,0,0,0];
+  restoreSecrets();
 }
 
 async function restoreDisk(force) {
@@ -1052,6 +1079,7 @@ async function restoreDisk(force) {
     if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
     state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null, seasonPass:null, boughtRanks: [], ownerVerified: false }, p.gamification || {});
     state.profile = Object.assign({ name: 'Otaku Tracker', rank: 'basico', bio: '', accent: 'purple', avatar: '' }, p.profile || {});
+    await restoreSecrets();
     applyAppearance();
     recomputeStats(); renderDashboard(); renderScrobblerUI(); setupSettings(); icons();
     refreshDiskInfo();
