@@ -8,6 +8,7 @@
 <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CjxkZWZzPgo8cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1MCUiIGN5PSI0MiUiIHI9IjcwJSI+CjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmNDcyYjYiLz4KPHN0b3Agb2Zmc2V0PSI1NSUiIHN0b3AtY29sb3I9IiNhODU1ZjciLz4KPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjNGMxZDk1Ii8+CjwvcmFkaWFsR3JhZGllbnQ+CjxmaWx0ZXIgaWQ9Imdsb3ciIHg9Ii00MCUiIHk9Ii00MCUiIHdpZHRoPSIxODAlIiBoZWlnaHQ9IjE4MCUiPgo8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIyLjIiIHJlc3VsdD0iYiIvPgo8ZmVNZXJnZT48ZmVNZXJnZU5vZGUgaW49ImIiLz48ZmVNZXJnZU5vZGUgaW49IlNvdXJjZUdyYXBoaWMiLz48L2ZlTWVyZ2U+CjwvZmlsdGVyPgo8L2RlZnM+CjxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjE1IiBmaWxsPSIjMGIwODEwIi8+CjxwYXRoIGQ9Ik00IDMyIEMxMiAxMiA1MiAxMiA2MCAzMiBDNTIgNTIgMTIgNTIgNCAzMiBaIiBmaWxsPSIjMGIwODEwIiBzdHJva2U9IiM3YzNhZWQiIHN0cm9rZS13aWR0aD0iMi41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjE1IiBmaWxsPSJ1cmwoI2cpIiBmaWx0ZXI9InVybCgjZ2xvdykiLz4KPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iOCIgZmlsbD0iIzBiMDgxMCIvPgo8Y2lyY2xlIGN4PSIzNS41IiBjeT0iMjkuNSIgcj0iMyIgZmlsbD0iI2ZmZmZmZiIvPgo8L3N2Zz4=">
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script src="https://unpkg.com/lucide@0.462.0"></script>
+<script src="src/utils.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -927,11 +928,6 @@ let state = {
   profile: { name: 'Otaku Tracker', rank: 'basico', bio: '', accent: 'purple', avatar: '' }
 };
 
-const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
-const hashHue = str => { let h = 0; for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0; return Math.abs(h) % 360; };
-const initials = str => String(str || '').split(' ').slice(0, 3).map(w => w[0] || '').join('').toUpperCase();
-const uid = () => 'uid_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
 
 function posterHtml(anime, extraCls) {
   const hue = hashHue(anime.title);
@@ -1559,12 +1555,6 @@ function updatePlayerDetection() {
   }
 }
 
-function normTxt(s) { return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
-
-function titleTokens(name) {
-  return normTxt(name).replace(/[^a-z0-9ñ\s]/g, ' ').split(/\s+/).filter(w => w.length > 2);
-}
-
 function watchScore(animeTitle, winTitle) {
   const at = titleTokens(animeTitle);
   if (!at.length) return 0;
@@ -1715,7 +1705,6 @@ function onScrobbleNative(evt) {
   }
 }
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 async function apiFetch(url, attempt) {
   attempt = attempt || 0;
