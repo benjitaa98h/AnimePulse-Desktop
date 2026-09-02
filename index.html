@@ -365,7 +365,9 @@ tailwind.config = {
       <section id="section-calendar" class="fade-section hidden">
         <div class="flex flex-wrap items-center gap-3 mb-4">
           <h2 class="font-display font-bold text-xl text-white">Calendario de Emisión</h2>
-          <span class="text-[11px] text-slate-500 edge bg-white/5 px-2 py-1 rounded-lg">Horario JST (Japón) · AniList airingSchedules</span>
+          <span class="text-[11px] text-slate-500 edge bg-white/5 px-2 py-1 rounded-lg">Horario JST · AniList (con AnimeSchedule si está activo)</span>
+          <button id="calTodayBtn" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-purple-500/15 text-purple-300 hover:bg-purple-500/25 transition">Hoy</button>
+          <button id="calRefreshBtn" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">↻ Refrescar</button>
         </div>
         <div id="calDays" class="flex flex-wrap gap-2 mb-5"></div>
         <div id="calList" class="space-y-2"></div>
@@ -914,6 +916,7 @@ let state = {
   animeList: [],
   activity: [2,3,1,4,2,5,3],
   calendarDay: 'monday',
+  calendarTouched: false,
   scrobbler: { running: false, player: 'VLC Player', animeId: null, episodeNow: 0, progress: 0, fileName: null, timer: null, source: 'manual', increment: true },
   searchCache: {},
   lastSearch: '',
@@ -1730,6 +1733,18 @@ const AL_MEDIA = 'query($id: Int) { Media(id: $id, type: ANIME) { ' + AL_FIELDS 
 const AL_TRENDING = 'query($n: Int) { Page(page: 1, perPage: $n) { media(type: ANIME, sort: POPULARITY_DESC, isAdult: false) { ' + AL_FIELDS + ' } } }';
 const AL_SCHED = 'query($g: Int, $l: Int) { Page(page: 1, perPage: 50) { airingSchedules(airingAt_greater: $g, airingAt_lesser: $l) { airingAt episode media { id title { romaji english native } coverImage { large medium } studios { nodes { name } } } } } }';
 const AL_PING = 'query { Page(page: 1, perPage: 1) { media(type: ANIME, sort: POPULARITY_DESC) { id } } }';
+const AL_SCHED_P = 'query($g: Int, $l: Int, $pg: Int) { Page(page: $pg, perPage: 50) { pageInfo { hasNextPage } airingSchedules(airingAt_greater: $g, airingAt_lesser: $l) { airingAt episode media { id title { romaji english native } coverImage { large medium } studios { nodes { name } } } } } }';
+async function fetchSchedAll(g, l) {
+  const out = [];
+  for (let pg = 1; pg <= 6; pg++) {
+    const data = await anilistQuery(AL_SCHED_P, { g, l, pg });
+    const arr = (data && data.Page && data.Page.airingSchedules) || [];
+    if (!arr.length) break;
+    out.push(...arr);
+    if (!(data.Page.pageInfo && data.Page.pageInfo.hasNextPage)) break;
+  }
+  return out;
+}
 const AL_RELATIONS = 'query($id: Int) { Media(id: $id, type: ANIME) { id relations { edges { relationType node { id title { romaji english native } coverImage { medium } episodes } } } } }';
 const AL_VIEWER = 'query { Viewer { id name avatar { large } } }';
 const AL_SAVE = 'mutation($mid: Int, $progress: Int, $status: MediaListStatus) { SaveMediaListEntry(mediaId: $mid, progress: $progress, status: $status) { id progress status } }';
@@ -2963,33 +2978,45 @@ let sched7Cache = null;
 let asSchedCache = null;
 let asSchedLoaded = false;
 
+const CAL_LOCAL_TIME = new Intl.DateTimeFormat('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
+function firstCalendarOpen() {
+  if (!state.calendarTouched) {
+    state.calendarTouched = true;
+    state.calendarDay = CAL_JST_DAY.format(new Date()).toLowerCase();
+  }
+}
 function renderCalendar() {
+  firstCalendarOpen();
+  const today = CAL_JST_DAY.format(new Date()).toLowerCase();
   const tabs = document.getElementById('calDays');
   tabs.innerHTML = CAL_DAYS.map(d => {
     const active = state.calendarDay === d;
-    return '<button data-day="' + d + '" class="cal-day px-3.5 py-2 rounded-xl text-[12px] font-semibold transition border ' +
-      (active ? 'tab-active' : 'bg-white/[.03] border-white/10 text-slate-400 hover:text-white hover:bg-white/[.07]') + '">' + CAL_NAMES[CAL_DAYS.indexOf(d)] + '</button>';
+    const esHoy = d === today;
+    return '<button data-day="' + d + '" class="cal-day px-3 py-2 rounded-xl text-[12px] font-semibold transition border ' +
+      (active ? 'tab-active' : 'bg-white/[.03] border-white/10 text-slate-400 hover:text-white hover:bg-white/[.07]') + '">' + CAL_NAMES[CAL_DAYS.indexOf(d)] +
+      (esHoy ? '<span class="ml-1.5 text-[9px] uppercase tracking-wide ' + (active ? 'text-amber-300' : 'text-purple-400') + '">● Hoy</span>' : '') + '</button>';
   }).join('');
   const wrap = document.getElementById('calList');
   wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
-    [
-      ...(CAL_MOCK[state.calendarDay] || []).map(m => scheduleCard(m, true)),
-      '<div class="col-span-full text-[11px] text-slate-500 mt-1">Cargando emisiones en tiempo real desde AniList…</div>'
-    ].join('') + '</div>';
+    Array.from({ length: 6 }).map(() => '<div class="h-[76px] rounded-xl glass edge opacity-40 animate-pulse"></div>').join('') +
+    '<div class="col-span-full text-[11px] text-slate-500 mt-1">Cargando emisiones desde AniList…</div>' + '</div>';
   loadSchedule(state.calendarDay);
 }
 
 function scheduleCard(m, isMock) {
   const hue = hashHue(m.title);
   const clk = (m.mal_id ? ' cal-card cursor-pointer' : '');
+  const localT = m.ts ? CAL_LOCAL_TIME.format(new Date(m.ts)) : '';
+  const siguiendo = m.inList ? '<span class="ml-1 text-[9px] font-bold text-emerald-400">● en tu lista</span>' : '';
   return '<div' + (m.mal_id ? ' data-mal="' + m.mal_id + '"' : '') + ' class="flex items-center gap-3 p-3 rounded-xl glass edge anim-in' + clk + '">' +
     '<div class="relative w-10 h-14 rounded-lg overflow-hidden shrink-0" style="background:linear-gradient(150deg,hsl(' + hue + ',65%,28%),hsl(' + ((hue + 120) % 360) + ',60%,16%))">' +
     '<span class="poster-fallback" style="font-size:.75rem">' + initials(m.title) + '</span>' +
     (m.image ? '<img src="' + esc(m.image) + '" class="w-full h-full object-cover relative z-[1]" loading="lazy" onerror="this.remove()">' : '') + '</div>' +
-    '<div class="flex-1 min-w-0"><div class="text-[13px] font-semibold text-white truncate">' + esc(m.title) + '</div>' +
-    '<div class="text-[11px] text-slate-500 truncate">' + esc(m.studio || '') + '</div></div>' +
-    '<div class="text-right shrink-0 no-select"><div class="font-mono font-bold text-white text-[13px]">' + m.time + '</div><div class="text-[9px] text-slate-500 uppercase tracking-wide">JST' + (m.ep ? ' · Ep ' + m.ep : '') + (isMock ? ' · demo' : '') + '</div>' +
-    (m.ts ? '<div class="cal-countdown text-[9px] font-semibold" data-ts="' + m.ts + '"></div>' : '') + '</div></div>';
+    '<div class="flex-1 min-w-0"><div class="text-[13px] font-semibold text-white truncate">' + esc(m.title) + siguiendo + '</div>' +
+    '<div class="text-[11px] text-slate-500 truncate">' + esc(m.studio || 'Anime') + '</div></div>' +
+    '<div class="text-right shrink-0 no-select"><div class="font-mono font-bold text-white text-[13px]">' + m.time + '</div>' +
+    '<div class="text-[9px] text-slate-500 uppercase tracking-wide">JST · ' + (localT || '') + (m.ep ? ' · Ep ' + m.ep : '') + '</div>' +
+    (m.ts ? '<div class="cal-countdown text-[9px] font-bold ' + (m.ts <= Date.now() ? 'text-emerald-400' : 'text-amber-300') + '" data-ts="' + m.ts + '"></div>' : '') + '</div></div>';
 }
 
 function calCountdownText(tsMs) {
@@ -3012,55 +3039,51 @@ async function loadSchedule(day) {
   const wrap = document.getElementById('calList');
   if (!wrap) return;
   wrap.dataset.day = day;
-  if (asSchedLoaded && asSchedCache && state.settings && state.settings.asOn) {
-    const items = asSchedCache[day] || [];
-    if (!items.length) {
-      wrap.innerHTML = '<div class="col-span-full text-[12px] text-slate-500 py-8 text-center">Sin emisiones programadas para este día (JST) según AnimeSchedule.</div>';
-      return;
-    }
+  const emptyMsg = '<div class="col-span-full text-[12px] text-slate-500 py-8 text-center">Sin emisiones programadas para este día (JST).</div>';
+  const renderItems = (items) => {
+    if (!items.length) { wrap.innerHTML = emptyMsg; return; }
     wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
       items.map(m => scheduleCard(m, false)).join('') + '</div>';
     updateCalCountdowns();
+  };
+  if (asSchedLoaded && asSchedCache && state.settings && state.settings.asOn) {
+    renderItems(asSchedCache[day] && asSchedCache[day].sort((a,b)=>a.ts-b.ts) || []);
     return;
   }
-  if (sched7Cache === null) {
-    const start = Math.floor(Date.now() / 1000) - 12 * 3600;
-    const end = start + 8 * 24 * 3600;
-    const data = await anilistQuery(AL_SCHED, { g: start, l: end });
-    sched7Cache = (data && data.Page && data.Page.airingSchedules) ? data.Page.airingSchedules : null;
-  }
+  const siguiendo = followedALIds();
+  try {
+    if (sched7Cache === null) {
+      const start = Math.floor(Date.now() / 1000) - 12 * 3600;
+      const end = start + 8 * 24 * 3600;
+      sched7Cache = await fetchSchedAll(start, end);
+    }
+  } catch (e) { sched7Cache = null; }
   if (wrap.dataset.day !== day) return;
-  if (sched7Cache) {
+  if (sched7Cache && sched7Cache.length) {
     const items = sched7Cache
       .filter(a => CAL_JST_DAY.format(new Date(a.airingAt * 1000)).toLowerCase() === day)
       .map(a => {
         const m = a.media || {};
         const t = m.title || {};
         const st = (m.studios && m.studios.nodes && m.studios.nodes[0]) || null;
+        const ts = a.airingAt * 1000;
         return {
           title: t.romaji || t.english || t.native || 'Sin título',
           studio: (st && st.name) || '',
-          time: CAL_JST_TIME.format(new Date(a.airingAt * 1000)),
+          time: CAL_JST_TIME.format(new Date(ts)),
           image: (m.coverImage && (m.coverImage.large || m.coverImage.medium)) || '',
           mal_id: m.id,
           ep: a.episode,
-          ts: a.airingAt * 1000
+          ts: ts,
+          inList: siguiendo.has(Number(m.id)) || inListByTitle(t.romaji || t.english || t.native)
         };
       })
-      .slice(0, 20);
-    if (!items.length) {
-      wrap.innerHTML = '<div class="col-span-full text-[12px] text-slate-500 py-8 text-center">Sin emisiones programadas para este día (JST) según AniList.</div>';
-      return;
-    }
-    wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
-      items.map(m => scheduleCard(m, false)).join('') + '</div>';
-    updateCalCountdowns();
+      .filter(x => x.ts >= Date.now() - 12 * 3600 * 1000)
+      .sort((a, b) => a.ts - b.ts);
+    renderItems(items);
     return;
   }
-  const items = CAL_MOCK[day] || [];
-  wrap.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">' +
-    items.map(m => scheduleCard(m, true)).join('') + '</div>';
-  updateCalCountdowns();
+  wrap.innerHTML = '<div class="col-span-full text-[12px] text-slate-400 py-8 text-center">No se pudo cargar el calendario (AniList no respondió). Revisá tu conexión e intentá de nuevo.</div>';
 }
 
 async function calOpenDetail(malId, cardText) {
@@ -4374,6 +4397,10 @@ function wireActions() {
   document.addEventListener('click', e => {
     const dayBtn = e.target.closest('.cal-day[data-day]');
     if (dayBtn) { state.calendarDay = dayBtn.getAttribute('data-day'); renderCalendar(); return; }
+    const todayBtn = e.target.closest('#calTodayBtn');
+    if (todayBtn) { state.calendarDay = CAL_JST_DAY.format(new Date()).toLowerCase(); renderCalendar(); return; }
+    const refreshBtn = e.target.closest('#calRefreshBtn');
+    if (refreshBtn) { sched7Cache = null; asSchedLoaded = false; asSchedCache = null; renderCalendar(); return; }
     const card = e.target.closest('#calList .cal-card[data-mal]');
     if (card) calOpenDetail(card.getAttribute('data-mal'), card.textContent);
   });
