@@ -1,7 +1,7 @@
 {
   "name": "zxs",
   "productName": "zxs",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Next-Gen anime tracker para PC inspirado en Taiga con la estética de AniList/Netflix. Integra la API GraphQL de AniList (con respaldo de Jikan/MyAnimeList) y un Auto-Scrobbler simulado.",
   "main": "main.js",
   "author": "Otaku Tracker",
@@ -20,7 +20,16 @@
       "discord-rpc.js",
       "folder-watcher.js",
       "src/db.js",
-      "src/scrobbler.js"
+      "src/scrobbler.js",
+      "src/utils.js",
+      "src/state.js",
+      "src/api.js",
+      "src/modules/scrobbler.js",
+      "src/modules/calendar.js",
+      "src/modules/stats.js",
+      "src/modules/gamification.js",
+      "src/modules/organizer.js",
+      "src/modules/settings.js"
     ],
     "directories": {
       "output": "dist"
