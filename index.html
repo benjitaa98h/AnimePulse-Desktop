@@ -843,6 +843,15 @@ tailwind.config = {
       </div>
       <div id="importPreviewList" class="flex-1 min-h-0 overflow-y-auto pr-1 space-y-2 border border-white/5 rounded-xl p-2"></div>
       <div class="flex items-center gap-3 mt-3 shrink-0">
+        <label class="flex items-center gap-2 text-[12px] text-slate-400 shrink-0">Estado
+          <select id="importStatusDest" class="px-2.5 py-2 rounded-xl bg-white/5 edge text-white text-[12px] outline-none focus:ring-2 focus:ring-purple-400/40 cursor-pointer">
+            <option value="plan">Pendientes</option>
+            <option value="watching">Viendo</option>
+            <option value="completed">Completado</option>
+            <option value="onhold">En pausa</option>
+            <option value="dropped">Abandonado</option>
+          </select>
+        </label>
         <button id="importCancel" class="px-4 py-2.5 rounded-xl text-[13px] font-semibold bg-white/5 edge text-slate-300 hover:bg-white/10 transition">Volver</button>
         <button id="importConfirm" class="flex-1 px-4 py-2.5 rounded-xl text-[13px] font-semibold accent-gradient text-white hover:opacity-90 transition flex items-center justify-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Añadir seleccionados</button>
       </div>
@@ -924,7 +933,7 @@ function pruneCache() {
       const a = (y[1] && (y[1].__ts || 0)) - (x[1] && (x[1].__ts || 0));
       return a;
     });
-    const keep = new Set(entries.slice(0, CACHE_MAX_ENTRIES).map(e => e[0]));
+    const keep = new Set(entries.slice(-CACHE_MAX_ENTRIES).map(e => e[0]));
     Object.keys(c).forEach(k => { if (!keep.has(k)) delete c[k]; });
   }
   let changed = false;
@@ -954,7 +963,7 @@ async function restoreSecrets() {
     try {
       const v = await window.electronAPI.loadSecret(k);
       if (v) st[k] = v;
-      else if (st[k]) { await window.electronAPI.saveSecret(k, st[k]); st[k] = st[k]; }
+      else if (st[k]) { await window.electronAPI.saveSecret(k, st[k]); st[k] = ''; }
     } catch (e) { /* noop */ }
   }
 }
@@ -1391,7 +1400,7 @@ async function buscarCoincidenciasEnLote(titulos) {
     let yaEnLista = false;
     if (found) yaEnLista = !!state.animeList.find(a => a.id === found.id) || inListByTitle(found.title);
     resultados.push({ tituloOriginal: t, coincidenciaEncontrada: found, seleccionado: !!(found && !yaEnLista), yaEnLista });
-    await sleep(1600);
+    await sleep(600);
   }
   if (bar) bar.style.width = '100%';
   importBusy = false;
@@ -1452,16 +1461,19 @@ function renderPrevisualizacionImportacion(resultados) {
 }
 
 function confirmarImportacion() {
-  const elegidos = importState.filter(r => r.seleccionado && r.coincidenciaEncontrada);
-  if (!elegidos.length) { toast('Selecciona al menos un anime para importar.', 'warn'); return; }
+  const eligidos = importState.filter(r => r.seleccionado && r.coincidenciaEncontrada);
+  if (!eligidos.length) { toast('Selecciona al menos un anime para importar.', 'warn'); return; }
+  const dest = document.getElementById('importStatusDest');
+  const estado = (dest && dest.value) || 'plan';
+  const labelDest = STATUS_META[estado] ? STATUS_META[estado].label : 'Pendientes';
   let add = 0, dup = 0;
-  elegidos.forEach(r => {
+  eligidos.forEach(r => {
     const a = r.coincidenciaEncontrada;
     if (state.animeList.find(x => x.id === a.id) || inListByTitle(a.title)) { dup++; return; }
-    addAnimeFrom(a, 'plan');
+    addAnimeFrom(a, estado);
     add++;
   });
-  toast('Importados <b>' + add + '</b> animes' + (dup ? ' (' + dup + ' ya estaban)' : '') + ' a <b>Pendientes</b> 🎉', 'ok');
+  toast('Importados <b>' + add + '</b> animes' + (dup ? ' (' + dup + ' ya estaban)' : '') + ' a <b>' + esc(labelDest) + '</b> 🎉', 'ok');
   closeImportModal();
   switchSection('dashboard');
 }
