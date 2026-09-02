@@ -4454,6 +4454,19 @@ function init() {
   setupOrganizer();
   setupWatchListener();
   setupDiscordUI();
+  (function() {
+    if (!window.electronAPI || !window.electronAPI.onUpdateStatus) return;
+    window.electronAPI.onUpdateStatus(st => {
+      if (!st) return;
+      if (st.type === 'available') {
+        toast('Nueva versión <b>' + esc(st.version || '') + '</b> disponible — descargando en segundo plano…', 'info');
+      } else if (st.type === 'downloaded') {
+        toast('Actualización <b>' + esc(st.version || '') + '</b> descargada. Reiniciá la app para aplicarla.', 'ok');
+      } else if (st.type === 'error') {
+        toast('No se pudo revisar actualizaciones: ' + esc(st.message || 'error'), 'warn');
+      }
+    });
+  })();
   setupProfileUI();
   setupStoreUI();
   setupImportUI();

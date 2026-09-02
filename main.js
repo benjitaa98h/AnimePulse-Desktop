@@ -3,6 +3,36 @@ const path = require('path');
 const fs = require('fs');
 
 let mainWindow = null;
+
+const autoUpdate = require('electron-updater');
+const { autoUpdater } = autoUpdate;
+let updateNotified = false;
+autoUpdater.autoDownload = true;
+autoUpdater.autoInstallOnAppQuit = true;
+autoUpdater.on('update-available', (info) => {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  mainWindow.webContents.send('update:status', { type: 'available', version: info.version });
+});
+autoUpdater.on('update-downloaded', (info) => {
+  updateNotified = true;
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  mainWindow.webContents.send('update:status', { type: 'downloaded', version: info.version });
+});
+autoUpdater.on('error', (err) => {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  mainWindow.webContents.send('update:status', { type: 'error', message: String((err && err.message) || err) });
+});
+function maybeCheckForUpdates() {
+  if (process.env.ZXS_DISABLE_UPDATES) return;
+  if (app.isPackaged) {
+    setTimeout(() => {
+      try { autoUpdater.checkForUpdates().catch(() => {}); } catch (e) {}
+    }, 8000);
+    setInterval(() => {
+      try { autoUpdater.checkForUpdates().catch(() => {}); } catch (e) {}
+    }, 6 * 3600 * 1000);
+  }
+}
 let pollTimer = null;
 let pollInFlight = false;
 
@@ -127,6 +157,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  maybeCheckForUpdates();
   appDB = createDB(app.getPath('userData'));
   const migrated = appDB.migrateLegacy();
   if (migrated) console.log('[zxs] Copia de seguridad JSON migrada a SQLite.');
@@ -330,6 +361,9 @@ const nativeScrobbler = createScrobbler(evt => {
 ipcMain.handle('scrobble:native-start', () => { nativeScrobbler.start(); return { ok: true }; });
 ipcMain.handle('scrobble:native-stop', () => { nativeScrobbler.stop(); return { ok: true }; });
 app.on('before-quit', () => nativeScrobbler.stop());
+ipcMain.handle('update:check-now', () => {
+  try { autoUpdater.checkForUpdates().catch(() => {}); return { ok: true }; } catch (e) { return { ok: false, error: String(e && e.message) }; }
+});
 
 const { createDiscord } = require('./discord-rpc');
 const dc = createDiscord(evt => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('discord:status', evt); });
