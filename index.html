@@ -429,6 +429,7 @@ tailwind.config = {
           </div>
           <div id="trophyGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3"></div>
         </div>
+        <div id="seasonPassBox" class="mb-6"></div>
         <div class="glass edge rounded-2xl p-5 mb-6">
           <div class="flex items-center justify-between mb-3">
             <h3 class="font-display font-semibold text-sm text-white flex items-center gap-2"><i data-lucide="history" class="w-4 h-4 text-cyan-400"></i> Historial de reproducción</h3>
@@ -3281,7 +3282,7 @@ function computeRank(level) {
   if (level >= 15) return 'pro';
   return 'basico';
 }
-function currentRank() { return normRank(computeRank(state.gamification.level || 1)); }
+function currentRank() { return rankOfUser(); }
 function rankMult() { return ({ pro: 1.1, master: 1.25, legendario: 1.5 })[currentRank()] || 1; }
 const PROFILE_ACCENTS = ['purple', 'pink', 'cyan', 'amber', 'emerald', 'sky', 'rose'];
 
