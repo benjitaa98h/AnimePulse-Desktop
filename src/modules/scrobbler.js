@@ -62,8 +62,8 @@ async function resolveDetectedAnime(name) {
     return;
   }
   apiDetailCache[String(item.mal_id)] = item;
-  if (state.settings && state.settings.autoAdd !== false) {
-    const det = state.scrobbler.detected || {};
+  const det = state.scrobbler.detected || {};
+  if (state.settings && state.settings.autoAdd === true) {
     const entry = addAnimeFrom(item, 'watching');
     if (entry) {
       if (det.ep) {
@@ -84,8 +84,7 @@ async function resolveDetectedAnime(name) {
       startScrobble({ animeId: entry.id, player: det.from || 'Navegador', fileName: det.title || item.title, source: 'browser', increment: state.settings.autoIncrement !== false, ep: (det.ep || entry.watched + 1) });
     }
   } else {
-    openApiDetail(item);
-    toast('Ficha de <b>' + esc(item.title) + '</b>: ábrela para agregarlo a tu lista y que el Auto-Scrobbler lo registre.', 'ok');
+    openAddPrompt(item);
   }
 }
 

@@ -993,6 +993,10 @@ function save() {
     diskSaveTimer = setTimeout(() => { try { window.electronAPI.saveState(json); } catch (e) { /* noop */ } }, 300);
   }
 }
+window.addEventListener('beforeunload', () => {
+  persistSecrets();
+  if (window.electronAPI && window.electronAPI.saveState) { try { window.electronAPI.saveState(serializeStateForDisk()); } catch (e) { /* noop */ } }
+});
 window.addEventListener('pagehide', () => {
   persistSecrets();
   if (window.electronAPI && window.electronAPI.saveState) { try { window.electronAPI.saveState(serializeStateForDisk()); } catch (e) { /* noop */ } }
@@ -1672,10 +1676,22 @@ function openAddPrompt(item) {
     '<button id="addNo" class="w-full mt-2 px-4 py-2 rounded-xl text-[11px] font-semibold text-slate-500 hover:text-slate-300 transition">Descartar</button>';
   icons();
   document.getElementById('addModal').classList.remove('hidden');
-  document.getElementById('addYes').addEventListener('click', () => {
+  document.getElementById('addYes').addEventListener('click', async () => {
     document.getElementById('addModal').classList.add('hidden');
     const entry = addAnimeFrom(item, 'watching');
-    if (entry) maybeOfferPrequels(item);
+    if (!entry) return;
+    const det = state.scrobbler.detected || {};
+    const epActual = det.ep || 1;
+    if (epActual > 1) {
+      const anteriores = epActual - 1;
+      const msg = anteriores === 1
+        ? '¿Ya viste el episodio 1 de "' + esc(item.title) + '"?'
+        : '¿Ya viste los episodios 1 al ' + anteriores + ' de "' + esc(item.title) + '"? (' + anteriores + ' episodios)';
+      const yes = await askConfirm(msg, 'Sí, marcarlos');
+      if (yes) { entry.watched = anteriores; save(); renderDashboard(); recomputeStats(); renderScrobblerUI(); toast('Episodios 1–' + anteriores + ' de <b>' + esc(entry.title) + '</b> marcados ✓', 'ok'); alMaybeSync(entry.id); kitsuMaybeSync(entry.id); }
+    }
+    maybeOfferPrequels(item);
+    if (entry.watched === 0) startScrobble({ animeId: entry.id, source: 'browser', ep: epActual });
   });
   document.getElementById('addDetail').addEventListener('click', () => {
     document.getElementById('addModal').classList.add('hidden');
