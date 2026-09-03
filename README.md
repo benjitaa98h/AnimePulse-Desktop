@@ -23,6 +23,23 @@ AnimePulse es un tracker de anime de escritorio que registra tu progreso sin que
 
 ---
 
+## 📸 Capturas
+
+### Mi Lista — la vista principal
+
+<img src="screenshots/mi-lista.png" width="1000" alt="Mi Lista">
+
+### Apartados
+
+| | | |
+|---|---|---|
+| <img src="screenshots/explorar-tendencias.png" width="420" alt="Explorar / Tendencias"> | <img src="screenshots/calendario.png" width="420" alt="Calendario de Emisión"> | <img src="screenshots/ficha-anime.png" width="420" alt="Ficha de anime"> |
+| **Explorar / Tendencias** | **Calendario de Emisión** | **Ficha de anime** |
+| <img src="screenshots/estadisticas.png" width="420" alt="Estadísticas"> | <img src="screenshots/ajustes.png" width="420" alt="Ajustes"> | |
+| **Estadísticas** | **Ajustes** | |
+
+---
+
 ## ¿Por qué AnimePulse?
 
 **Sin comandos.** Todo lo que harías con scripts o webs puede hacerse desde la interfaz: buscar anime, marcarlo como visto, ver estadísticas y calendario de emisión.
