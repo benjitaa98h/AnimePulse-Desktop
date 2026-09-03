@@ -63,7 +63,26 @@ async function resolveDetectedAnime(name) {
   }
   apiDetailCache[String(item.mal_id)] = item;
   if (state.settings && state.settings.autoAdd !== false) {
-    openAddPrompt(item);
+    const det = state.scrobbler.detected || {};
+    const entry = addAnimeFrom(item, 'watching');
+    if (entry) {
+      if (det.ep) {
+        const anteriores = det.ep - 1;
+        if (anteriores > 0) {
+          const msg = anteriores === 1
+            ? '¿Ya viste el episodio 1 de "' + esc(item.title) + '"?'
+            : '¿Ya viste los episodios 1 al ' + anteriores + ' de "' + esc(item.title) + '"? (' + anteriores + ' episodios)';
+          const yes = await askConfirm(msg, 'Sí, marcarlos');
+          if (yes) {
+            entry.watched = anteriores;
+            save(); renderDashboard(); recomputeStats();
+            toast('Episodios 1–' + anteriores + ' de <b>' + esc(entry.title) + '</b> marcados ✓', 'ok');
+            alMaybeSync(entry.id); kitsuMaybeSync(entry.id);
+          }
+        }
+      }
+      startScrobble({ animeId: entry.id, player: det.from || 'Navegador', fileName: det.title || item.title, source: 'browser', increment: state.settings.autoIncrement !== false, ep: (det.ep || entry.watched + 1) });
+    }
   } else {
     openApiDetail(item);
     toast('Ficha de <b>' + esc(item.title) + '</b>: ábrela para agregarlo a tu lista y que el Auto-Scrobbler lo registre.', 'ok');

@@ -40,7 +40,8 @@ function mapJikanItem(d) {
     malEpisodes: d.episodes || 0,
     synopsis: d.synopsis || '',
     trailerId: (d.trailer && d.trailer.youtube_id) || '',
-    airing: !!d.airing
+    airing: !!d.airing,
+    airingEpisodes: 0
   };
 }
 
@@ -64,11 +65,12 @@ function mapAnilistItem(m) {
     malEpisodes: m.episodes || 0,
     synopsis: (m.description || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(),
     trailerId: tr,
-    airing: m.status === 'RELEASING'
+    airing: m.status === 'RELEASING',
+    airingEpisodes: m.nextAiringEpisode ? m.nextAiringEpisode.episode - 1 : (m.episodes || 0)
   };
 }
 
-const AL_FIELDS = 'id title { romaji english native } coverImage { extraLarge large } studios { nodes { name isAnimationStudio } } genres averageScore episodes seasonYear season format status trailer { id site } description';
+const AL_FIELDS = 'id title { romaji english native } coverImage { extraLarge large } studios { nodes { name isAnimationStudio } } genres averageScore episodes seasonYear season format status trailer { id site } description nextAiringEpisode { episode }';
 const AL_SEARCH = 'query($s: String, $n: Int) { Page(page: 1, perPage: $n) { media(search: $s, type: ANIME, isAdult: false) { ' + AL_FIELDS + ' } } }';
 const AL_MEDIA = 'query($id: Int) { Media(id: $id, type: ANIME) { ' + AL_FIELDS + ' } }';
 const AL_TRENDING = 'query($n: Int) { Page(page: 1, perPage: $n) { media(type: ANIME, sort: POPULARITY_DESC, isAdult: false) { ' + AL_FIELDS + ' } } }';

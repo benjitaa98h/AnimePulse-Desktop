@@ -8,15 +8,15 @@
 <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CjxkZWZzPgo8cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1MCUiIGN5PSI0MiUiIHI9IjcwJSI+CjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmNDcyYjYiLz4KPHN0b3Agb2Zmc2V0PSI1NSUiIHN0b3AtY29sb3I9IiNhODU1ZjciLz4KPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjNGMxZDk1Ii8+CjwvcmFkaWFsR3JhZGllbnQ+CjxmaWx0ZXIgaWQ9Imdsb3ciIHg9Ii00MCUiIHk9Ii00MCUiIHdpZHRoPSIxODAlIiBoZWlnaHQ9IjE4MCUiPgo8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIyLjIiIHJlc3VsdD0iYiIvPgo8ZmVNZXJnZT48ZmVNZXJnZU5vZGUgaW49ImIiLz48ZmVNZXJnZU5vZGUgaW49IlNvdXJjZUdyYXBoaWMiLz48L2ZlTWVyZ2U+CjwvZmlsdGVyPgo8L2RlZnM+CjxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjE1IiBmaWxsPSIjMGIwODEwIi8+CjxwYXRoIGQ9Ik00IDMyIEMxMiAxMiA1MiAxMiA2MCAzMiBDNTIgNTIgMTIgNTIgNCAzMiBaIiBmaWxsPSIjMGIwODEwIiBzdHJva2U9IiM3YzNhZWQiIHN0cm9rZS13aWR0aD0iMi41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjE1IiBmaWxsPSJ1cmwoI2cpIiBmaWx0ZXI9InVybCgjZ2xvdykiLz4KPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iOCIgZmlsbD0iIzBiMDgxMCIvPgo8Y2lyY2xlIGN4PSIzNS41IiBjeT0iMjkuNSIgcj0iMyIgZmlsbD0iI2ZmZmZmZiIvPgo8L3N2Zz4=">
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script src="https://unpkg.com/lucide@0.462.0"></script>
-<script src="src/utils.js"></script>
-<script src="src/state.js"></script>
-<script src="src/api.js"></script>
-<script src="src/modules/scrobbler.js"></script>
-<script src="src/modules/calendar.js"></script>
-<script src="src/modules/stats.js"></script>
-<script src="src/modules/gamification.js"></script>
-<script src="src/modules/organizer.js"></script>
-<script src="src/modules/settings.js"></script>
+<script defer src="src/utils.js"></script>
+<script defer src="src/state.js"></script>
+<script defer src="src/api.js"></script>
+<script defer src="src/modules/scrobbler.js"></script>
+<script defer src="src/modules/calendar.js"></script>
+<script defer src="src/modules/stats.js"></script>
+<script defer src="src/modules/gamification.js"></script>
+<script defer src="src/modules/organizer.js"></script>
+<script defer src="src/modules/settings.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -902,6 +902,10 @@ function airBadge(anime) {
 }
 
 function totalEps(a) { return a.malEpisodes || a.totalEpisodes || 0; }
+function maxAllowedEps(a) {
+  if (a && a.airing && a.airingEpisodes > 0) return a.airingEpisodes;
+  return totalEps(a) > 0 ? totalEps(a) : 99999;
+}
 function epText(a) { const t = totalEps(a); return t ? a.watched + ' / ' + t : a.watched + ' ep'; }
 function progressPct(a) { const t = totalEps(a); if (!t) return a.watched > 0 ? 100 : 0; return clamp(Math.round((a.watched / t) * 100), 0, 100); }
 
@@ -933,7 +937,7 @@ function pruneCache() {
       const a = (y[1] && (y[1].__ts || 0)) - (x[1] && (x[1].__ts || 0));
       return a;
     });
-    const keep = new Set(entries.slice(-CACHE_MAX_ENTRIES).map(e => e[0]));
+    const keep = new Set(entries.slice(0, CACHE_MAX_ENTRIES).map(e => e[0]));
     Object.keys(c).forEach(k => { if (!keep.has(k)) delete c[k]; });
   }
   let changed = false;
@@ -995,7 +999,7 @@ window.addEventListener('pagehide', () => {
 });
 
 let lsHadState = false;
-function load() {
+async function load() {
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (raw) {
@@ -1019,7 +1023,7 @@ state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notific
     if (state.animeList.length && state.animeList.every(a => demoIds.has(a.id))) state.animeList = [];
   }
   if (!Array.isArray(state.activity) || state.activity.length !== 7) state.activity = [0,0,0,0,0,0,0];
-  restoreSecrets();
+  await restoreSecrets();
 }
 
 async function restoreDisk(force) {
@@ -1147,6 +1151,7 @@ function addAnimeFrom(item, status) {
     synopsis: item.synopsis || '',
     trailerId: item.trailerId || '',
     airing: !!item.airing,
+    airingEpisodes: item.airingEpisodes || 0,
     watched: 0,
     status: status || 'watching',
     rating: null,
@@ -1164,13 +1169,31 @@ function addAnimeFrom(item, status) {
 
 function removeAnime(id) {
   const a = findAnime(id);
+  if (!a) return;
   state.animeList = state.animeList.filter(x => x.id !== id);
   save();
   renderDashboard(); recomputeStats(); renderScrobblerUI();
-  if (a) toast('<b>' + esc(a.title) + '</b> eliminado de tu lista', 'warn');
+  const undoHandler = () => {
+    if (state.animeList.some(x => x.id === a.id)) return;
+    state.animeList.unshift(a);
+    save(); renderDashboard(); recomputeStats(); renderScrobblerUI();
+    toast('<b>' + esc(a.title) + '</b> restaurado ✓', 'ok');
+  };
+  toast('<b>' + esc(a.title) + '</b> eliminado · <button id="undoRemove" class="ml-2 px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-semibold transition">Deshacer</button>', 'warn');
+  const btn = document.getElementById('undoRemove');
+  if (btn) btn.addEventListener('click', undoHandler, { once: true });
+  setTimeout(() => { const b = document.getElementById('undoRemove'); if (b) b.removeEventListener('click', undoHandler); }, 6000);
 }
 
 let pendingDeleteId = null;
+let confirmResolve = null;
+function askConfirm(html, okLabel) {
+  document.getElementById('confirmMsg').innerHTML = html;
+  const ok = document.getElementById('confirmOk');
+  if (ok) ok.textContent = okLabel || 'Aceptar';
+  document.getElementById('confirmModal').classList.remove('hidden');
+  return new Promise(res => { confirmResolve = res; });
+}
 function askDelete(id) {
   const a = findAnime(id);
   if (!a) return;
@@ -1207,7 +1230,7 @@ function detailOfLocal(a) {
       '<div><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-1.5">Editar progreso</div>' +
         '<div class="flex items-center gap-2">' +
           '<button data-mdl="dec" data-id="' + esc(a.id) + '" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-amber-400/80 text-slate-200 flex items-center justify-center transition"><i data-lucide="minus" class="w-4 h-4"></i></button>' +
-          '<input data-mdl="ep" data-id="' + esc(a.id) + '" type="number" min="0" value="' + a.watched + '" class="w-20 text-center bg-white/[.05] edge rounded-xl py-2 font-mono font-bold text-white text-sm">' +
+          '<input data-mdl="ep" data-id="' + esc(a.id) + '" type="number" min="0" ' + (maxAllowedEps(a) < 99999 ? 'max="' + maxAllowedEps(a) + '"' : '') + ' value="' + a.watched + '" class="w-20 text-center bg-white/[.05] edge rounded-xl py-2 font-mono font-bold text-white text-sm">' +
           '<button data-mdl="inc" data-id="' + esc(a.id) + '" class="w-9 h-9 rounded-xl bg-emerald-400/15 hover:bg-emerald-400 text-emerald-300 hover:text-white flex items-center justify-center transition"><i data-lucide="plus" class="w-4 h-4"></i></button>' +
           '<span class="text-[11px] text-slate-500 ml-1">de ' + (t || '∞') + '</span></div>' +
         '<div class="h-1.5 rounded-full bg-white/10 overflow-hidden mt-3"><div style="width:' + pct + '%" class="h-full rounded-full accent-gradient transition-[width] duration-300"></div></div>' +
@@ -1390,10 +1413,8 @@ async function buscarCoincidenciasEnLote(titulos) {
   if (busy) busy.classList.remove('hidden');
   const total = titulos.length;
   const resultados = [];
-  for (let i = 0; i < total; i++) {
-    const t = titulos[i];
-    if (text) text.innerHTML = 'Buscando… ' + (i + 1) + '/' + total + ' · ' + esc(t);
-    if (bar) bar.style.width = Math.round((i / total) * 100) + '%';
+  const BATCH = 3;
+  async function procesarTituloImport(t) {
     let found = null;
     try { if (/^\d{1,6}$/.test(t)) found = await buscarPorId(t); } catch (e) {}
     if (!found) {
@@ -1402,7 +1423,14 @@ async function buscarCoincidenciasEnLote(titulos) {
     }
     let yaEnLista = false;
     if (found) yaEnLista = !!state.animeList.find(a => a.id === found.id) || inListByTitle(found.title);
-    resultados.push({ tituloOriginal: t, coincidenciaEncontrada: found, seleccionado: !!(found && !yaEnLista), yaEnLista });
+    return { tituloOriginal: t, coincidenciaEncontrada: found, seleccionado: !!(found && !yaEnLista), yaEnLista };
+  }
+  for (let i = 0; i < total; i += BATCH) {
+    const grupo = titulos.slice(i, i + BATCH);
+    if (text) text.innerHTML = 'Buscando… ' + (i + 1) + '-' + Math.min(i + BATCH, total) + '/' + total + ' · ' + esc(grupo[0]);
+    if (bar) bar.style.width = Math.round((i / total) * 100) + '%';
+    const batch = await Promise.all(grupo.map(t => procesarTituloImport(t)));
+    resultados.push(...batch);
     await sleep(600);
   }
   if (bar) bar.style.width = '100%';
@@ -1659,6 +1687,8 @@ function openAddPrompt(item) {
 
 const AL_STATUS = { watching: 'CURRENT', plan: 'PLANNING', completed: 'COMPLETED', onhold: 'PAUSED', dropped: 'DROPPED' };
 let alSyncTimer = null;
+let airingInterval = null;
+let countdownInterval = null;
 function alMaybeSync(id) {
   if (!state.settings || state.settings.syncOn !== true) return;
   if (!state.settings.alToken) return;
@@ -2337,7 +2367,7 @@ async function runGlobalSearch(q) {
       return;
     }
     items = found;
-    state.searchCache['g_' + q.toLowerCase()] = items;
+    state.searchCache['g_' + q.toLowerCase()] = cacheSetObj(items);
   }
   if (seq !== globalSearchSeq) return;
   if (!items.length) {
@@ -2363,7 +2393,7 @@ async function runGlobalSearch(q) {
     document.getElementById('exploreSearch').value = q;
     runExploreSearch(q, true);
   });
-  items.forEach(item => { if (!apiDetailCache[item.mal_id] && !state.searchCache['id_' + item.mal_id]) state.searchCache['id_' + item.mal_id] = item; });
+  items.forEach(item => { if (!apiDetailCache[item.mal_id] && !state.searchCache['id_' + item.mal_id]) state.searchCache['id_' + item.mal_id] = cacheSetObj(item); });
 }
 
 async function openApiDetailById(malId) {
@@ -2494,7 +2524,7 @@ function openExploreDetail(div) {
     openApiDetailById(malId); return;
   }
   apiDetailCache[String(item.mal_id)] = item;
-  state.searchCache['id_' + String(item.mal_id)] = item;
+  state.searchCache['id_' + String(item.mal_id)] = cacheSetObj(item);
   openApiDetail(item);
 }
 
@@ -2515,7 +2545,7 @@ function setupScrobblerUI() {
   state.scrobbler.animeId = sel.value;
 }
 
-function startScrobble(opts) {
+async function startScrobble(opts) {
   opts = opts || {};
   const a = opts.animeId ? findAnime(opts.animeId) : findAnime(state.scrobbler.animeId);
   if (!a) { toast('Elige un anime válido para simular.', 'warn'); return; }
@@ -2536,6 +2566,23 @@ function startScrobble(opts) {
   state.scrobbler.fileName = fileName;
   state.scrobbler.episodeNow = opts.nativeProgress != null ? (opts.ep || (a.watched + 1)) : (opts.ep || (a.watched + 1));
   state.scrobbler.progress = 0;
+  if (opts.nativeProgress == null && state.settings.autoIncrement !== false) {
+    const epActual = state.scrobbler.episodeNow;
+    const marcados = a.watched || 0;
+    const hueco = epActual - marcados - 1;
+    if (hueco > 0) {
+      const msg = hueco === 1
+        ? '¿Ya viste el episodio ' + (marcados + 1) + ' de "' + esc(a.title) + '"?'
+        : '¿Ya viste los episodios ' + (marcados + 1) + ' al ' + (epActual - 1) + ' de "' + esc(a.title) + '"? (' + hueco + ' episodios)';
+      const yes = await askConfirm(msg, 'Sí, marcarlos');
+      if (yes) {
+        a.watched = epActual - 1;
+        save(); renderDashboard(); recomputeStats(); renderScrobblerUI();
+        toast('Episodios ' + (marcados + 1) + '–' + (epActual - 1) + ' de <b>' + esc(a.title) + '</b> marcados ✓', 'ok');
+        alMaybeSync(a.id); kitsuMaybeSync(a.id);
+      }
+    }
+  }
   const wrap = document.getElementById('simProgressWrap');
   if (wrap) wrap.classList.remove('hidden');
   const nowF = document.getElementById('simFileNow');
@@ -2583,7 +2630,7 @@ function finishEpisode() {
   if (state.scrobbler.running) {
     const a = findAnime(state.scrobbler.animeId);
     if (a && state.settings.autoIncrement) {
-      a.watched = clamp(a.watched + 1, 0, totalEps(a) > 0 ? totalEps(a) : 99999);
+      a.watched = clamp(a.watched + 1, 0, maxAllowedEps(a));
       state.activity = state.activity.slice(1).concat([0]);
       state.activity[6] += 1;
       save();
@@ -3257,31 +3304,22 @@ function wireActions() {
     const id = el.getAttribute('data-id');
     const a = findAnime(id);
     if (!a) return;
-    if (action === 'ep') { a.watched = clamp(parseInt(el.value, 10) || 0, 0, totalEps(a) > 0 ? totalEps(a) : 99999); save(); refreshDetail(); recomputeStats(); alMaybeSync(id); kitsuMaybeSync(id); }
+    if (action === 'ep') { const limite = maxAllowedEps(a); const nuevo = clamp(parseInt(el.value, 10) || 0, 0, limite); if (limite < 99999 && nuevo >= limite && (a.watched || 0) < limite && (parseInt(el.value,10)||0) > limite) { toast('Ese episodio todavía no salió · hasta el ep ' + limite, 'warn'); } a.watched = nuevo; save(); refreshDetail(); recomputeStats(); renderDashboard(); alMaybeSync(id); kitsuMaybeSync(id); }
     else if (action === 'status') setStatus(id, el.value);
     else if (action === 'rating') setRating(id, parseInt(el.value, 10) || 0);
     else if (action === 'notes') { a.notes = el.value; save(); }
   });
   document.addEventListener('click', e => {
-    const yt = e.target.closest('#ytExternal');
-    if (!yt) return;
-    const f = document.querySelector('#detailModal [data-trailer-of]');
-    const m = f && f.src ? f.src.match(/embed\/([\w-]+)/) : null;
-    if (m) openExternalUrl('https://www.youtube.com/watch?v=' + m[1]);
-    else toast('No se pudo localizar el tráiler.', 'warn');
-  });
-  document.getElementById('exploreResults').addEventListener('click', e => {
-    const card = e.target.closest('.result-card');
-    if (card) openExploreDetail(card);
-  });
-  document.getElementById('exploreBtn').addEventListener('click', () => runExploreSearch(document.getElementById('exploreSearch').value, true));
-  document.getElementById('exploreSearch').addEventListener('keydown', e => { if (e.key === 'Enter') runExploreSearch(e.target.value, true); });
-  document.getElementById('trendingBtn').addEventListener('click', loadTrending);
-  document.addEventListener('click', e => {
     const nav = e.target.closest('.nav-item[data-section]');
-    if (nav) switchSection(nav.getAttribute('data-section'));
-  });
-  document.addEventListener('click', e => {
+    if (nav) { switchSection(nav.getAttribute('data-section')); return; }
+    const yt = e.target.closest('#ytExternal');
+    if (yt) {
+      const f = document.querySelector('#detailModal [data-trailer-of]');
+      const m = f && f.src ? f.src.match(/embed\/([\w-]+)/) : null;
+      if (m) openExternalUrl('https://www.youtube.com/watch?v=' + m[1]);
+      else toast('No se pudo localizar el tráiler.', 'warn');
+      return;
+    }
     const dayBtn = e.target.closest('.cal-day[data-day]');
     if (dayBtn) { state.calendarDay = dayBtn.getAttribute('data-day'); renderCalendar(); return; }
     const todayBtn = e.target.closest('#calTodayBtn');
@@ -3291,17 +3329,25 @@ function wireActions() {
     const card = e.target.closest('#calList .cal-card[data-mal]');
     if (card) calOpenDetail(card.getAttribute('data-mal'), card.textContent);
   });
+  document.getElementById('exploreResults').addEventListener('click', e => {
+    const card = e.target.closest('.result-card');
+    if (card) openExploreDetail(card);
+  });
+  document.getElementById('exploreBtn').addEventListener('click', () => runExploreSearch(document.getElementById('exploreSearch').value, true));
+  document.getElementById('exploreSearch').addEventListener('keydown', e => { if (e.key === 'Enter') runExploreSearch(e.target.value, true); });
+  document.getElementById('trendingBtn').addEventListener('click', loadTrending);
   document.getElementById('exploreSkeleton').addEventListener('click', () => {});
   document.getElementById('detailModal').addEventListener('click', e => { if (e.target === document.getElementById('detailModal')) closeModal(); });
   document.getElementById('addModal').addEventListener('click', e => { if (e.target === document.getElementById('addModal')) document.getElementById('addModal').classList.add('hidden'); });
   document.getElementById('prequelModal').addEventListener('click', e => { if (e.target === document.getElementById('prequelModal')) document.getElementById('prequelModal').classList.add('hidden'); });
   document.getElementById('shareModal').addEventListener('click', e => { if (e.target === document.getElementById('shareModal')) document.getElementById('shareModal').classList.add('hidden'); });
   document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === document.getElementById('confirmModal')) { document.getElementById('confirmModal').classList.add('hidden'); pendingDeleteId = null; } });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (!document.getElementById('detailModal').classList.contains('hidden')) closeModal(); document.getElementById('addModal').classList.add('hidden'); document.getElementById('prequelModal').classList.add('hidden'); document.getElementById('shareModal').classList.add('hidden'); document.getElementById('confirmModal').classList.add('hidden'); pendingDeleteId = null; } });
-  document.getElementById('confirmCancel').addEventListener('click', () => { document.getElementById('confirmModal').classList.add('hidden'); pendingDeleteId = null; });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (!document.getElementById('detailModal')?.classList.contains('hidden')) closeModal(); document.getElementById('addModal')?.classList.add('hidden'); document.getElementById('prequelModal')?.classList.add('hidden'); document.getElementById('shareModal')?.classList.add('hidden'); if (document.getElementById('confirmModal') && !document.getElementById('confirmModal').classList.contains('hidden')) { document.getElementById('confirmModal').classList.add('hidden'); if (confirmResolve) { const r = confirmResolve; confirmResolve = null; r(false); } pendingDeleteId = null; } } });
+  document.getElementById('confirmCancel').addEventListener('click', () => { document.getElementById('confirmModal').classList.add('hidden'); if (confirmResolve) { const r = confirmResolve; confirmResolve = null; r(false); } pendingDeleteId = null; });
   document.getElementById('confirmOk').addEventListener('click', () => {
-    if (pendingDeleteId) removeAnime(pendingDeleteId);
     document.getElementById('confirmModal').classList.add('hidden');
+    if (confirmResolve) { const r = confirmResolve; confirmResolve = null; r(true); pendingDeleteId = null; return; }
+    if (pendingDeleteId) removeAnime(pendingDeleteId);
     pendingDeleteId = null;
   });
   document.getElementById('btnMin').addEventListener('click', () => { if (window.electronAPI && window.electronAPI.minimize) window.electronAPI.minimize(); else toast('Minimizar (simulado) — accede a la bandeja del sistema.', 'info'); });
@@ -3310,8 +3356,8 @@ function wireActions() {
   window.addEventListener('resize', () => { if (state && !document.getElementById('section-stats').classList.contains('hidden')) drawActivity(); });
 }
 
-function init() {
-  load();
+async function init() {
+  await load();
   applyAppearance();
   recomputeStats();
   renderDashboard();
@@ -3358,8 +3404,8 @@ function init() {
   setupStoreUI();
   setupImportUI();
   seedStore().then(refreshStore);
-  if (state.settings.notifications === true) { checkAiringNow(); setInterval(checkAiringNow, 3600000); }
-  setInterval(updateCalCountdowns, 30000);
+  if (state.settings.notifications === true) { checkAiringNow(); airingInterval = setInterval(checkAiringNow, 3600000); }
+  countdownInterval = setInterval(updateCalCountdowns, 30000);
   updateCalCountdowns();
   restoreDisk(false);
   refreshDiskInfo();
@@ -3378,6 +3424,24 @@ function init() {
     document.getElementById('apiPill').className = 'hidden sm:flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-full border border-rose-400/20 bg-rose-400/10 text-rose-300 font-medium';
     document.getElementById('apiPill').innerHTML = '<i data-lucide="wifi-off" class="w-3 h-3"></i> Offline'; icons();
   }
+  window.removeEventListener('online', onOnlineEvt);
+  window.removeEventListener('offline', onOfflineEvt);
+  window.addEventListener('online', onOnlineEvt);
+  window.addEventListener('offline', onOfflineEvt);
+  window.addEventListener('keydown', onAppKeydown);
+}
+
+function onOnlineEvt() { toast('Conexión restaurada ✓', 'ok'); const pill = document.getElementById('apiPill'); if (pill) { pill.className = 'hidden sm:flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-full border border-emerald-400/20 bg-emerald-400/10 text-emerald-300 font-medium'; } }
+function onOfflineEvt() { toast('Sin conexión — modo offline', 'warn'); const pill = document.getElementById('apiPill'); if (pill) { pill.className = 'hidden sm:flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-full border border-rose-400/20 bg-rose-400/10 text-rose-300 font-medium'; } }
+
+const VIEW_SHORTCUTS = ['dashboard', 'explore', 'calendar', 'organizer', 'stats', 'settings'];
+function onAppKeydown(e) {
+  const t = e.target;
+  if (e.key === 'Escape') return;
+  const typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') { e.preventDefault(); const a = document.getElementById('globalSearch'); if (a) { a.focus(); a.select(); } return; }
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key >= '1' && e.key <= '6') { const sec = VIEW_SHORTCUTS[e.key - '1']; if (sec) { switchSection(sec); } return; }
+  if (e.key === '/' && !typing) { e.preventDefault(); const a = document.getElementById('globalSearch'); if (a) { a.focus(); a.select(); } }
 }
 
 document.addEventListener('DOMContentLoaded', init);
