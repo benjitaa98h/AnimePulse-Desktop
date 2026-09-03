@@ -138,6 +138,14 @@ git push origin mi-feature
 
 ---
 
+## 🏆 Créditos
+
+Creado y mantenido por **zxs**.
+
+Si usás AnimePulse y te gusta, dejá una ⭐ en el repo o contanos qué te gustaría que sumemos — cada aporte hace crecer el proyecto.
+
+---
+
 ## Licencia
 
 MIT — libre para usar, modificar y compartir.
