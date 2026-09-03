@@ -123,7 +123,7 @@ AnimePulse-Desktop/
 
 ## Cómo contribuir
 
-¿Te interesa sumarte? El proyecto está en crecimiento activo:
+¿Te interesa sumarte? El proyecto está en crecimiento activo. Empezá leyendo [`CONTRIBUTING.md`](CONTRIBUTING.md) — ahí está el flujo de trabajo, los estándares y cómo correr los tests.
 
 - Revisá los issues etiquetados `good first issue` para empezar.
 - Ideas en camino: extensión de navegador para el Auto-Scrobbler, OAuth real con AniList, build para Windows y macOS.
@@ -140,7 +140,7 @@ git push origin mi-feature
 
 ## 🏆 Créditos
 
-Creado y mantenido por **zxs**.
+Creado y mantenido por **benjitaa98h**.
 
 Si usás AnimePulse y te gusta, dejá una ⭐ en el repo o contanos qué te gustaría que sumemos — cada aporte hace crecer el proyecto.
 

@@ -134,6 +134,7 @@ async function anilistQuery(query, variables, token) {
 async function searchAnimeFinal(q, limit) {
   const data = await anilistQuery(AL_SEARCH, { s: q, n: limit });
   if (data && data.Page && data.Page.media && data.Page.media.length) return data.Page.media.map(mapAnilistItem);
+  toast('AniList no respondió; buscando en Jikan (MyAnimeList) como respaldo…', 'warn');
   const json = await apiFetch(JIKAN + '/anime?q=' + encodeURIComponent(q) + '&limit=' + limit + '&sfw=true');
   if (json && Array.isArray(json.data) && json.data.length) return json.data.map(mapJikanItem);
   return null;
