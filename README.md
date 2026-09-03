@@ -1,6 +1,6 @@
 # AnimePulse
 
-**Versión estable actual: v2.0.4** · [Descargar AppImage](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/download/v2.0.4/zxs-2.0.4.AppImage)
+**Versión estable actual: v2.0.4** · [Descargar AppImage](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/download/v2.0.4/AnimePulse-2.0.4.AppImage)
 
 **Novedades destacadas en v2.0.4:** auto-scrobbler más preciso (detecta el episodio exacto y pregunta si ya viste los anteriores), límite real de episodios para animes en emisión, undo al eliminar, atajos de teclado (Ctrl+F, Ctrl+1..6, `/`), importador masivo más rápido y auto-actualización integrada.
 
@@ -56,8 +56,8 @@ AnimePulse es un tracker de anime de escritorio que registra tu progreso sin que
 
 | Plataforma | Enlace |
 |---|---|
-| Linux x64 (AppImage) | [zxs-2.0.4.AppImage](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/download/v2.0.4/zxs-2.0.4.AppImage) |
-| Linux / Debian (deb) | [zxs_2.0.4_amd64.deb](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/download/v2.0.4/zxs_2.0.4_amd64.deb) |
+| Linux x64 (AppImage) | [AnimePulse-2.0.4.AppImage](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/download/v2.0.4/AnimePulse-2.0.4.AppImage) |
+| Linux / Debian (deb) | [animepulse_2.0.4_amd64.deb](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/download/v2.0.4/animepulse_2.0.4_amd64.deb) |
 | Windows | Próximamente (build NSIS en camino) |
 
 Todas las versiones: [Releases](https://github.com/benjitaa98h/AnimePulse-Desktop/releases)

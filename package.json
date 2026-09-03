@@ -1,8 +1,8 @@
 {
-  "name": "zxs",
-  "productName": "zxs",
+  "name": "animepulse",
+  "productName": "AnimePulse",
   "version": "2.0.4",
-  "description": "Next-Gen anime tracker para PC inspirado en Taiga con la estética de AniList/Netflix. Integra la API GraphQL de AniList (con respaldo de Jikan/MyAnimeList) y un Auto-Scrobbler simulado.",
+  "description": "AnimePulse - Tracker de anime para PC inspirado en Taiga con la estética de AniList/Netflix. Integra la API GraphQL de AniList (con respaldo de Jikan/MyAnimeList) y un Auto-Scrobbler real.",
   "main": "main.js",
   "author": "Otaku Tracker",
   "license": "MIT",
@@ -11,8 +11,8 @@
     "dist": "electron-builder"
   },
   "build": {
-    "appId": "com.zxs.desktop",
-    "productName": "zxs",
+    "appId": "com.animepulse.desktop",
+    "productName": "AnimePulse",
     "files": [
       "main.js",
       "preload.js",
@@ -58,7 +58,7 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "shortcutName": "zxs"
+      "shortcutName": "AnimePulse"
     },
     "publish": [
       {
