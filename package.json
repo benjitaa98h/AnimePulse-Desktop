@@ -4,11 +4,13 @@
   "version": "2.0.4",
   "description": "AnimePulse - Tracker de anime para PC inspirado en Taiga con la estética de AniList/Netflix. Integra la API GraphQL de AniList (con respaldo de Jikan/MyAnimeList) y un Auto-Scrobbler real.",
   "main": "main.js",
-  "author": "zxs",
+  "author": "benjitaa98h",
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "build": {
     "appId": "com.animepulse.desktop",
@@ -46,7 +48,7 @@
         "deb"
       ],
       "category": "AudioVideo",
-      "maintainer": "zxs"
+      "maintainer": "benjitaa98h"
     },
     "mac": {
       "target": [
@@ -70,7 +72,8 @@
   },
   "devDependencies": {
     "electron": "^44.0.0",
-    "electron-builder": "^26.15.3"
+    "electron-builder": "^26.15.3",
+    "vitest": "^4.1.11"
   },
   "dependencies": {
     "electron-updater": "^6.8.9"
