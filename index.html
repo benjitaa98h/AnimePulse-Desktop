@@ -1144,6 +1144,7 @@ function addAnimeFrom(item, status) {
   const entry = {
     id: item.id,
     al_id: item.al_id || null,
+    mal_id: item.mal_id || null,
     title: item.title,
     title_english: item.title_english || '',
     image: item.image || '',
@@ -1303,9 +1304,18 @@ async function loadSeasons(alId) {
   } catch (e) { holder.innerHTML = ''; }
 }
 
+async function enrichAiringEps(a) {
+  if (!a || !a.airing || a.airingEpisodes) return;
+  const info = await animeAiringInfo(a).catch(() => null);
+  if (!info) return;
+  if (info.al_id) a.al_id = info.al_id;
+  if (info.airingEpisodes > 0) { a.airingEpisodes = info.airingEpisodes; save(); }
+}
+
 function openDetail(id) {
   const a = findAnime(id);
   if (!a) return;
+  enrichAiringEps(a);
   document.getElementById('detailBody').innerHTML = detailOfLocal(a);
   document.getElementById('detailModal').classList.remove('hidden');
   icons();

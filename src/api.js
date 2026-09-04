@@ -73,6 +73,7 @@ function mapAnilistItem(m) {
 const AL_FIELDS = 'id title { romaji english native } coverImage { extraLarge large } studios { nodes { name isAnimationStudio } } genres averageScore episodes seasonYear season format status trailer { id site } description nextAiringEpisode { episode airingAt }';
 const AL_SEARCH = 'query($s: String, $n: Int) { Page(page: 1, perPage: $n) { media(search: $s, type: ANIME, isAdult: false) { ' + AL_FIELDS + ' } } }';
 const AL_MEDIA = 'query($id: Int) { Media(id: $id, type: ANIME) { ' + AL_FIELDS + ' } }';
+const AL_BY_MAL = 'query($idMal: Int) { Media(idMal: $idMal, type: ANIME) { ' + AL_FIELDS + ' } }';
 const AL_TRENDING = 'query($n: Int) { Page(page: 1, perPage: $n) { media(type: ANIME, sort: POPULARITY_DESC, isAdult: false) { ' + AL_FIELDS + ' } } }';
 const AL_SCHED = 'query($g: Int, $l: Int) { Page(page: 1, perPage: 50) { airingSchedules(airingAt_greater: $g, airingAt_lesser: $l) { airingAt episode media { id title { romaji english native } coverImage { large medium } studios { nodes { name } } } } } }';
 const AL_PING = 'query { Page(page: 1, perPage: 1) { media(type: ANIME, sort: POPULARITY_DESC) { id } } }';
@@ -138,4 +139,21 @@ async function searchAnimeFinal(q, limit) {
   const json = await apiFetch(JIKAN + '/anime?q=' + encodeURIComponent(q) + '&limit=' + limit + '&sfw=true');
   if (json && Array.isArray(json.data) && json.data.length) return json.data.map(mapJikanItem);
   return null;
+}
+
+function malNumFromId(id) {
+  const s = String(id || '');
+  return s.startsWith('mal_') ? (Number(s.slice(4)) || null) : null;
+}
+
+async function animeAiringInfo(a) {
+  if (!a || !a.airing || a.airingEpisodes) return null;
+  const alId = a.al_id || null;
+  const malId = alId ? null : (a.mal_id || malNumFromId(a.id));
+  const query = alId ? AL_MEDIA : (malId ? AL_BY_MAL : null);
+  if (!query) return null;
+  const res = await anilistQuery(query, alId ? { id: alId } : { idMal: malId });
+  const m = res && res.Media;
+  if (!m) return null;
+  return { al_id: m.id, airingEpisodes: m.nextAiringEpisode ? m.nextAiringEpisode.episode - 1 : 0 };
 }

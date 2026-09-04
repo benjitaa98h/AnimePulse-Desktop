@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { loadApi } from './helpers/load.js';
 
-const { mapAnilistItem, mapJikanItem } = loadApi();
+const { mapAnilistItem, mapJikanItem, malNumFromId } = loadApi();
 
 describe('mapAnilistItem', () => {
   it('mapea título romaji y en inglés', () => {
@@ -98,5 +98,16 @@ describe('mapJikanItem', () => {
   it('usa título de respaldo cuando no hay título', () => {
     const r = mapJikanItem({ mal_id: 2, title_english: 'Filler' });
     expect(r.title).toBe('Filler');
+  });
+});
+
+describe('malNumFromId', () => {
+  it('extrae el número de un id mal_', () => {
+    expect(malNumFromId('mal_12345')).toBe(12345);
+  });
+  it('devuelve null sin prefijo mal_', () => {
+    expect(malNumFromId('kitsu_5')).toBe(null);
+    expect(malNumFromId(null)).toBe(null);
+    expect(malNumFromId('')).toBe(null);
   });
 });
