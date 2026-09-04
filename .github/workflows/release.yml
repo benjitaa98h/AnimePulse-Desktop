@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versión a buildear/publicar (ej. 2.0.6). Se bumpa en package.json durante el build.'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -21,13 +27,26 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Install dependencies
+      - name: Instalar dependencias
         run: npm ci
 
-      - name: Run unit tests
+      - name: Tests unitarios
         run: npm test
 
-      - name: Install system deps para AppImage (fuse/libfuse, etc.)
+      - name: Determinar versión (tag o dispatch) y preparar package.json
+        id: ver
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+            [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Versión inválida: $VERSION"; exit 1; }
+            node -e "const fs=require('fs');const p='package.json';const j=JSON.parse(fs.readFileSync(p,'utf8'));j.version='$VERSION';fs.writeFileSync(p,JSON.stringify(j,null,2)+'\n')"
+          else
+            VERSION="$(node -e "console.log(require('./package.json').version)")"
+          fi
+          echo "Se va a buildear/publicar: v$VERSION"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Instalar deps de sistema para AppImage
         run: sudo apt-get update && sudo apt-get install -y libfuse2 2>/dev/null || true
 
       - name: Build AppImage y deb
@@ -37,21 +56,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          VERSION="$(node -e "console.log(require('./package.json').version)")"
-          echo "Versión de package.json: $VERSION"
+          VERSION="$VERSION"
           NOTES="/tmp/release-notes.md"
           {
             echo "## AnimePulse v$VERSION"
             echo
-            echo "Release generada automáticamente por GitHub Actions al publicar el tag \`${{ github.ref_name }}\`."
-            echo
-            echo "### Acerca de este flujo"
-            echo "Para releasear: bumpa la versión en \`package.json\`, hacé commit y luego tag + push:"
-            echo "\`\`\`"
-            echo "git tag v$VERSION"
-            echo "git push origin v$VERSION"
-            echo "\`\`\`"
-            echo "GitHub Actions compila el AppImage y el .deb y sube la release automáticamente."
+            echo "Generada por GitHub Actions $([ "${{ github.event_name }}" == "workflow_dispatch" ] && echo '(disparo manual desde GitHub)' || echo "(push del tag v$VERSION)")"
           } > "$NOTES"
           gh release create "v$VERSION" \
             --title "AnimePulse v$VERSION" \
