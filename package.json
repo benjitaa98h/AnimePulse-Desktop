@@ -1,7 +1,7 @@
 {
   "name": "animepulse",
   "productName": "AnimePulse",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "AnimePulse - Tracker de anime para PC inspirado en Taiga con la estética de AniList/Netflix. Integra la API GraphQL de AniList (con respaldo de Jikan/MyAnimeList) y un Auto-Scrobbler real.",
   "main": "main.js",
   "author": "benjitaa98h",
