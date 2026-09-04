@@ -1091,7 +1091,7 @@ function updateProgress(id, delta) {
   const a = findAnime(id);
   if (!a) return;
   const t = totalEps(a);
-  const next = clamp((a.watched || 0) + delta, 0, t > 0 ? t : 99999);
+  const next = clamp((a.watched || 0) + delta, 0, maxAllowedEps(a));
   if (next === a.watched) return;
   a.watched = next;
   const pct = progressPct(a);
@@ -1607,10 +1607,24 @@ function seasonsHTML(item, seasons) {
   return '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-1.5"><i data-lucide="layers" class="w-3.5 h-3.5"></i>Temporadas</div><div class="rounded-xl bg-white/[.03] edge px-3 py-1">' + rows + '</div></div>';
 }
 
+function normAnimeTitle(title) {
+  return (title || '')
+    .toLowerCase()
+    .replace(/\((?:[^)]*)\)/g, ' ')            // "(TV)", "(Movie)", "(Season 2)"…
+    .replace(/\s(?:season|temporada|s|part|parte|cour)\s?\d{1,3}\b/gi, ' ') // " Season 2", "Part 3", "S2"…
+    .replace(/[^a-z0-9ñ\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function inListByTitle(title) {
-  const t = (title || '').trim().toLowerCase();
+  const t = normAnimeTitle(title);
   if (!t) return false;
-  return state.animeList.some(a => (a.title || '').trim().toLowerCase() === t || (a.title_english || '').trim().toLowerCase() === t);
+  return state.animeList.some(a => {
+    const at = normAnimeTitle(a.title);
+    const aen = normAnimeTitle(a.title_english);
+    return (at && at === t) || (aen && aen === t);
+  });
 }
 
 async function maybeOfferPrequels(item) {
@@ -1676,7 +1690,7 @@ function openAddPrompt(item) {
     '<button id="addNo" class="w-full mt-2 px-4 py-2 rounded-xl text-[11px] font-semibold text-slate-500 hover:text-slate-300 transition">Descartar</button>';
   icons();
   document.getElementById('addModal').classList.remove('hidden');
-  document.getElementById('addYes').addEventListener('click', async () => {
+  document.getElementById('addYes').onclick = async () => {
     document.getElementById('addModal').classList.add('hidden');
     const entry = addAnimeFrom(item, 'watching');
     if (!entry) return;
@@ -1692,13 +1706,13 @@ function openAddPrompt(item) {
     }
     maybeOfferPrequels(item);
     if (det.ep) startScrobble({ animeId: entry.id, source: 'browser', ep: epActual });
-  });
-  document.getElementById('addDetail').addEventListener('click', () => {
+  };
+  document.getElementById('addDetail').onclick = () => {
     document.getElementById('addModal').classList.add('hidden');
     apiDetailCache[String(item.mal_id)] = item;
     openApiDetail(item);
-  });
-  document.getElementById('addNo').addEventListener('click', () => document.getElementById('addModal').classList.add('hidden'));
+  };
+  document.getElementById('addNo').onclick = () => document.getElementById('addModal').classList.add('hidden');
 }
 
 const AL_STATUS = { watching: 'CURRENT', plan: 'PLANNING', completed: 'COMPLETED', onhold: 'PAUSED', dropped: 'DROPPED' };
@@ -1829,7 +1843,7 @@ async function kitsuImport() {
         else if (existing.status === 'watching' && status === 'completed') existing.status = 'completed';
         updated++;
       } else {
-        state.animeList.unshift({ id: 'kitsu_' + it.kitsu_id, kitsu_id: it.kitsu_id, kitsuEntryId: e.id, title: it.title, title_english: it.title_english, image: it.image, studio: it.studio, genres: it.genres, year: it.year, malScore: it.malScore, malEpisodes: it.malEpisodes, synopsis: it.synopsis, trailerId: '', airing: it.airing, watched: prog, status: status, rating: rating, notes: '', addedAt: Date.now() });
+        state.animeList.unshift({ id: 'kitsu_' + it.kitsu_id, kitsu_id: it.kitsu_id, kitsuEntryId: e.id, title: it.title, title_english: it.title_english, image: it.image, studio: it.studio, genres: it.genres, year: it.year, malScore: it.malScore, malEpisodes: it.malEpisodes, synopsis: it.synopsis, trailerId: '', airing: it.airing, airingEpisodes: it.airingEpisodes || 0, watched: prog, status: status, rating: rating, notes: '', addedAt: Date.now() });
         added++;
       }
     }
@@ -2245,6 +2259,7 @@ function shareAsImage(item) {
       const rr = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
       rr(cx, cy, cw, H2, 18); ctx.fill();
       if (img) { ctx.save(); rr(cx, cy, cw, H2, 18); ctx.clip(); ctx.drawImage(img, cx, cy, cw, H2); ctx.restore(); }
+      else { ctx.font = '700 72px Inter, "Segoe UI", sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.textAlign = 'center'; ctx.fillText(initials(item.title), cx + cw / 2, cy + H2 / 2 + 24); ctx.textAlign = 'left'; }
       ctx.font = '700 34px Inter, "Segoe UI", sans-serif';
       ctx.fillStyle = '#fff';
       let ly = cy + 36;
