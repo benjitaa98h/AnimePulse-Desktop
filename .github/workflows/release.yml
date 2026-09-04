@@ -50,7 +50,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libfuse2 2>/dev/null || true
 
       - name: Build AppImage y deb
-        run: npx electron-builder --linux AppImage deb
+        run: npx electron-builder --linux AppImage deb --publish never
 
       - name: Crear release y subir assets
         env:
