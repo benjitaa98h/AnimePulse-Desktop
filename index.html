@@ -1356,7 +1356,7 @@ function updatePlayerDetection() {
   if (tid && enabled && state.animeList.some(x => x.id === tid)) {
     if (state.scrobbler.running && state.scrobbler.source === 'manual') return;
     if (state.scrobbler.running && state.scrobbler.source === 'trailer' && state.scrobbler.animeId === tid) return;
-    startScrobble({ animeId: tid, player: 'YouTube — tráiler', fileName: 'Tráiler oficial · YouTube (dentro de la app)', source: 'trailer', increment: false });
+    startScrobble({ animeId: tid, player: 'YouTube — tráiler', fileName: 'Tráiler oficial · YouTube (dentro de la app)', source: 'trailer', increment: false }).catch(e => console.error('startScrobble(trailer):', e));
   } else if (state.scrobbler.running && state.scrobbler.source === 'trailer') {
     stopScrobble();
   }
@@ -2975,9 +2975,20 @@ function applyWallpaper() {
   const w = state.settings.wallpaper || 'none';
   const el = document.getElementById('wallpaper-bg');
   if (!el) return;
-  if (w === 'none' || w.startsWith('http')) {
-    el.style.background = w === 'none' ? '' : 'url(' + w + ') center/cover no-repeat fixed';
-    el.style.display = w === 'none' ? 'none' : 'block';
+  if (w !== 'none' && w.startsWith('http')) {
+    const img = new Image();
+    img.onload = () => { el.style.background = 'url(' + w + ') center/cover no-repeat fixed'; el.style.display = 'block'; };
+    img.onerror = () => {
+      el.style.background = '';
+      el.style.display = 'none';
+      toast('El fondo de Unsplash guardado ya expiró. Elegí uno nuevo en Ajustes → Fondo.', 'warn');
+    };
+    img.src = w;
+    return;
+  }
+  if (w === 'none') {
+    el.style.background = '';
+    el.style.display = 'none';
   } else {
     const preset = WALLPAPER_PRESET_MAP[w];
     el.style.background = preset ? preset.css : '';
@@ -2988,8 +2999,13 @@ function applyWallpaper() {
 async function seedStore() {
   if (!(window.electronAPI && window.electronAPI.storeUpsert)) return;
   const list = (await window.electronAPI.storeList()) || [];
-  const missing = STORE_ITEMS.filter(s => !list.find(x => x.id === s.id));
-  if (missing.length) await window.electronAPI.storeUpsert(missing.map(s => ({ id: s.id, name: s.name, kind: s.kind, rarity: s.rarity, cost: s.cost, min_rank: s.min_rank, value: s.value })));
+  const map = new Map(list.map(x => [x.id, x]));
+  const toUpsert = STORE_ITEMS.filter(s => {
+    const ex = map.get(s.id);
+    if (!ex) return true;
+    return ex.name !== s.name || ex.kind !== s.kind || ex.rarity !== s.rarity || ex.cost !== s.cost || ex.min_rank !== s.min_rank || ex.value !== s.value;
+  }).map(s => ({ id: s.id, name: s.name, kind: s.kind, rarity: s.rarity, cost: s.cost, min_rank: s.min_rank, value: s.value }));
+  if (toUpsert.length) await window.electronAPI.storeUpsert(toUpsert);
 }
 
 async function refreshStore() {
@@ -3075,11 +3091,16 @@ async function doStoreAction(action, id) {
       state.gamification.coins = (await window.electronAPI.gameCoinSummary()).total;
       toast('¡Comprado! Ya está en tu inventario 🪙', 'ok');
       save();
+      renderGamification();
     }
   } else {
     await window.electronAPI.storeEquip(id, action === 'equip');
   }
-  refreshStore().then(() => { renderStore(); renderProfileModal(); applyProfileStyle(); });
+  refreshStore().then(() => {
+    renderStore(); applyProfileStyle();
+    const pm = document.getElementById('profileModal');
+    if (pm && !pm.classList.contains('hidden')) renderProfileModal();
+  });
   syncGameDB();
 }
 
@@ -3096,7 +3117,7 @@ async function unsplashSearch(query) {
     const data = await r.json();
     if (!data.results || !data.results.length) { box.innerHTML = '<div class="col-span-3 text-[11px] text-slate-400 py-3 text-center">Sin resultados.</div>'; return; }
     box.innerHTML = data.results.map(ph => {
-      const img = (ph.urls && ph.urls.raw) || (ph.urls && ph.urls.regular) || '';
+      const img = (ph.urls && ph.urls.regular) || (ph.urls && ph.urls.raw) || '';
       return '<button data-unsplash-img="' + esc(img) + '" class="relative h-20 rounded-xl overflow-hidden edge hover:ring-2 ring-purple-400/50 transition bg-cover bg-center" style="background-image:url(' + esc((ph.urls && ph.urls.small) || '') + ')"></button>';
     }).join('');
     box.querySelectorAll('[data-unsplash-img]').forEach(b => b.onclick = () => {
