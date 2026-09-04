@@ -21,8 +21,7 @@ if ! command -v gh >/dev/null 2>&1; then
 fi
 
 # --- 1. Determiná la versión nueva -----------------------------------------
-OLD="$(node -p "require('./package.json').version" 2>/dev/null || node -e "console.log(require('./package.json').version)")"
-OLD="${OLD//[$'\t\r\n']/}"
+OLD="$(node -e "console.log(require('./package.json').version)")"
 read -r MAJ MIN PAT < <(echo "$OLD" | tr '.' ' ')
 
 BUMP="${1:-patch}"
@@ -50,38 +49,20 @@ if [[ -f README.md ]]; then
   sed -i "s/${OLD//./\\.}/${NEW}/g" README.md
 fi
 
-# --- 5. Build AppImage + deb --------------------------------------------------
-echo "==> Build..."
-npx electron-builder --linux AppImage deb
-
-# --- 6. Changelog desde git log desde el último tag ---------------------------
-PREV_TAG="$(git describe --tags --abbrev=0 2>/dev/null || true)"
-if [[ -n "$PREV_TAG" ]]; then
-  RANGE="$PREV_TAG..HEAD"
-else
-  RANGE=""
+# --- 5'. Build local de verificación (opcional, LOCAL_BUILD=1) -----------------
+if [[ "${LOCAL_BUILD:-0}" == "1" ]]; then
+  echo "==> Build local de verificación (LOCAL_BUILD=1)..."
+  npx electron-builder --linux AppImage deb
 fi
-NOTES="/tmp/opencode/rel_${NEW}.md"
-{
-  echo "## AnimePulse v$NEW"
-  echo
-  echo "### Cambios desde $PREV_TAG"
-  if [[ -n "$RANGE" ]]; then
-    git log --oneline --no-merges "$RANGE" | sed 's/^/- /'
-  fi
-  echo
-} > "$NOTES"
 
-# --- 7. Commit + tag + push ---------------------------------------------------
+# --- 6. Commit + tag + push ---------------------------------------------------
+# El tag dispara el workflow .github/workflows/release.yml en GitHub Actions,
+# que compila el AppImage + .deb y publica la release automáticamente.
+# Así podés releasear desde el celular con solo: git tag + git push.
 git add package.json README.md
 git commit -m "chore: release v$NEW"
 git tag "v$NEW"
 git push origin main "v$NEW"
 
-# --- 8. GitHub release --------------------------------------------------------
-gh release create "v$NEW" --title "AnimePulse v$NEW" --notes-file "$NOTES" \
-  "dist/AnimePulse-$NEW.AppImage" \
-  "dist/animepulse_${NEW}_amd64.deb" \
-  "dist/latest-linux.yml"
-
-echo "==> v$NEW publicada: $(gh release view "v$NEW" --json url -q .url)"
+echo "==> Tag v$NEW pusheado. GitHub Actions está compilando y publicando..."
+echo "==> Seguilo en: https://github.com/benjitaa98h/AnimePulse-Desktop/actions"
