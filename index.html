@@ -2555,7 +2555,7 @@ function setupScrobblerUI() {
     { file:'MPV — Kimetsu.no.Yaiba.E13.mp4', id:'mal_38000' }
   ].map(f => '<option value="' + f.id + '" data-file="' + esc(f.file) + '">' + esc(f.file) + '</option>').join('');
   const btn = document.getElementById('simBtn');
-  btn.addEventListener('click', () => { if (state.scrobbler.running) stopScrobble(); else startScrobble(); });
+  btn.addEventListener('click', () => { if (state.scrobbler.running) stopScrobble(); else startScrobble().catch(err => console.error('scrobble error:', err)); });
   sel.addEventListener('change', () => { if (!state.scrobbler.running) { state.scrobbler.fileName = sel.selectedOptions[0].dataset.file; state.scrobbler.animeId = sel.value; } });
   state.scrobbler.fileName = sel.selectedOptions[0].dataset.file;
   state.scrobbler.animeId = sel.value;
@@ -2580,7 +2580,7 @@ async function startScrobble(opts) {
   state.scrobbler.increment = opts.increment !== false;
   state.scrobbler.animeId = animeId;
   state.scrobbler.fileName = fileName;
-  state.scrobbler.episodeNow = opts.nativeProgress != null ? (opts.ep || (a.watched + 1)) : (opts.ep || (a.watched + 1));
+  state.scrobbler.episodeNow = opts.ep || (a.watched + 1);
   state.scrobbler.progress = 0;
   if (opts.nativeProgress == null && state.settings.autoIncrement !== false) {
     const epActual = state.scrobbler.episodeNow;
@@ -2706,8 +2706,7 @@ const WALLPAPER_PRESETS = [
   { id: 'oceano', name: 'Océano Profundo', css: 'linear-gradient(180deg,#020617 0%,#0c4a6e 55%,#22d3ee 100%)' },
   { id: 'bosque', name: 'Bosque Encantado', css: 'linear-gradient(150deg,#052e16 0%,#16a34a 55%,#84cc16 100%)' },
   { id: 'bloodmoon', name: 'Luna de Sangre', css: 'radial-gradient(900px 600px at 75% 20%,#7f1d1d 0%,#450a0a 55%,#0a0a0a 100%)' },
-  { id: 'samurai', name: 'Samurai', css: 'linear-gradient(160deg,#111 0%,#3f1d0d 55%,#b45309 100%)' },
-  { id: 'space', name: 'Espacio Estelar', css: 'radial-gradient(1200px 700px at 20% 10%,#1e1b4b 0%,#0f172a 45%,#020617 100%)' }
+  { id: 'samurai', name: 'Samurai', css: 'linear-gradient(160deg,#111 0%,#3f1d0d 55%,#b45309 100%)' }
 ];
 const WALLPAPER_PRESET_MAP = Object.fromEntries(WALLPAPER_PRESETS.map(p => [p.id, p]));
 
@@ -3357,7 +3356,7 @@ function wireActions() {
   document.getElementById('addModal').addEventListener('click', e => { if (e.target === document.getElementById('addModal')) document.getElementById('addModal').classList.add('hidden'); });
   document.getElementById('prequelModal').addEventListener('click', e => { if (e.target === document.getElementById('prequelModal')) document.getElementById('prequelModal').classList.add('hidden'); });
   document.getElementById('shareModal').addEventListener('click', e => { if (e.target === document.getElementById('shareModal')) document.getElementById('shareModal').classList.add('hidden'); });
-  document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === document.getElementById('confirmModal')) { document.getElementById('confirmModal').classList.add('hidden'); pendingDeleteId = null; } });
+  document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === document.getElementById('confirmModal')) { document.getElementById('confirmModal').classList.add('hidden'); if (confirmResolve) { const r = confirmResolve; confirmResolve = null; r(false); } pendingDeleteId = null; } });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (!document.getElementById('detailModal')?.classList.contains('hidden')) closeModal(); document.getElementById('addModal')?.classList.add('hidden'); document.getElementById('prequelModal')?.classList.add('hidden'); document.getElementById('shareModal')?.classList.add('hidden'); if (document.getElementById('confirmModal') && !document.getElementById('confirmModal').classList.contains('hidden')) { document.getElementById('confirmModal').classList.add('hidden'); if (confirmResolve) { const r = confirmResolve; confirmResolve = null; r(false); } pendingDeleteId = null; } } });
   document.getElementById('confirmCancel').addEventListener('click', () => { document.getElementById('confirmModal').classList.add('hidden'); if (confirmResolve) { const r = confirmResolve; confirmResolve = null; r(false); } pendingDeleteId = null; });
   document.getElementById('confirmOk').addEventListener('click', () => {
