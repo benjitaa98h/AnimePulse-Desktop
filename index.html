@@ -906,8 +906,9 @@ function maxAllowedEps(a) {
   if (a && a.airing && a.airingEpisodes > 0) return a.airingEpisodes;
   return totalEps(a) > 0 ? totalEps(a) : 99999;
 }
-function epText(a) { const t = totalEps(a); return t ? a.watched + ' / ' + t : a.watched + ' ep'; }
-function progressPct(a) { const t = totalEps(a); if (!t) return a.watched > 0 ? 100 : 0; return clamp(Math.round((a.watched / t) * 100), 0, 100); }
+function epText(a) { const t = airedEps(a); return t ? a.watched + ' / ' + t : a.watched + ' ep'; }
+function progressPct(a) { const t = airedEps(a); if (!t) return a.watched > 0 ? 100 : 0; return clamp(Math.round((a.watched / t) * 100), 0, 100); }
+function airedEps(a) { const t = totalEps(a); return t > 0 ? t : ((a && a.airing && a.airingEpisodes > 0) ? a.airingEpisodes : 0); }
 
 function statusChip(a) {
   const m = STATUS_META[a.status] || STATUS_META.watching;
@@ -1009,16 +1010,7 @@ async function load() {
     if (raw) {
       const p = JSON.parse(raw);
       lsHadState = true;
-      state = Object.assign(state, p);
-state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notifications:true, theme:'dark', accent:'purple', wallpaper:'none', unsplashKey:'', autoAdd:true, syncOn:false, alClientId:'', alToken:'', dcEnabled:false, dcClientId:'', autoOrganize:false, kitsuOn:false, kitsuClientId:'', kitsuSecret:'', kitsuEmail:'', kitsuToken:'', kitsuUserId:null, asOn:false, asToken:'' }, p.settings || {});
-      state.scrobbler = Object.assign({ running:false, player:'VLC Player', animeId:null, episodeNow:0, progress:0, fileName:null, timer:null, source:'manual', increment:true }, p.scrobbler || {});
-      state.scrobbler.timer = null;
-      if (Array.isArray(p.animeList)) state.animeList = p.animeList;
-      if (Array.isArray(p.activity)) state.activity = p.activity.slice(0, 7);
-      if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
-      if (typeof p.folder === 'string') state.folder = p.folder;
-      state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null, seasonPass:null, boughtRanks: [], ownerVerified: false }, p.gamification || {});
-      state.profile = Object.assign({ name: 'Otaku Tracker', rank: 'basico', bio: '', accent: 'purple', avatar: '' }, p.profile || {});
+      applyStatePayload(p);
     }
   } catch (e) { console.warn('Storage corrupto, se usará demo:', e); }
   if (!Array.isArray(state.animeList)) state.animeList = [];
@@ -1030,20 +1022,25 @@ state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notific
   await restoreSecrets();
 }
 
+function applyStatePayload(p) {
+  state = Object.assign(state, p);
+  state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notifications:true, theme:'dark', accent:'purple', wallpaper:'none', unsplashKey:'', autoAdd:true, syncOn:false, alClientId:'', alToken:'', dcEnabled:false, dcClientId:'', autoOrganize:false, kitsuOn:false, kitsuClientId:'', kitsuSecret:'', kitsuEmail:'', kitsuToken:'', kitsuUserId:null, asOn:false, asToken:'' }, p.settings || {});
+  state.scrobbler = Object.assign({ running:false, player:'VLC Player', animeId:null, episodeNow:0, progress:0, fileName:null, timer:null, source:'manual', increment:true }, p.scrobbler || {});
+  state.scrobbler.timer = null;
+  if (Array.isArray(p.animeList)) state.animeList = p.animeList;
+  if (Array.isArray(p.activity)) state.activity = p.activity.slice(0, 7);
+  if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
+  if (typeof p.folder === 'string') state.folder = p.folder;
+  state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null, seasonPass:null, boughtRanks: [], ownerVerified: false }, p.gamification || {});
+  state.profile = Object.assign({ name: 'Otaku Tracker', rank: 'basico', bio: '', accent: 'purple', avatar: '' }, p.profile || {});
+}
+
 async function restoreDisk(force) {
   if ((!force && lsHadState) || !window.electronAPI || !window.electronAPI.loadState) return false;
   try {
     const p = await window.electronAPI.loadState();
     if (!p || !Array.isArray(p.animeList)) return false;
-    state = Object.assign(state, p);
-    state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notifications:true, theme:'dark', accent:'purple', wallpaper:'none', unsplashKey:'', autoAdd:true, syncOn:false, alClientId:'', alToken:'', dcEnabled:false, dcClientId:'', autoOrganize:false, kitsuOn:false, kitsuClientId:'', kitsuSecret:'', kitsuEmail:'', kitsuToken:'', kitsuUserId:null, asOn:false, asToken:'' }, p.settings || {});
-    state.scrobbler = Object.assign({ running:false, player:'VLC Player', animeId:null, episodeNow:0, progress:0, fileName:null, timer:null, source:'manual', increment:true }, p.scrobbler || {});
-    state.scrobbler.timer = null;
-    if (Array.isArray(p.activity) && p.activity.length === 7) state.activity = p.activity;
-    if (typeof p.folder === 'string') state.folder = p.folder;
-    if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
-    state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null, seasonPass:null, boughtRanks: [], ownerVerified: false }, p.gamification || {});
-    state.profile = Object.assign({ name: 'Otaku Tracker', rank: 'basico', bio: '', accent: 'purple', avatar: '' }, p.profile || {});
+    applyStatePayload(p);
     await restoreSecrets();
     applyAppearance();
     recomputeStats(); renderDashboard(); renderScrobblerUI(); setupSettings(); icons();
@@ -1119,8 +1116,8 @@ function setStatus(id, status) {
   if (!a) return;
   a.status = status;
   if (status === 'completed') {
-    const t = totalEps(a);
-    if (t > 0 && (!a.watched || a.watched < t)) { a.watched = t; }
+    const m = airedEps(a);
+    if (m > 0 && (!a.watched || a.watched < m)) { a.watched = m; }
   }
   save();
   renderDashboard(); recomputeStats(); renderScrobblerUI();
@@ -1213,7 +1210,7 @@ function airBadgeChip(a) {
 }
 
 function detailOfLocal(a) {
-  const t = totalEps(a);
+  const t = airedEps(a);
   const pct = progressPct(a);
   return '<div class="p-6">' +
     '<div class="flex items-start gap-4">' +
@@ -1274,7 +1271,7 @@ function detailOfApi(item) {
           (item.year ? '<span class="text-slate-500">·</span><span class="text-slate-400">' + item.year + '</span>' : '') +
           '<span class="text-slate-500">·</span><span class="text-amber-300 font-semibold">★ ' + (item.malScore ? item.malScore.toFixed(1) : '—') + '</span><span class="text-slate-600">MAL</span></div>' +
         '<div class="flex flex-wrap gap-1.5 mt-2">' + (item.genres || []).map(g => '<span class="text-[10px] px-2 py-0.5 rounded bg-white/[.06] text-slate-300">' + esc(g) + '</span>').join('') + '</div>' +
-        '<div class="px-3 py-2 rounded-xl bg-white/[.04] edge inline-block mt-3"><div class="font-mono font-bold text-white text-sm leading-none">' + (item.malEpisodes ? item.malEpisodes + ' episodios' : 'En emisión continuada') + '</div><div class="text-[9px] text-slate-500 mt-1 uppercase tracking-wide">Desde MAL</div></div>' +
+        '<div class="px-3 py-2 rounded-xl bg-white/[.04] edge inline-block mt-3"><div class="font-mono font-bold text-white text-sm leading-none">' + (item.malEpisodes ? item.malEpisodes + ' episodios' : (item.airing ? 'En emisión' : 'Episodios desconocidos')) + '</div><div class="text-[9px] text-slate-500 mt-1 uppercase tracking-wide">Desde MAL</div></div>' +
       '</div></div>' +
     '<div class="mt-5"><div class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Sinopsis</div>' +
       '<p class="text-[12px] text-slate-400 leading-relaxed max-h-40 overflow-y-auto pr-1">' + (item.synopsis ? esc(item.synopsis) : 'Sin sinopsis disponible.') + '</p></div>' +
@@ -2398,7 +2395,11 @@ function setupGlobalSearch() {
 async function runGlobalSearch(q) {
   const seq = ++globalSearchSeq;
   const dd = document.getElementById('searchDropdown');
-  let items = state.searchCache['g_' + q.toLowerCase()];
+  const cacheKey = 'g_' + q.toLowerCase();
+  let items = null;
+  const cached = state.searchCache[cacheKey];
+  const stale = cached && cached.__ts && (Date.now() - cached.__ts > 3_600_000);
+  if (cached && !stale) items = cached;
   if (!items) {
     const found = await searchAnimeFinal(q, 6);
     if (seq !== globalSearchSeq) return;
@@ -2408,7 +2409,7 @@ async function runGlobalSearch(q) {
       return;
     }
     items = found;
-    state.searchCache['g_' + q.toLowerCase()] = cacheSetObj(items);
+    state.searchCache[cacheKey] = cacheSetObj(items);
   }
   if (seq !== globalSearchSeq) return;
   if (!items.length) {
@@ -3267,6 +3268,7 @@ function renderScrobblerUI() {
 }
 
 function switchSection(section) {
+  const sd = document.getElementById('searchDropdown'); if (sd) sd.classList.add('hidden');
   document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.section === section));
   document.querySelectorAll('.fade-section').forEach(sec => sec.classList.add('hidden'));
   const target = document.getElementById('section-' + section);
