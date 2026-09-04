@@ -1691,7 +1691,7 @@ function openAddPrompt(item) {
       if (yes) { entry.watched = anteriores; save(); renderDashboard(); recomputeStats(); renderScrobblerUI(); toast('Episodios 1–' + anteriores + ' de <b>' + esc(entry.title) + '</b> marcados ✓', 'ok'); alMaybeSync(entry.id); kitsuMaybeSync(entry.id); }
     }
     maybeOfferPrequels(item);
-    if (entry.watched === 0) startScrobble({ animeId: entry.id, source: 'browser', ep: epActual });
+    if (det.ep) startScrobble({ animeId: entry.id, source: 'browser', ep: epActual });
   });
   document.getElementById('addDetail').addEventListener('click', () => {
     document.getElementById('addModal').classList.add('hidden');
