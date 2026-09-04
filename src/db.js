@@ -413,6 +413,10 @@ function createDB(userDataDir) {
   function ipcStoreEquip(itemId, on) {
     const owned = db.prepare('SELECT * FROM inventory WHERE item_id = ?').get(String(itemId));
     if (!owned) return { ok: false, error: 'not_owned' };
+    if (on) {
+      db.prepare('UPDATE inventory SET equipped = 0 WHERE kind = (SELECT kind FROM inventory WHERE item_id = ?)').run(String(itemId));
+      db.prepare('UPDATE store_items SET equipped = 0 WHERE kind = (SELECT kind FROM store_items WHERE id = ?)').run(String(itemId));
+    }
     db.prepare('UPDATE inventory SET equipped = ? WHERE item_id = ?').run(on ? 1 : 0, String(itemId));
     db.prepare('UPDATE store_items SET equipped = ? WHERE id = ?').run(on ? 1 : 0, String(itemId));
     return { ok: true };

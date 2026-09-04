@@ -53,7 +53,7 @@ function mapAnilistItem(m) {
   const tr = (m.trailer && m.trailer.site === 'youtube') ? m.trailer.id : '';
   return {
     id: 'mal_' + m.id,
-    mal_id: m.id,
+    mal_id: m.idMal || m.id,
     al_id: m.id,
     title: t.romaji || t.english || t.native || 'Sin título',
     title_english: t.english || '',
@@ -70,7 +70,7 @@ function mapAnilistItem(m) {
   };
 }
 
-const AL_FIELDS = 'id title { romaji english native } coverImage { extraLarge large } studios { nodes { name isAnimationStudio } } genres averageScore episodes seasonYear season format status trailer { id site } description nextAiringEpisode { episode airingAt }';
+const AL_FIELDS = 'id idMal title { romaji english native } coverImage { extraLarge large } studios { nodes { name isAnimationStudio } } genres averageScore episodes seasonYear season format status trailer { id site } description nextAiringEpisode { episode airingAt }';
 const AL_SEARCH = 'query($s: String, $n: Int) { Page(page: 1, perPage: $n) { media(search: $s, type: ANIME, isAdult: false) { ' + AL_FIELDS + ' } } }';
 const AL_MEDIA = 'query($id: Int) { Media(id: $id, type: ANIME) { ' + AL_FIELDS + ' } }';
 const AL_BY_MAL = 'query($idMal: Int) { Media(idMal: $idMal, type: ANIME) { ' + AL_FIELDS + ' } }';

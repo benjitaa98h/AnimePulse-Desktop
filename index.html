@@ -1028,7 +1028,7 @@ function applyStatePayload(p) {
   state.scrobbler = Object.assign({ running:false, player:'VLC Player', animeId:null, episodeNow:0, progress:0, fileName:null, timer:null, source:'manual', increment:true }, p.scrobbler || {});
   state.scrobbler.timer = null;
   if (Array.isArray(p.animeList)) state.animeList = p.animeList;
-  if (Array.isArray(p.activity)) state.activity = p.activity.slice(0, 7);
+  if (Array.isArray(p.activity) && p.activity.length) state.activity = p.activity.concat(Array(7).fill(0)).slice(0, 7);
   if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
   if (typeof p.folder === 'string') state.folder = p.folder;
   state.gamification = Object.assign({ level:1, xp:0, coins:0, marathon:0, totalEpisodes:0, totalCompleted:0, lastAnimeId:null, seasonPass:null, boughtRanks: [], ownerVerified: false }, p.gamification || {});
@@ -1306,7 +1306,11 @@ async function enrichAiringEps(a) {
   const info = await animeAiringInfo(a).catch(() => null);
   if (!info) return;
   if (info.al_id) a.al_id = info.al_id;
-  if (info.airingEpisodes > 0) { a.airingEpisodes = info.airingEpisodes; save(); }
+  if (info.airingEpisodes > 0) {
+    a.airingEpisodes = info.airingEpisodes; save();
+    const current = (document.getElementById('detailModal').classList.contains('hidden') ? null : document.querySelector('#detailModal [data-id]'));
+    if (current && current.getAttribute('data-id') === a.id) refreshDetail();
+  }
 }
 
 function openDetail(id) {
@@ -2664,15 +2668,17 @@ async function startScrobble(opts) {
 }
 
 function finishEpisode() {
+  const last = state.scrobbler._completedAt || 0;
+  if (Date.now() - last < 1500) { state.scrobbler.progress = 5; return; }
   if (state.scrobbler.increment === false) {
-    state.scrobbler.progress = 10;
-    renderScrobblerUI();
+    stopScrobble();
     return;
   }
   if (state.scrobbler.running) {
     const a = findAnime(state.scrobbler.animeId);
     if (a && state.settings.autoIncrement) {
       a.watched = clamp(a.watched + 1, 0, maxAllowedEps(a));
+      state.scrobbler._completedAt = Date.now();
       state.activity = state.activity.slice(1).concat([0]);
       state.activity[6] += 1;
       save();
@@ -3145,6 +3151,7 @@ async function initSeasonPass(forceFallback) {
   if (sp && sp.key === key) { renderSeasonPass(); return; }
   if (window.electronAPI && window.electronAPI.seasonGet && !forceFallback) {
     try { sp = (await window.electronAPI.seasonGet(key)) || null; } catch (e) { sp = null; }
+    if (sp && !sp.key && sp.id) sp.key = sp.id;
   }
   if (!sp || sp.id !== key) {
     sp = { key, tier: 1, xp: 0, redeemed: {}, missions: { eps: 0, new: 0, complete: 0 } };
