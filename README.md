@@ -1,8 +1,8 @@
 # AnimePulse
 
-**Versión estable actual: v2.0.5** · [Descargar AppImage](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/download/v2.0.5/AnimePulse-2.0.5.AppImage)
+**Versión estable actual: v2.0.7** · [Descargar AppImage](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/download/v2.0.7/AnimePulse-2.0.7.AppImage)
 
-**Novedades destacadas en v2.0.5:** los animes en emisión resueltos vía Jikan ahora completan su episodio emitido al abrir la ficha (query por idMal a AniList), la ficha muestra `watched / emitidos` en lugar de `∞`, fondos de Unsplash más ligeros y con aviso si la URL expira, marcar como completado sube a los episodios emitidos, y consistencia de estado al restaurar desde disco.
+**Novedades destacadas en v2.0.7:** los animes en emisión resueltos vía Jikan ahora completan su episodio emitido al abrir la ficha (query por idMal a AniList), la ficha muestra `watched / emitidos` en lugar de `∞`, fondos de Unsplash más ligeros y con aviso si la URL expira, marcar como completado sube a los episodios emitidos, y consistencia de estado al restaurar desde disco.
 
 ---
 
@@ -73,8 +73,8 @@ AnimePulse es un tracker de anime de escritorio que registra tu progreso sin que
 
 | Plataforma | Enlace |
 |---|---|
-| Linux x64 (AppImage) | [AnimePulse-2.0.5.AppImage](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/download/v2.0.5/AnimePulse-2.0.5.AppImage) |
-| Linux / Debian (deb) | [animepulse_2.0.5_amd64.deb](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/download/v2.0.5/animepulse_2.0.5_amd64.deb) |
+| Linux x64 (AppImage) | [AnimePulse-2.0.7.AppImage](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/download/v2.0.7/AnimePulse-2.0.7.AppImage) |
+| Linux / Debian (deb) | [animepulse_2.0.7_amd64.deb](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/download/v2.0.7/animepulse_2.0.7_amd64.deb) |
 | Windows | Próximamente (build NSIS en camino) |
 
 Todas las versiones: [Releases](https://github.com/benjitaa98h/AnimePulse-Desktop/releases)
@@ -114,7 +114,7 @@ Los instaladores (AppImage, deb) se generan en `dist/`.
 
 | Versión | Descripción | Descargar |
 |---|---|---|
-| v2.0.5 | Enriquecimiento lazy de animes en emisión vía Jikan (episodios emitidos, query por idMal), `watched / emitidos` en ficha, fondos Unsplash ligeros + aviso de expiración, completado sube a emitidos, consistencia estado disco | [Download](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/tag/v2.0.5) |
+| v2.0.7 | Enriquecimiento lazy de animes en emisión vía Jikan (episodios emitidos, query por idMal), `watched / emitidos` en ficha, fondos Unsplash ligeros + aviso de expiración, completado sube a emitidos, consistencia estado disco | [Download](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/tag/v2.0.7) |
 | v2.0.4 | Auto-scrobbler más preciso (episodio exacto, huecos, autoAdd), límite real de animes en emisión, undo, atajos, beforeunload | [Download](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/tag/v2.0.4) |
 | v2.0.3 | Fix de seguridad (tokens en safeStorage), importador mejorado con selector de estado, fix de scrobbler "pegado" | [Download](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/tag/v2.0.3) |
 | v2.0.2 | Empaquetado con módulos extraídos, auto-update funcionando | [Download](https://github.com/benjitaa98h/AnimePulse-Desktop/releases/tag/v2.0.2) |
