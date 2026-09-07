@@ -110,6 +110,14 @@ Los instaladores (AppImage, deb) se generan en `dist/`.
 
 ---
 
+## Seguridad
+
+Los tokens (AniList, Kitsu, Unsplash, …) se guardan encriptados con el almacén seguro del sistema (`safeStorage`: keyring/libsecret en Linux, Keychain en macOS, DPAPI en Windows), en archivos separados con permisos restrictivos.
+
+En algunas distros Linux **sin keyring** (entornos sin `gnome-keyring`/KWallet, o con `--no-sandbox`) la app usa un respaldo: cifrado XOR con una clave aleatoria única por instalación, generada en el primer arranque y guardada en `userData/.install-key` con permisos `0600`. Es "mejor que nada" — impide leer los archivos copiándolos a mano, pero no es cifrado de grado militar ni resiste a un atacante con acceso a la máquina. Si te importa la seguridad real en Linux, conviene tener el keyring activado.
+
+---
+
 ## Historial de versiones
 
 | Versión | Descripción | Descargar |
@@ -126,14 +134,18 @@ Los instaladores (AppImage, deb) se generan en `dist/`.
 
 ```
 AnimePulse-Desktop/
-├── index.html          # UI completa (HTML + Tailwind + Lucide + JS ES6)
-├── main.js             # Proceso principal de Electron (ventana + IPC)
-├── preload.js          # Puente seguro contextBridge → electronAPI
+├── index.html            # Markup + scripts de la UI
+├── main.js               # Proceso principal de Electron (ventana + IPC + polling de títulos)
+├── preload.js            # Puente seguro contextBridge → electronAPI
 ├── src/
-│   ├── api.js          # AniList + Jikan
-│   ├── state.js        # Estado global y persistencia
-│   ├── utils.js        # Helpers (sanitización, hash, etc.)
-│   └── modules/        # scrobbler, calendar, stats, gamification, organizer, settings
+│   ├── js/app.js         # Lógica de UI del renderer (init, modal, scrobbler UI, …)
+│   ├── tailwind-config.js
+│   ├── api.js            # AniList (GraphQL) + Jikan como respaldo
+│   ├── db.js             # Persistencia SQLite (node:sqlite)
+│   ├── scrobbler.js      # Auto-scrobbler en el proceso main (socket de mpv, títulos de ventana)
+│   ├── state.js          # Estado global y persistencia
+│   ├── utils.js          # Helpers (sanitización, hash, etc.)
+│   └── modules/          # scrobbler (renderer), calendar, stats, gamification, organizer, settings
 └── package.json
 ```
 

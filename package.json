@@ -22,16 +22,7 @@
       "discord-rpc.js",
       "folder-watcher.js",
       "src/db.js",
-      "src/scrobbler.js",
-      "src/utils.js",
-      "src/state.js",
-      "src/api.js",
-      "src/modules/scrobbler.js",
-      "src/modules/calendar.js",
-      "src/modules/stats.js",
-      "src/modules/gamification.js",
-      "src/modules/organizer.js",
-      "src/modules/settings.js"
+      "src/**/*"
     ],
     "directories": {
       "output": "dist"

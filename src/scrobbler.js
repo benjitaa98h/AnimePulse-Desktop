@@ -5,6 +5,7 @@ const execFileAsync = promisify(execFileCb);
 const net = require('net');
 const fs = require('fs');
 const path = require('path');
+const log = require('./logger');
 
 const PLAYERS = {
   vlc: /^vlc/i,
@@ -15,6 +16,12 @@ const PLAYERS = {
   kodi: /^kodi/i,
   plex: /^plex/i
 };
+
+let lastTickErr = 0;
+function errThrottled(e) {
+  const now = Date.now();
+  if (now - lastTickErr > 60000) { lastTickErr = now; log.error('scrobbler nativo', e); }
+}
 
 function detectPlayer(name) {
   if (!name) return null;
@@ -184,7 +191,7 @@ function createScrobbler(onEvent) {
         return;
       }
       return fallbackTitleTick();
-    }).catch(() => {});
+    }).catch(errThrottled);
 
     function fallbackTitleTick() {
       return getTitles().then(titles => {
@@ -218,7 +225,7 @@ function createScrobbler(onEvent) {
         if (parsed.progress >= 0.8) {
           onEvent({ type: 'complete', ...progress });
         }
-      }).catch(() => {});
+      }).catch(errThrottled);
     }
   }
 

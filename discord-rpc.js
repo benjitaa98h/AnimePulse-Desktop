@@ -1,6 +1,7 @@
 'use strict';
 const net = require('net');
 const path = require('path');
+const log = require('./src/logger');
 
 function getDiscordPipePath(n) {
   if (process.platform === 'win32') return '\\\\?\\pipe\\discord-ipc-' + n;
@@ -56,13 +57,13 @@ function createDiscord(onEvent) {
     if (!dc.clientId) { emit({ ok: false, error: 'sin client id' }); return; }
     let idx = 0;
     const tryNext = () => {
-      if (idx > 9) { emit({ ok: false, error: 'Discord no está abierto' }); return; }
+      if (idx > 9) { log.warn('discord-rpc: no se encontró el pipe de Discord'); emit({ ok: false, error: 'Discord no está abierto' }); return; }
       const n = idx++;
       const s = net.connect({ path: getDiscordPipePath(n) });
       s.on('connect', () => { dc.socket = s; write(0, { v: 1, client_id: dc.clientId }); });
       s.on('data', read);
-      s.once('error', () => { if (dc.socket === s) dc.socket = null; tryNext(); });
-      s.once('close', () => { if (dc.socket === s) { dc.socket = null; dc.ready = false; emit({ ok: false, error: 'conexion cerrada' }); } });
+      s.once('error', (e) => { if (dc.socket === s) dc.socket = null; tryNext(); });
+      s.once('close', () => { if (dc.socket === s) { dc.socket = null; dc.ready = false; log.warn('discord-rpc: conexión cerrada'); emit({ ok: false, error: 'conexion cerrada' }); } });
     };
     tryNext();
   }

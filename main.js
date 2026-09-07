@@ -1,7 +1,7 @@
-const crypto = require('crypto');
-const { app, BrowserWindow, ipcMain, shell, dialog, clipboard, session, safeStorage } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog, clipboard, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const log = require('./src/logger');
 
 let mainWindow = null;
 
@@ -20,6 +20,7 @@ autoUpdater.on('update-downloaded', (info) => {
   mainWindow.webContents.send('update:status', { type: 'downloaded', version: info.version });
 });
 autoUpdater.on('error', (err) => {
+  log.error('autoUpdater', err);
   if (!mainWindow || mainWindow.isDestroyed()) return;
   mainWindow.webContents.send('update:status', { type: 'error', message: String((err && err.message) || err) });
 });
@@ -27,10 +28,10 @@ function maybeCheckForUpdates() {
   if (process.env.ZXS_DISABLE_UPDATES) return;
   if (app.isPackaged) {
     setTimeout(() => {
-      try { autoUpdater.checkForUpdates().catch(() => {}); } catch (e) {}
+      try { autoUpdater.checkForUpdates().catch(e => log.error('autoUpdater', e)); } catch (e) { log.error('autoUpdater', e); }
     }, 8000);
     setInterval(() => {
-      try { autoUpdater.checkForUpdates().catch(() => {}); } catch (e) {}
+      try { autoUpdater.checkForUpdates().catch(e => log.error('autoUpdater', e)); } catch (e) { log.error('autoUpdater', e); }
     }, 6 * 3600 * 1000);
   }
 }
@@ -252,53 +253,8 @@ ipcMain.handle('fs:save-png', async (e, dataUrl, name) => {
   } catch (err) { return { error: String((err && err.message) || err) }; }
 });
 
-const SECRET_KEYS = ['alToken','kitsuToken','kitsuSecret','kitsuEmail','asToken','unsplashKey'];
-const SECRET_ANCHOR = process.env.SECRET_ANCHOR || 'zxs-animepulse-local'; 
-function secretPath(key) {
-  if (!SECRET_KEYS.includes(key)) return null;
-  return path.join(app.getPath('userData'), 'secrets', key + '.enc');
-}
-function obfuscate(buf) {
-  let key = crypto.createHash('sha256').update(SECRET_ANCHOR).digest();
-  const out = Buffer.alloc(buf.length);
-  for (let i = 0; i < buf.length; i++) out[i] = buf[i] ^ key[i % key.length];
-  return out;
-}
-function secretDir() {
-  const dir = path.join(app.getPath('userData'), 'secrets');
-  if (!fs.existsSync(dir)) { fs.mkdirSync(dir, { recursive: true, mode: 0o700 }); }
-  try { fs.chmodSync(dir, 0o700); } catch (e) {}
-  return dir;
-}
-ipcMain.handle('secret:save', (e, key, value) => {
-  try {
-    const fp = secretPath(key);
-    if (!fp) return { ok: false, error: 'clave-no-permitida' };
-    const val = value === undefined || value === null ? '' : String(value);
-    if (val === '') { if (fs.existsSync(fp)) { try { fs.unlinkSync(fp); } catch (err) { /* noop */ } } return { ok: true }; }
-    const dir = secretDir();
-    let data;
-    if (safeStorage.isEncryptionAvailable()) data = safeStorage.encryptString(val);
-    else data = obfuscate(Buffer.from(val, 'utf8'));
-    fs.writeFileSync(fp, data, { mode: 0o600 });
-    try { fs.chmodSync(fp, 0o600); } catch (e) {}
-    return { ok: true, backend: safeStorage.isEncryptionAvailable() ? 'safeStorage' : 'fallback' };
-  } catch (err) { return { ok: false, error: String((err && err.message) || err) }; }
-});
-ipcMain.handle('secret:load', (e, key) => {
-  try {
-    const fp = secretPath(key);
-    if (!fp || !fs.existsSync(fp)) return '';
-    const raw = fs.readFileSync(fp);
-    if (safeStorage.isEncryptionAvailable()) {
-      try { return safeStorage.decryptString(raw); } catch (err) { /* probar fallback */ }
-    }
-    const buf = obfuscate(raw);
-    const txt = buf.toString('utf8');
-    if (/^[ -~\n\r]*$/.test(txt)) return txt;
-    return '';
-  } catch (err) { return ''; }
-});
+const { registerSecretsIpc } = require('./src/secrets');
+registerSecretsIpc();
 
 const { createDB } = require('./src/db');
 let appDB = null;
@@ -310,13 +266,13 @@ ipcMain.handle('state:save', (e, data) => {
     const state = JSON.parse(data);
     appDB.saveFull(state);
     return { ok: true };
-  } catch (err) { return { error: String((err && err.message) || err) }; }
+  } catch (err) { log.error('state:save', err); return { error: String((err && err.message) || err) }; }
 });
 ipcMain.handle('state:load', () => {
   try {
     if (!appDB) return null;
     return appDB.loadFull();
-  } catch (e) { return null; }
+  } catch (e) { log.error('state:load', e); return null; }
 });
 ipcMain.handle('state:info', () => {
   try {
@@ -411,7 +367,7 @@ ipcMain.handle('scrobble:native-start', () => { nativeScrobbler.start(); return 
 ipcMain.handle('scrobble:native-stop', () => { nativeScrobbler.stop(); return { ok: true }; });
 app.on('before-quit', () => nativeScrobbler.stop());
 ipcMain.handle('update:check-now', () => {
-  try { autoUpdater.checkForUpdates().catch(() => {}); return { ok: true }; } catch (e) { return { ok: false, error: String(e && e.message) }; }
+  try { autoUpdater.checkForUpdates().catch(e => log.error('autoUpdater', e)); return { ok: true }; } catch (e) { return { ok: false, error: String(e && e.message) }; }
 });
 
 const { createDiscord } = require('./discord-rpc');
