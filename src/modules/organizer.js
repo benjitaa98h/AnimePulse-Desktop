@@ -11,9 +11,39 @@ function renderFilterBar() {
   }).join('');
 }
 
+function applySort(list) {
+  const s = state.sortBy || 'added_desc';
+  const arr = list.slice();
+  if (s === 'added_asc') return arr.sort((a, b) => (a.addedAt || 0) - (b.addedAt || 0));
+  if (s === 'title_asc') return arr.sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
+  if (s === 'title_desc') return arr.sort((a, b) => String(b.title || '').localeCompare(String(a.title || '')));
+  if (s === 'rating_desc') return arr.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  return arr.sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));
+}
+
+function refreshGenreSelector() {
+  const sel = document.getElementById('genreSel');
+  if (!sel) return;
+  const keep = state.genre || '';
+  const set = new Set();
+  state.animeList.forEach(a => {
+    if (Array.isArray(a.genres)) a.genres.forEach(g => set.add(g));
+  });
+  const opts = ['<option value="">Todos los géneros</option>'].concat(
+    Array.from(set).sort((a, b) => String(a).localeCompare(String(b))).map(g =>
+      '<option value="' + esc(g) + '"' + (keep === g ? ' selected' : '') + '>' + esc(g) + '</option>'));
+  sel.innerHTML = opts.join('');
+  sel.value = keep;
+}
+
 function renderDashboard() {
   renderFilterBar();
-  const list = state.animeList.filter(a => a.status === state.filter);
+  let list = state.animeList.filter(a => a.status === state.filter);
+  if (state.genre) list = list.filter(a => Array.isArray(a.genres) && a.genres.indexOf(state.genre) !== -1);
+  list = applySort(list);
+  const sortSel = document.getElementById('sortSel');
+  if (sortSel) sortSel.value = state.sortBy || 'added_desc';
+  refreshGenreSelector();
   const wrap = document.getElementById('animeContainer');
   if (!list.length) {
     wrap.innerHTML = '<div class="glass edge rounded-2xl py-16 flex flex-col items-center justify-center gap-3">' +

@@ -20,8 +20,9 @@ function episodeFromTitle(t) {
 
 const STREAM_MARK = /\b(animeflv|crunchyroll|myanimelist|mangacrash|animeonline|aniplay|jkanime|zoro\.to|netflix|disney\s*plus|crunchy|hbomax|max\.com|funimation|prime\s*video|hulu|mxplayer|bilibili|animedao|gogoanime)\b|episodio|episode|cap[ií]tulo/i;
 
-let lastPromptName = null;
+const RETRY_MS = 30000;
 let detectSearchBusy = false;
+let pendingDetection = null;
 
 function animeNameFromTitle(t) {
   let s = t;
@@ -35,6 +36,14 @@ function animeNameFromTitle(t) {
   return s;
 }
 
+function animeAlreadyInList(name) {
+  return state.animeList.some(a => Math.max(watchScore(a.title, name), watchScore(a.title_english || '', name)) >= 0.5);
+}
+
+function cancelPendingDetection() {
+  pendingDetection = null;
+}
+
 function detectHint(list) {
   for (const w of list) {
     if (!STREAM_MARK.test(w.t)) continue;
@@ -43,36 +52,55 @@ function detectHint(list) {
     const ep = episodeFromTitle(w.t);
     state.scrobbler.detected = { title: name, ep, from: w.n };
     renderScrobblerUI();
-    if (name === lastPromptName) continue;
-    lastPromptName = name;
-    toast('Viendo en <b>' + esc(w.n.replace(/\.exe$/i, '')) + '</b>: «<b>' + esc(name) + '</b>' + (ep ? ' — Ep ' + ep : '') + '» no está en tu lista. Buscando su ficha para que lo agregues…', 'info');
-    resolveDetectedAnime(name);
+    ensureDetectPending(name, ep, w.n);
+    break;
   }
 }
 
-async function resolveDetectedAnime(name) {
+function ensureDetectPending(name, ep, from) {
+  if (animeAlreadyInList(name)) {
+    cancelPendingDetection();
+    return;
+  }
+  if (!pendingDetection || pendingDetection.name !== name) {
+    pendingDetection = { name, ep, from, attempts: 0, nextRetryAt: 0 };
+    toast('Viendo en <b>' + esc(from) + '</b>: «<b>' + esc(name) + '</b>' + (ep ? ' — Ep ' + ep : '') + '» no está en tu lista. Buscando su ficha para agregarlo a <b>Viendo</b>…', 'info');
+  } else {
+    pendingDetection.ep = ep;
+    pendingDetection.from = from;
+  }
+  if (Date.now() >= pendingDetection.nextRetryAt) attemptResolveDetected();
+}
+
+async function attemptResolveDetected() {
   if (detectSearchBusy) return;
+  const det = pendingDetection;
+  if (!det) return;
   detectSearchBusy = true;
+  det.attempts++;
+  det.nextRetryAt = Date.now() + RETRY_MS;
   let item = null;
-  const found = await searchAnimeFinal(name, 3);
-  detectSearchBusy = false;
-  if (found && found.length) item = found[0];
+  try {
+    const found = await searchAnimeFinal(det.name, 3);
+    if (found && found.length) item = found[0];
+  } catch (e) { item = null; }
   if (!item) {
-    toast('No pude resolver «' + esc(name) + '». Búscalo en la barra superior para agregarlo.', 'warn');
+    if (det.attempts === 1) toast('No pude resolver «' + esc(det.name) + '» (API caída). Reintentaré automáticamente cada ~' + Math.round(RETRY_MS / 1000) + ' s mientras sigas viéndolo.', 'warn');
+    detectSearchBusy = false;
     return;
   }
   apiDetailCache[String(item.mal_id)] = item;
-  const det = state.scrobbler.detected || {};
   if (state.settings && state.settings.autoAdd === true) {
     const entry = addAnimeFrom(item, 'watching');
     if (entry) {
-      if (det.ep && entry.watched === 0) entry.watched = det.ep - 1;
-      if (entry.watched > 0) { save(); renderDashboard(); recomputeStats(); renderScrobblerUI(); alMaybeSync(entry.id); kitsuMaybeSync(entry.id); }
-      startScrobble({ animeId: entry.id, player: det.from || 'Navegador', fileName: det.title || item.title, source: 'browser', increment: state.settings.autoIncrement !== false, ep: (det.ep || entry.watched + 1) });
+      finalizeDetectedAdd(entry, det);
+      cancelPendingDetection();
     }
   } else {
     openAddPrompt(item);
+    cancelPendingDetection();
   }
+  detectSearchBusy = false;
 }
 
 function onBrowserTitles(list) {
@@ -106,6 +134,7 @@ function onBrowserTitles(list) {
   } else {
     if (state.scrobbler.running && state.scrobbler.source === 'browser') stopScrobble();
     detectHint(list);
+    if (!state.scrobbler.detected) cancelPendingDetection();
   }
 }
 

@@ -118,7 +118,6 @@ tailwind.config = {
   html[data-theme="light"] .shadow-black\/50, html[data-theme="light"] .shadow-black\/60 { box-shadow: 0 20px 60px -20px rgba(15,23,42,.45); }
   html[data-theme="light"] .hover\:text-white:hover { color: #0f1424 !important; }
 
-  /* ===== Temas de perfil desbloqueables (estilo Steam) ===== */
   html[data-theme="cyberpunk"] body { background: #0a0f1e; }
   html[data-theme="cyberpunk"] .glass { background: rgba(10,16,34,.62); border-color: rgba(0,229,255,.18); }
   html[data-theme="cyberpunk"] .edge { border-color: rgba(0,229,255,.16); }
@@ -346,6 +345,10 @@ tailwind.config = {
           </div>
         </div>
         <div id="filterBar" class="flex flex-wrap items-center gap-2 mb-5"></div>
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+          <select id="sortSel" class="native-dark" title="Ordenar por"><option value="added_desc">Recién agregado</option><option value="added_asc">Más antiguo</option><option value="title_asc">Título A → Z</option><option value="title_desc">Título Z → A</option><option value="rating_desc">Mejor puntuación</option></select>
+          <select id="genreSel" class="native-dark" title="Filtrar por género"><option value="">Todos los géneros</option></select>
+        </div>
         <div id="animeContainer"></div>
       </section>
 
@@ -1025,9 +1028,12 @@ async function load() {
 function applyStatePayload(p) {
   state = Object.assign(state, p);
   state.settings = Object.assign({ detectPlayers:true, autoIncrement:true, notifications:true, theme:'dark', accent:'purple', wallpaper:'none', unsplashKey:'', autoAdd:true, syncOn:false, alClientId:'', alToken:'', dcEnabled:false, dcClientId:'', autoOrganize:false, kitsuOn:false, kitsuClientId:'', kitsuSecret:'', kitsuEmail:'', kitsuToken:'', kitsuUserId:null, asOn:false, asToken:'' }, p.settings || {});
-  state.scrobbler = Object.assign({ running:false, player:'VLC Player', animeId:null, episodeNow:0, progress:0, fileName:null, timer:null, source:'manual', increment:true }, p.scrobbler || {});
+  state.scrobbler = Object.assign({ running:false, player:'VLC Player', animeId:null, episodeNow:0, progress:0, fileName:null, timer:null, source:'manual', increment:true, _completedAt:0 }, p.scrobbler || {});
   state.scrobbler.timer = null;
-  if (Array.isArray(p.animeList)) state.animeList = p.animeList;
+  if (Array.isArray(p.animeList)) {
+    state.animeList = p.animeList;
+    state.animeList.forEach(a => { if (!a.addedAt) a.addedAt = Date.now(); });
+  }
   if (Array.isArray(p.activity) && p.activity.length) state.activity = p.activity.concat(Array(7).fill(0)).slice(0, 7);
   if (p.airNotified && typeof p.airNotified === 'object') state.airNotified = p.airNotified;
   if (typeof p.folder === 'string') state.folder = p.folder;
@@ -1303,6 +1309,7 @@ async function loadSeasons(alId) {
 
 async function enrichAiringEps(a) {
   if (!a || !a.airing || a.airingEpisodes) return;
+  if (typeof animeAiringInfo !== 'function') return;
   const info = await animeAiringInfo(a).catch(() => null);
   if (!info) return;
   if (info.al_id) a.al_id = info.al_id;
@@ -1333,6 +1340,8 @@ function openApiDetail(item) {
 }
 
 function refreshDetail() {
+  const dm = document.getElementById('detailModal');
+  if (!dm || dm.classList.contains('hidden')) return;
   const body = document.getElementById('detailBody');
   const editInputs = body.querySelectorAll('[data-mdl]');
   if (!editInputs.length) return;
@@ -1679,6 +1688,22 @@ async function maybeOfferPrequels(item) {
 }
 
 let pendingDetectedItem = null;
+async function finalizeDetectedAdd(entry, det) {
+  if (!entry) return;
+  det = det || state.scrobbler.detected || {};
+  const epActual = det.ep || 1;
+  if (epActual > 1) {
+    const anteriores = epActual - 1;
+    const msg = anteriores === 1
+      ? '¿Ya viste el episodio 1 de "' + esc(entry.title) + '"?'
+      : '¿Ya viste los episodios 1 al ' + anteriores + ' de "' + esc(entry.title) + '"? (' + anteriores + ' episodios)';
+    const yes = await askConfirm(msg, 'Sí, marcarlos');
+    if (yes) { entry.watched = anteriores; save(); renderDashboard(); recomputeStats(); renderScrobblerUI(); toast('Episodios 1–' + anteriores + ' de <b>' + esc(entry.title) + '</b> marcados ✓', 'ok'); alMaybeSync(entry.id); kitsuMaybeSync(entry.id); }
+  }
+  maybeOfferPrequels(entry);
+  if (det.ep) startScrobble({ animeId: entry.id, source: 'browser', ep: epActual });
+}
+
 function openAddPrompt(item) {
   pendingDetectedItem = item;
   const hue = hashHue(item.title);
@@ -1705,18 +1730,7 @@ function openAddPrompt(item) {
     document.getElementById('addModal').classList.add('hidden');
     const entry = addAnimeFrom(item, 'watching');
     if (!entry) return;
-    const det = state.scrobbler.detected || {};
-    const epActual = det.ep || 1;
-    if (epActual > 1) {
-      const anteriores = epActual - 1;
-      const msg = anteriores === 1
-        ? '¿Ya viste el episodio 1 de "' + esc(item.title) + '"?'
-        : '¿Ya viste los episodios 1 al ' + anteriores + ' de "' + esc(item.title) + '"? (' + anteriores + ' episodios)';
-      const yes = await askConfirm(msg, 'Sí, marcarlos');
-      if (yes) { entry.watched = anteriores; save(); renderDashboard(); recomputeStats(); renderScrobblerUI(); toast('Episodios 1–' + anteriores + ' de <b>' + esc(entry.title) + '</b> marcados ✓', 'ok'); alMaybeSync(entry.id); kitsuMaybeSync(entry.id); }
-    }
-    maybeOfferPrequels(item);
-    if (det.ep) startScrobble({ animeId: entry.id, source: 'browser', ep: epActual });
+    await finalizeDetectedAdd(entry, state.scrobbler.detected || {});
   };
   document.getElementById('addDetail').onclick = () => {
     document.getElementById('addModal').classList.add('hidden');
@@ -3341,6 +3355,10 @@ function wireActions() {
     state.filter = btn.getAttribute('data-filter');
     renderDashboard();
   });
+  const sortSel = document.getElementById('sortSel');
+  if (sortSel) sortSel.addEventListener('change', () => { state.sortBy = sortSel.value; save(); renderDashboard(); });
+  const genreSel = document.getElementById('genreSel');
+  if (genreSel) genreSel.addEventListener('change', () => { state.genre = genreSel.value; save(); renderDashboard(); });
   document.querySelectorAll('.view-btn').forEach(b => {
     b.addEventListener('click', () => {
       state.view = b.getAttribute('data-view');
