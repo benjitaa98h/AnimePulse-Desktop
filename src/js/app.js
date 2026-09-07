@@ -21,7 +21,11 @@ function maxAllowedEps(a) {
 }
 function epText(a) { const t = airedEps(a); return t ? a.watched + ' / ' + t : a.watched + ' ep'; }
 function progressPct(a) { const t = airedEps(a); if (!t) return a.watched > 0 ? 100 : 0; return clamp(Math.round((a.watched / t) * 100), 0, 100); }
-function airedEps(a) { const t = totalEps(a); return t > 0 ? t : ((a && a.airing && a.airingEpisodes > 0) ? a.airingEpisodes : 0); }
+function airedEps(a) {
+  if (a && a.airing && a.airingEpisodes > 0) return a.airingEpisodes;
+  const t = totalEps(a);
+  return t > 0 ? t : 0;
+}
 
 function statusChip(a) {
   const m = STATUS_META[a.status] || STATUS_META.watching;
@@ -237,9 +241,26 @@ function setStatus(id, status) {
   }
   save();
   renderDashboard(); recomputeStats(); renderScrobblerUI();
-  refreshDetail();
+refreshDetail();
   if (state.settings.notifications) toast('Estado actualizado: <b>' + STATUS_META[status].label + '</b>', 'info');
-  alMaybeSync(id); kitsuMaybeSync(id);
+}
+
+// Se detectó un capítulo más allá del total registrado: al anime le salió
+// otra temporada/capítulo. Lo marcamos en emisión y destapamos el tope de
+// episodios para que el auto-scrobbler pueda avanzar y eventualmente volver
+// a completarlo.
+function markAiringOnDetect(a, ep) {
+  if (a.airing && (a.airingEpisodes || 0) >= (ep || 0) && a.status !== 'completed' && a.status !== 'plan') return;
+  const wasCompleted = a.status === 'completed';
+  a.airing = true;
+  a.airingEpisodes = Math.max(a.airingEpisodes || 0, ep || 0);
+  if (a.status === 'completed' || a.status === 'plan') a.status = 'watching';
+  save();
+  renderDashboard(); recomputeStats(); renderScrobblerUI();
+  if (state.settings.notifications) {
+    if (wasCompleted) toast('Nueva temporada de <b>' + esc(a.title) + '</b> detectada — lo movemos a <b>Viendo</b>.', 'info');
+    else toast('<b>' + esc(a.title) + '</b> sigue en emisión: nuevo capítulo detectado.', 'info');
+  }
 }
 
 function setRating(id, rating) {
@@ -853,6 +874,7 @@ function openAddPrompt(item) {
 const AL_STATUS = { watching: 'CURRENT', plan: 'PLANNING', completed: 'COMPLETED', onhold: 'PAUSED', dropped: 'DROPPED' };
 let alSyncTimer = null;
 let airingInterval = null;
+let airSweepTimer = null;
 let countdownInterval = null;
 function alMaybeSync(id) {
   if (!state.settings || state.settings.syncOn !== true) return;
@@ -884,6 +906,59 @@ const K_STATUS = { watching: 'current', plan: 'planned', completed: 'completed',
 const K_STATUS_REV = { current: 'watching', planned: 'plan', completed: 'completed', on_hold: 'onhold', dropped: 'dropped' };
 let kitsuProfile = null;
 const kitsuNorm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+
+// Sweep silencioso de "terminados": consulta a Kitsu y si el anime sigue en
+// emisión (o tiene más capítulos de los registrados), lo pasa a Pendientes y
+// lo marca en emisión. Corriendo cada 6h y limitado a 30 por pasada para no
+// molestar a la API; ante cualquier fallo simplemente no hace nada.
+const AIR_SWEEP_MS = 6 * 3600 * 1000;
+const AIR_SWEEP_CAP = 30;
+
+function kitsuTitleMatch(attr, title) {
+  const c = kitsuNorm(attr.canonicalTitle || '');
+  const t = kitsuNorm((title || '').replace(/\s*\(.*?\)\s*$/g, '').trim());
+  if (!c || !t) return false;
+  return t === c || (t.length > 8 && (t.indexOf(c) !== -1 || c.indexOf(t) !== -1));
+}
+
+async function refreshAirStatuses() {
+  const done = state.animeList.filter(a => a.status === 'completed' && (a.watched || 0) > 0 && a.title);
+  if (!done.length) return;
+  if (Date.now() - (state.lastAirSweep || 0) < AIR_SWEEP_MS) return;
+  state.lastAirSweep = Date.now();
+  let changed = false;
+  let flipped = 0;
+  for (const a of done.slice(0, AIR_SWEEP_CAP)) {
+    const j = await kitsuFetch('/edge/anime?filter[text]=' + encodeURIComponent(a.title.replace(/\s*\(.*?\)\s*$/g, '').trim()) + '&page[limit]=5');
+    if (j && !j.error && j.data) {
+      const hit = j.data.find(x => kitsuTitleMatch(x.attributes, a.title));
+      if (hit) {
+        const at = hit.attributes;
+        const eps = at.episodeCount || 0;
+        if (at.status === 'current') {
+          a.airing = true;
+          changed = true;
+          if (a.status !== 'watching') { a.status = 'plan'; flipped++; }
+        } else if (!a.airing && eps > totalEps(a)) {
+          a.malEpisodes = eps;
+          changed = true;
+          if ((a.watched || 0) < eps) { a.status = 'plan'; flipped++; }
+        } else if (at.status === 'finished' && eps > 0 && a.airing) {
+          a.malEpisodes = Math.max(a.malEpisodes || 0, eps);
+          a.airing = false;
+          changed = true;
+        }
+      }
+    }
+    await sleep(400);
+  }
+  save();
+  if (changed) {
+    renderDashboard(); recomputeStats();
+  }
+  if (flipped && state.settings.notifications) toast(flipped + ' anime(s) que siguen en emisión movidos a <b>Pendientes</b>.', 'info');
+}
+
 async function kitsuFetch(path, opts) {
   opts = opts || {};
   const ctrl = new AbortController();
@@ -1814,8 +1889,16 @@ function finishEpisode() {
   }
   if (state.scrobbler.running) {
     const a = findAnime(state.scrobbler.animeId);
-    const rec = a && totalEps(a) > 0 && a.watched >= totalEps(a);
-    if (rec) { stopScrobble(); toast('<b>' + esc(a.title) + '</b> completado por Auto-Scrobbler. ¡Felicidades!', 'ok'); return; }
+    const eps = a && totalEps(a) > 0 ? totalEps(a) : (a && a.airingEpisodes || 0);
+    const rec = a && eps > 0 && a.watched >= eps && (!a.airing || totalEps(a) > 0);
+    if (rec) {
+      a.status = 'completed';
+      state.scrobbler._completedAt = Date.now();
+      save(); recomputeStats(); renderDashboard();
+      stopScrobble();
+      toast('<b>' + esc(a.title) + '</b> completado por Auto-Scrobbler. ¡Felicidades!', 'ok');
+      return;
+    }
   }
   state.scrobbler.progress = 5;
   if (state.scrobbler.running) {
@@ -2602,6 +2685,8 @@ async function init() {
   setupStoreUI();
   setupImportUI();
   seedStore().then(refreshStore);
+  setTimeout(() => refreshAirStatuses(), 12000);
+  airSweepTimer = setInterval(refreshAirStatuses, AIR_SWEEP_MS);
   if (state.settings.notifications === true) { checkAiringNow(); airingInterval = setInterval(checkAiringNow, 3600000); }
   countdownInterval = setInterval(updateCalCountdowns, 30000);
   updateCalCountdowns();

@@ -119,10 +119,15 @@ function onBrowserTitles(list) {
     });
   });
   if (best && bestScore >= 0.5) {
+    const ep = episodeFromTitle(bestWin.t);
+    if (best.status === 'plan') {
+      best.status = 'watching';
+      save(); renderDashboard(); recomputeStats();
+    }
+    if (ep && totalEps(best) > 0 && ep > totalEps(best)) markAiringOnDetect(best, ep);
     if (state.scrobbler.running && state.scrobbler.source === 'browser' && state.scrobbler.animeId === best.id) return;
     if (state.scrobbler.running && (state.scrobbler.source === 'manual' || state.scrobbler.source === 'trailer')) return;
     if (state.scrobbler.running) stopScrobble();
-    const ep = episodeFromTitle(bestWin.t);
     startScrobble({
       animeId: best.id,
       player: 'Navegador (' + bestWin.n + ')',

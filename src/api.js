@@ -70,6 +70,34 @@ function mapAnilistItem(m) {
   };
 }
 
+function mapKitsuItem(d) {
+  const at = d.attributes || {};
+  const poster = at.posterImage || {};
+  return {
+    id: 'kitsu_' + d.id,
+    mal_id: null,
+    al_id: null,
+    title: at.canonicalTitle || (at.titles && (at.titles.en || at.titles.en_jp || at.titles.ja_jp)) || 'Sin título',
+    title_english: (at.titles && at.titles.en) || at.canonicalTitle || '',
+    image: poster.original || poster.large || poster.medium || poster.small || '',
+    studio: '',
+    genres: [],
+    year: (String(at.startDate || '').slice(0, 4)) || null,
+    malScore: (parseFloat(at.averageRating || '') || 0) ? parseFloat(at.averageRating) / 10 : null,
+    malEpisodes: at.episodeCount || 0,
+    synopsis: (at.synopsis || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(),
+    trailerId: at.youtubeVideoId || '',
+    airing: at.status === 'current',
+    airingEpisodes: 0
+  };
+}
+
+async function kitsuSearch(q, limit) {
+  const j = await kitsuFetch('/edge/anime?filter[text]=' + encodeURIComponent(q) + '&page[limit]=' + (limit || 3));
+  if (!j || j.error || !Array.isArray(j.data) || !j.data.length) return null;
+  return j.data.map(mapKitsuItem);
+}
+
 const AL_FIELDS = 'id idMal title { romaji english native } coverImage { extraLarge large } studios { nodes { name isAnimationStudio } } genres averageScore episodes seasonYear season format status trailer { id site } description nextAiringEpisode { episode airingAt }';
 const AL_SEARCH = 'query($s: String, $n: Int) { Page(page: 1, perPage: $n) { media(search: $s, type: ANIME, isAdult: false) { ' + AL_FIELDS + ' } } }';
 const AL_MEDIA = 'query($id: Int) { Media(id: $id, type: ANIME) { ' + AL_FIELDS + ' } }';
@@ -135,7 +163,8 @@ async function anilistQuery(query, variables, token) {
 async function searchAnimeFinal(q, limit) {
   const data = await anilistQuery(AL_SEARCH, { s: q, n: limit });
   if (data && data.Page && data.Page.media && data.Page.media.length) return data.Page.media.map(mapAnilistItem);
-  toast('AniList no respondió; buscando en Jikan (MyAnimeList) como respaldo…', 'warn');
+  const kitsu = await kitsuSearch(q, limit);
+  if (kitsu) return kitsu;
   const json = await apiFetch(JIKAN + '/anime?q=' + encodeURIComponent(q) + '&limit=' + limit + '&sfw=true');
   if (json && Array.isArray(json.data) && json.data.length) return json.data.map(mapJikanItem);
   return null;

@@ -38,6 +38,13 @@ Detecta qué se está viendo sin tocar el navegador:
 - **Títulos de ventana**: si no hay mpv, cadena de fallbacks por plataforma — Windows `powershell Get-Process`, Linux `hyprctl → xdotool → wmctrl`, macOS `osascript` — y parseo del título para sacar episodio/anime.
 - **Extensión de navegador** (`extension/`, AnimePulse Watcher): lee el DOM directo y manda `{t, n}` por WebSocket a `127.0.0.1:8787`; `src/ext-bridge.js` valida el `Origin` (`chrome`/`moz-extension`) y reinyecta en el mismo canal `browser:titles`. Es el reemplazo de la detección por título de ventana.
 - El renderer cruza el título detectado contra la lista, pregunta por episodios previos (`addYes`), ofrece precuelas si aplica y dispara el scrobble (monedas/XP vía `game:record-episode`).
+- **Estados grises**: si el capítulo detectado supera el total registrado de un anime, `markAiringOnDetect` (app.js) lo marca en emisión, destapa el tope de episodios y lo pasa a `watching` (era `completed`/`plan`). Al terminar la última temporada vuelve a `completed` solo con `totalEps` conocido (no malcompleta shows en emisión).
+
+## APIs de metadatos
+
+`src/api.js` resuelve fichas con cadena de respaldo: **AniList** → **Kitsu** → **Jikan**. Kitsu es la más estable (sin OAuth para GET); sus ids son `kitsu_*` y no traen `mal_id` (la sincronización por MAL no aplica a esos ítems). Los mapers viven en `src/api.js` (`mapAnilistItem`, `mapKitsuItem`, `mapJikanItem`).
+
+`refreshAirStatuses` (app.js) re-verifica los "Completados" contra Kitsu cada 6 h (30 por pasada, 400 ms de intervalo): si un title vuelve a emitir (`status: current`) o tiene más capítulos que los registrados, lo pasa a **Pendientes** con badge EN EMISIÓN; si figura terminado y estaba en emisión, fija el total y apaga el badge.
 
 ## Modelo de seguridad
 
