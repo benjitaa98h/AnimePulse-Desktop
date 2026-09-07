@@ -1,5 +1,7 @@
 'use strict';
-const { execFile } = require('child_process');
+const { execFile: execFileCb } = require('child_process');
+const { promisify } = require('util');
+const execFileAsync = promisify(execFileCb);
 const net = require('net');
 const fs = require('fs');
 const path = require('path');
@@ -57,53 +59,50 @@ function parseEpisodeFromTitle(clean) {
 async function getTitles() {
   const platform = process.platform;
   if (platform === 'win32') {
-    const PS = '[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle } | ForEach-Object { [PSCustomObject]@{ n=$_.ProcessName; t=$_.MainWindowTitle } } | ConvertTo-Json -Compress';
-    const { stdout } = await execFile('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', PS], { timeout: 4000, maxBuffer: 8 * 1024 * 1024, windowsHide: true });
-    const txt = (stdout || '').trim();
-    if (!txt) return [];
-    const j = JSON.parse(txt);
-    const arr = Array.isArray(j) ? j : [j];
-    return arr.filter(w => w && w.t && w.n).map(w => ({ name: w.n, title: w.t }));
+    try {
+      const { stdout } = await execFileAsync('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', '[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle } | ForEach-Object { [PSCustomObject]@{ n=$_.ProcessName; t=$_.MainWindowTitle } } | ConvertTo-Json -Compress'], { timeout: 4000, maxBuffer: 8 * 1024 * 1024, windowsHide: true });
+      const txt = (stdout || '').trim();
+      if (!txt) return [];
+      const j = JSON.parse(txt);
+      return (Array.isArray(j) ? j : [j]).filter(w => w && w.t && w.n).map(w => ({ name: w.n, title: w.t }));
+    } catch (e) { return []; }
   }
   if (platform === 'linux') {
-    try {
-      const { stdout } = await execFile('hyprctl', ['clients', '-j'], { timeout: 4000, maxBuffer: 8 * 1024 * 1024 });
-      const arr = JSON.parse((stdout || '').trim() || '[]');
-      if (Array.isArray(arr)) {
-        const out = arr
+    return execFileAsync('hyprctl', ['clients', '-j'], { timeout: 4000, maxBuffer: 8 * 1024 * 1024 })
+      .then(({ stdout }) => {
+        const arr = JSON.parse((stdout || '').trim() || '[]');
+        if (!Array.isArray(arr)) return [];
+        return arr
           .filter(c => c && c.title && String(c.title).trim())
           .map(c => ({ name: String(c.class || 'hyprland'), title: String(c.title).trim() }));
-        if (out.length) return out;
-      }
-    } catch (e) { /* fallthrough */ }
-    try {
-      const { stdout } = await execFile('xdotool', ['search', '--name', '', 'getwindowname', '%1', 'getwindowpid', '%1'], { timeout: 4000, maxBuffer: 8 * 1024 * 1024 });
-      const lines = (stdout || '').trim().split('\n').filter(Boolean);
-      const out = [];
-      for (let i = 0; i < lines.length; i += 2) {
-        const title = (lines[i] || '').trim();
-        const pid = (lines[i + 1] || '').trim();
-        if (title && pid) out.push({ name: 'pid:' + pid, title });
-      }
-      if (out.length) return out;
-    } catch (e) { /* fallthrough */ }
-    try {
-      const { stdout } = await execFile('wmctrl', ['-l'], { timeout: 3000 });
-      const out = (stdout || '').trim().split('\n').filter(Boolean).map(line => {
-        const parts = line.split(/\s+/);
-        const title = parts.slice(2).join(' ');
-        return { name: 'wmctrl', title };
-      });
-      if (out.length) return out;
-    } catch (e) { /* noop */ }
-    return [];
+      })
+      .catch(() => execFileAsync('xdotool', ['search', '--name', '', 'getwindowname', '%1', 'getwindowpid', '%1'], { timeout: 4000, maxBuffer: 8 * 1024 * 1024 })
+        .then(({ stdout }) => {
+          const lines = (stdout || '').trim().split('\n').filter(Boolean);
+          const out = [];
+          for (let i = 0; i < lines.length; i += 2) {
+            const title = (lines[i] || '').trim();
+            const pid = (lines[i + 1] || '').trim();
+            if (title && pid) out.push({ name: 'pid:' + pid, title });
+          }
+          return out;
+        })
+        .catch(() => execFileAsync('wmctrl', ['-l'], { timeout: 3000 })
+          .then(({ stdout }) => {
+            return (stdout || '').trim().split('\n').filter(Boolean).map(line => {
+              const parts = line.split(/\s+/);
+              return { name: 'wmctrl', title: parts.slice(2).join(' ') };
+            });
+          })
+          .catch(() => [])));
   }
   if (platform === 'darwin') {
-    const { stdout } = await execFile('osascript', ['-e', 'tell application "System Events" to get {name, UNIX id} of every process whose background only is false'], { timeout: 4000, maxBuffer: 8 * 1024 * 1024 });
-    const txt = (stdout || '').trim();
-    if (!txt) return [];
-    const parsed = JSON.parse('[' + txt + ']');
-    return parsed.map(p => ({ name: String(p[0] || ''), title: String(p[0] || '') }));
+    try {
+      const { stdout } = await execFileAsync('osascript', ['-e', 'tell application "System Events" to get {name, UNIX id} of every process whose background only is false'], { timeout: 4000, maxBuffer: 8 * 1024 * 1024 });
+      const txt = (stdout || '').trim();
+      if (!txt) return [];
+      return JSON.parse('[' + txt + ']').map(p => ({ name: String(p[0] || ''), title: String(p[0] || '') }));
+    } catch (e) { return []; }
   }
   return [];
 }
