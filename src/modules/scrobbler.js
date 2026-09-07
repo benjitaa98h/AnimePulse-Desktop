@@ -8,6 +8,22 @@ function watchScore(animeTitle, winTitle) {
   return hits / at.length;
 }
 
+// versión estricta para decidir si "esto que se está viendo" es una serie de la
+// lista: un 0.5 con 1 de 2 palabras compartidas es un falso fácil (p.ej. el
+// título de ventana "Grand Blue Episodio 6 …" matchea 0.5 contra "Blue Box"
+// solo por la palabra "Blue"). Para series de 2+ tokens solo vale el título completo.
+function isTitleMatch(animeTitle, winTitle) {
+  const at = titleTokens(animeTitle);
+  if (!at.length) return false;
+  const wt = titleTokens(winTitle);
+  if (!wt.length) return false;
+  let hits = 0;
+  at.forEach(w => { if (wt.indexOf(w) !== -1) hits++; });
+  if (hits / at.length < 0.5) return false;
+  if (at.length > 1 && hits < 2) return false;
+  return true;
+}
+
 function episodeFromTitle(t) {
   let m = t.match(/\bS\d{1,2}\s?E(\d{1,3})\b/i);
   if (m) return +m[1];
@@ -21,8 +37,11 @@ function episodeFromTitle(t) {
 const STREAM_MARK = /\b(animeflv|crunchyroll|myanimelist|mangacrash|animeonline|aniplay|jkanime|zoro\.to|netflix|disney\s*plus|crunchy|hbomax|max\.com|funimation|prime\s*video|hulu|mxplayer|bilibili|animedao|gogoanime)\b|episodio|episode|cap[ií]tulo/i;
 
 const RETRY_MS = 30000;
-let detectSearchBusy = false;
-let pendingDetection = null;
+const DETECT_TTL = 5 * 60 * 1000;
+const DETECT_MAX = 3;
+// un slot por anime detectado: varios títulos compiten en el mismo flujo
+// (extensión + títulos de ventana nativos) y ninguno puede bloquear al otro
+const detectPending = new Map(); // name -> { name, ep, from, attempts, nextRetryAt, running, lastSeen }
 
 function animeNameFromTitle(t) {
   let s = t;
@@ -37,11 +56,12 @@ function animeNameFromTitle(t) {
 }
 
 function animeAlreadyInList(name) {
-  return state.animeList.some(a => Math.max(watchScore(a.title, name), watchScore(a.title_english || '', name)) >= 0.5);
+  return state.animeList.some(a => isTitleMatch(a.title, name) || isTitleMatch(a.title_english || '', name));
 }
 
-function cancelPendingDetection() {
-  pendingDetection = null;
+function cancelPendingDetection(name) {
+  if (name) detectPending.delete(name);
+  else detectPending.clear();
 }
 
 function detectHint(list) {
@@ -53,54 +73,73 @@ function detectHint(list) {
     state.scrobbler.detected = { title: name, ep, from: w.n };
     renderScrobblerUI();
     ensureDetectPending(name, ep, w.n);
-    break;
   }
 }
 
 function ensureDetectPending(name, ep, from) {
-  if (animeAlreadyInList(name)) {
-    cancelPendingDetection();
-    return;
-  }
-  if (!pendingDetection || pendingDetection.name !== name) {
-    pendingDetection = { name, ep, from, attempts: 0, nextRetryAt: 0 };
+  if (animeAlreadyInList(name)) { detectPending.delete(name); return; }
+  let d = detectPending.get(name);
+  const isNew = !d;
+  if (isNew) {
+    if (detectPending.size >= DETECT_MAX) return;
+    d = { name, ep, from, attempts: 0, nextRetryAt: 0, running: false, lastSeen: Date.now() };
+    detectPending.set(name, d);
     toast('Viendo en <b>' + esc(from) + '</b>: «<b>' + esc(name) + '</b>' + (ep ? ' — Ep ' + ep : '') + '» no está en tu lista. Buscando su ficha para agregarlo a <b>Viendo</b>…', 'info');
   } else {
-    pendingDetection.ep = ep;
-    pendingDetection.from = from;
+    d.ep = ep;
+    d.from = from;
+    d.lastSeen = Date.now();
   }
-  if (Date.now() >= pendingDetection.nextRetryAt) attemptResolveDetected();
+  if (!d.running && Date.now() >= d.nextRetryAt) attemptDetect(name);
 }
 
-async function attemptResolveDetected() {
-  if (detectSearchBusy) return;
-  const det = pendingDetection;
-  if (!det) return;
-  detectSearchBusy = true;
-  det.attempts++;
-  det.nextRetryAt = Date.now() + RETRY_MS;
+async function attemptDetect(name) {
+  const d = detectPending.get(name);
+  if (!d || d.running) return;
+  d.running = true;
+  d.attempts++;
+  d.nextRetryAt = Date.now() + RETRY_MS;
   let item = null;
   try {
-    const found = await searchAnimeFinal(det.name, 3);
+    const found = await searchAnimeFinal(d.name, 3);
     if (found && found.length) item = found[0];
   } catch (e) { item = null; }
   if (!item) {
-    if (det.attempts === 1) toast('No pude resolver «' + esc(det.name) + '» (API caída). Reintentaré automáticamente cada ~' + Math.round(RETRY_MS / 1000) + ' s mientras sigas viéndolo.', 'warn');
-    detectSearchBusy = false;
+    if (d.attempts === 1) toast('No pude resolver «' + esc(d.name) + '» (API caída). Reintentaré automáticamente cada ~' + Math.round(RETRY_MS / 1000) + ' s mientras sigas viéndolo.', 'warn');
+    d.running = false;
+    return;
+  }
+  d.running = false;
+  detectPending.delete(name);
+  // mientras buscábamos pudo haber entrado a la lista (por título u otro flujo);
+  // nunca rebajar lo que ya tiene
+  if (animeAlreadyInList(d.name)) return;
+  const dup = state.animeList.find(a => a.id === item.id);
+  if (dup) {
+    if (d.ep && d.ep > (dup.watched || 0)) {
+      if (dup.status === 'completed' || dup.status === 'plan') dup.status = 'watching';
+      dup.watched = d.ep;
+      save(); renderDashboard(); recomputeStats();
+    }
     return;
   }
   apiDetailCache[String(item.mal_id)] = item;
   if (state.settings && state.settings.autoAdd === true) {
     const entry = addAnimeFrom(item, 'watching');
-    if (entry) {
-      finalizeDetectedAdd(entry, det);
-      cancelPendingDetection();
-    }
+    if (entry) finalizeDetectedAdd(entry, d);
   } else {
     openAddPrompt(item);
-    cancelPendingDetection();
   }
-  detectSearchBusy = false;
+}
+
+// limpia candidatos que ya no se ven hace rato (cerraste la pestaña, etc.)
+if (typeof setInterval === 'function') {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [name, d] of detectPending) {
+      if (now - d.lastSeen > DETECT_TTL) detectPending.delete(name);
+    }
+  }, 30000);
 }
 
 function onBrowserTitles(list) {
@@ -114,7 +153,9 @@ function onBrowserTitles(list) {
   let bestWin = null;
   list.forEach(w => {
     state.animeList.forEach(a => {
-      const s = Math.max(watchScore(a.title, w.t), watchScore(a.title_english || '', w.t));
+      const okTitle = isTitleMatch(a.title, w.t);
+      if (okTitle) { bestScore = 1; best = a; bestWin = w; return; }
+      const s = isTitleMatch(a.title_english || '', w.t) ? 1 : 0;
       if (s > bestScore) { bestScore = s; best = a; bestWin = w; }
     });
   });
@@ -139,7 +180,6 @@ function onBrowserTitles(list) {
   } else {
     if (state.scrobbler.running && state.scrobbler.source === 'browser') stopScrobble();
     detectHint(list);
-    if (!state.scrobbler.detected) cancelPendingDetection();
   }
 }
 
@@ -148,7 +188,7 @@ function onScrobbleNative(evt) {
   if (!evt || !evt.title) return;
   let best = null, bestScore = 0;
   state.animeList.forEach(a => {
-    const s = Math.max(watchScore(a.title, evt.title), watchScore(a.title_english || '', evt.title));
+    const s = isTitleMatch(a.title, evt.title) || isTitleMatch(a.title_english || '', evt.title) ? 1 : 0;
     if (s > bestScore) { bestScore = s; best = a; }
   });
 
