@@ -364,7 +364,6 @@ function createDB(userDataDir) {
       'ON CONFLICT(id) DO UPDATE SET name = excluded.name, kind = excluded.kind, rarity = excluded.rarity, ' +
       'cost = excluded.cost, min_rank = excluded.min_rank, value = excluded.value'
     );
-    const now = Date.now();
     for (const it of items) {
       if (!it || !it.id) continue;
       const owned = isItemOwned(String(it.id)) ? 1 : 0;

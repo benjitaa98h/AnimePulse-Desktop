@@ -7,7 +7,6 @@ let mainWindow = null;
 
 const autoUpdate = require('electron-updater');
 const { autoUpdater } = autoUpdate;
-let updateNotified = false;
 autoUpdater.autoDownload = true;
 autoUpdater.autoInstallOnAppQuit = true;
 autoUpdater.on('update-available', (info) => {
@@ -15,7 +14,6 @@ autoUpdater.on('update-available', (info) => {
   mainWindow.webContents.send('update:status', { type: 'available', version: info.version });
 });
 autoUpdater.on('update-downloaded', (info) => {
-  updateNotified = true;
   if (!mainWindow || mainWindow.isDestroyed()) return;
   mainWindow.webContents.send('update:status', { type: 'downloaded', version: info.version });
 });

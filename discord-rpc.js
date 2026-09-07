@@ -37,7 +37,6 @@ function createDiscord(onEvent) {
   function read(chunk) {
     dc.buffer = Buffer.concat([dc.buffer, chunk]);
     while (dc.buffer.length >= 8) {
-      const op = dc.buffer.readUInt32LE(0);
       const len = dc.buffer.readUInt32LE(4);
       if (dc.buffer.length < 8 + len) break;
       const payload = dc.buffer.slice(8, 8 + len).toString('utf8');
@@ -62,7 +61,7 @@ function createDiscord(onEvent) {
       const s = net.connect({ path: getDiscordPipePath(n) });
       s.on('connect', () => { dc.socket = s; write(0, { v: 1, client_id: dc.clientId }); });
       s.on('data', read);
-      s.once('error', (e) => { if (dc.socket === s) dc.socket = null; tryNext(); });
+      s.once('error', () => { if (dc.socket === s) dc.socket = null; tryNext(); });
       s.once('close', () => { if (dc.socket === s) { dc.socket = null; dc.ready = false; log.warn('discord-rpc: conexión cerrada'); emit({ ok: false, error: 'conexion cerrada' }); } });
     };
     tryNext();

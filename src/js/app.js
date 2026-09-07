@@ -1687,7 +1687,7 @@ function openExploreDetail(div) {
       ...Object.values(exploreKeyCache),
       ...Object.values(state.searchCache)
     ).filter(Boolean);
-    item = all.find(d => d && (d.id === 'mal_' + malId || d.mal_id == malId)) || null;
+    item = all.find(d => d && (d.id === 'mal_' + malId || String(d.mal_id) === String(malId))) || null;
   }
   if (!item) {
     if (trendingRaw === 'offline') { toast('Estás en modo demo sin conexión: la ficha estará disponible cuando la API vuelva.', 'info'); return; }

@@ -44,7 +44,7 @@ function registerSecretsIpc() {
       if (!fp) return { ok: false, error: 'clave-no-permitida' };
       const val = value === undefined || value === null ? '' : String(value);
       if (val === '') { if (fs.existsSync(fp)) { try { fs.unlinkSync(fp); } catch (err) { /* noop */ } } return { ok: true }; }
-      const dir = secretDir();
+      secretDir();
       let data;
       if (safeStorage.isEncryptionAvailable()) data = safeStorage.encryptString(val);
       else data = obfuscate(Buffer.from(val, 'utf8'));
