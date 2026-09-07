@@ -5,6 +5,18 @@ const log = require('./logger');
 const PORT = 8787;
 const CHANNEL_TITLES = 'browser:titles';
 const CHANNEL_DETAIL = 'ext-anime-detail';
+const CHANNEL_HISTORY = 'extension:history';
+
+let _extConnected = false;
+const _extClients = new Set();
+
+function ackHistory() {
+  for (const ws of _extClients) {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'history-ack' }));
+    }
+  }
+}
 
 function startExtensionBridge(getWindow) {
   let wss;
@@ -12,7 +24,7 @@ function startExtensionBridge(getWindow) {
     wss = new WebSocket.Server({ host: '127.0.0.1', port: PORT });
   } catch (e) {
     log.error('ext-bridge: no se pudo levantar el server', e);
-    return null;
+    return { isConnected: () => false, ackHistory: () => {} };
   }
   log.info('ext-bridge: escuchando en ws://127.0.0.1:' + PORT);
 
@@ -23,8 +35,14 @@ function startExtensionBridge(getWindow) {
       ws.close();
       return;
     }
+    _extConnected = true;
+    _extClients.add(ws);
     log.info('ext-bridge: extensión conectada');
 
+    ws.on('close', () => {
+      _extConnected = false;
+      _extClients.delete(ws);
+    });
     ws.on('message', (raw) => {
       let msg;
       try { msg = JSON.parse(raw); } catch (e) { return; }
@@ -36,6 +54,8 @@ function startExtensionBridge(getWindow) {
         win.webContents.send(CHANNEL_TITLES, msg.titles);
       } else if (msg.type === 'ap-detail' && Array.isArray(msg.tabs)) {
         win.webContents.send(CHANNEL_DETAIL, msg.tabs);
+      } else if (msg.type === 'history' && Array.isArray(msg.items)) {
+        win.webContents.send(CHANNEL_HISTORY, msg.items);
       }
     });
   });
@@ -44,7 +64,7 @@ function startExtensionBridge(getWindow) {
     log.error('ext-bridge: error del servidor ws', e);
   });
 
-  return wss;
+  return { isConnected: () => _extConnected, ackHistory };
 }
 
 module.exports = { startExtensionBridge };

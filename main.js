@@ -41,6 +41,7 @@ const { promisify } = require('util');
 const execFileAsync = promisify(execFileCb);
 
 function pollWindowTitles() {
+  if (extBridge && extBridge.isConnected()) return;
   if (pollInFlight || !mainWindow || mainWindow.isDestroyed() || mainWindow.webContents.isDestroyed()) return;
   pollInFlight = true;
 
@@ -163,7 +164,7 @@ app.whenReady().then(() => {
   if (migrated) console.log('[zxs] Copia de seguridad JSON migrada a SQLite.');
 
   const { startExtensionBridge } = require('./src/ext-bridge');
-  startExtensionBridge(() => mainWindow);
+  extBridge = startExtensionBridge(() => mainWindow);
 
   // Fix YouTube "Error 153": la app se carga con loadFile() (origen file://) y
   // Chromium no envia header Referer desde un documento file:// a un subframe https.
@@ -184,6 +185,7 @@ app.whenReady().then(() => {
 });
 
 ipcMain.on('browser:detect-start', startBrowserPolling);
+ipcMain.on('extension:history-ack', () => { if (extBridge) extBridge.ackHistory(); });
 
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 
@@ -259,6 +261,7 @@ registerSecretsIpc();
 
 const { createDB } = require('./src/db');
 let appDB = null;
+let extBridge = null;
 
 ipcMain.handle('state:save', (e, data) => {
   try {
