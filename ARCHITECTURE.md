@@ -36,6 +36,7 @@ Detecta qué se está viendo sin tocar el navegador:
 
 - **mpv en vivo**: sondeo cada 3 s al socket IPC de mpv (`/tmp/mpv-socket-*`) pidiendo `time-pos`, `duration`, `path`, `pause`.
 - **Títulos de ventana**: si no hay mpv, cadena de fallbacks por plataforma — Windows `powershell Get-Process`, Linux `hyprctl → xdotool → wmctrl`, macOS `osascript` — y parseo del título para sacar episodio/anime.
+- **Extensión de navegador** (`extension/`, AnimePulse Watcher): lee el DOM directo y manda `{t, n}` por WebSocket a `127.0.0.1:8787`; `src/ext-bridge.js` valida el `Origin` (`chrome`/`moz-extension`) y reinyecta en el mismo canal `browser:titles`. Es el reemplazo de la detección por título de ventana.
 - El renderer cruza el título detectado contra la lista, pregunta por episodios previos (`addYes`), ofrece precuelas si aplica y dispara el scrobble (monedas/XP vía `game:record-episode`).
 
 ## Modelo de seguridad

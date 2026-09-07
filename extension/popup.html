@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+  body { width: 280px; margin: 0; background: #0c0c15; color: #e5e7eb; font-family: system-ui, sans-serif; }
+  .wrap { padding: 14px; }
+  h1 { font-size: 13px; margin: 0 0 10px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; flex-shrink: 0; }
+  .dot.on { background: #22c55e; }
+  .status-txt { font-size: 11px; color: #94a3b8; margin-bottom: 12px; }
+  .tab-item { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; }
+  .tab-title { font-size: 12px; font-weight: 600; }
+  .tab-meta { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+  .empty { font-size: 11px; color: #64748b; padding: 10px 0; text-align: center; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1><span id="dot" class="dot"></span> AnimePulse Watcher</h1>
+    <div id="statusTxt" class="status-txt">Conectando con la app...</div>
+    <div id="list"></div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

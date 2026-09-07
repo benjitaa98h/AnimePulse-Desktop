@@ -162,6 +162,9 @@ app.whenReady().then(() => {
   const migrated = appDB.migrateLegacy();
   if (migrated) console.log('[zxs] Copia de seguridad JSON migrada a SQLite.');
 
+  const { startExtensionBridge } = require('./src/ext-bridge');
+  startExtensionBridge(() => mainWindow);
+
   // Fix YouTube "Error 153": la app se carga con loadFile() (origen file://) y
   // Chromium no envia header Referer desde un documento file:// a un subframe https.
   // YouTube rechaza requests sin referrer y muestra Error 153

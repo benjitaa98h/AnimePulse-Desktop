@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "AnimePulse Watcher",
+  "short_name": "AnimePulse Watcher",
+  "version": "0.3.1",
+  "description": "Detecta lo que estas viendo en Crunchyroll/AnimeFLV/etc y se lo pasa a AnimePulse para el auto-scrobbler.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "animepulse-watcher@animepulse.local",
+      "strict_min_version": "115.0"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "permissions": ["storage", "tabs"],
+  "host_permissions": [
+    "*://*.crunchyroll.com/*",
+    "*://*.animeflv.net/*",
+    "*://*.jkanime.net/*",
+    "*://*.tioanime.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["*://*.crunchyroll.com/*"],
+      "js": ["content/common.js", "content/crunchyroll.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["*://*.animeflv.net/*"],
+      "js": ["content/common.js", "content/animeflv.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["*://*.jkanime.net/*", "*://*.tioanime.com/*"],
+      "js": ["content/common.js", "content/generic.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

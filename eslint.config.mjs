@@ -9,7 +9,7 @@ export default [
 
   {
     // main-process (commonjs)
-    files: ['main.js', 'preload.js', 'discord-rpc.js', 'folder-watcher.js', 'src/db.js', 'src/scrobbler.js', 'src/secrets.js', 'src/logger.js'],
+    files: ['main.js', 'preload.js', 'discord-rpc.js', 'folder-watcher.js', 'src/db.js', 'src/scrobbler.js', 'src/secrets.js', 'src/logger.js', 'src/ext-bridge.js'],
     ...js.configs.recommended,
     languageOptions: {
       ecmaVersion: 'latest',
@@ -25,7 +25,7 @@ export default [
   {
     // renderer: classic scripts via <script defer>, comparten scope global
     files: ['src/**/*.js'],
-    ignores: ['src/db.js', 'src/scrobbler.js', 'src/secrets.js', 'src/logger.js'],
+    ignores: ['src/db.js', 'src/scrobbler.js', 'src/secrets.js', 'src/logger.js', 'src/ext-bridge.js'],
     ...js.configs.recommended,
     languageOptions: {
       ecmaVersion: 'latest',
