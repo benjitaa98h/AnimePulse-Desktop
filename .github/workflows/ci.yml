@@ -2,12 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
 
 jobs:
-  test:
+  lint-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -19,8 +19,11 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Install dependencies
+      - name: Instalar dependencias
         run: npm ci
 
-      - name: Run unit tests
+      - name: Lint (solo bugs)
+        run: npm run lint
+
+      - name: Tests
         run: npm test
