@@ -132,20 +132,30 @@ En algunas distros Linux **sin keyring** (entornos sin `gnome-keyring`/KWallet, 
 
 ## Estructura del proyecto
 
+Para la arquitectura a fondo (flujo de datos, IPC, modelo de seguridad, build y release), ver [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
 ```
 AnimePulse-Desktop/
-├── index.html            # Markup + scripts de la UI
+├── index.html            # Markup de la UI + carga de scripts del renderer
 ├── main.js               # Proceso principal de Electron (ventana + IPC + polling de títulos)
 ├── preload.js            # Puente seguro contextBridge → electronAPI
+├── discord-rpc.js        # Rich Presence de Discord (protocolo IPC por pipes)
+├── folder-watcher.js     # Detección de archivos nuevos en una carpeta
+├── eslint.config.mjs     # ESLint (reglas solo de bugs)
+├── scripts/release.sh    # Bump de versión + tests + tag + push
 ├── src/
 │   ├── js/app.js         # Lógica de UI del renderer (init, modal, scrobbler UI, …)
 │   ├── tailwind-config.js
+│   ├── css/styles.css    # CSS global (antes inline en <style>)
+│   ├── secrets.js        # Cifrado de tokens (safeStorage + fallback con .install-key)
+│   ├── logger.js         # Log a userData/logs/app-YYYY-MM-DD.log
 │   ├── api.js            # AniList (GraphQL) + Jikan como respaldo
 │   ├── db.js             # Persistencia SQLite (node:sqlite)
 │   ├── scrobbler.js      # Auto-scrobbler en el proceso main (socket de mpv, títulos de ventana)
-│   ├── state.js          # Estado global y persistencia
+│   ├── state.js          # Estado global del renderer
 │   ├── utils.js          # Helpers (sanitización, hash, etc.)
 │   └── modules/          # scrobbler (renderer), calendar, stats, gamification, organizer, settings
+├── test/                 # Tests de vitest (scrobbler, api, db)
 └── package.json
 ```
 

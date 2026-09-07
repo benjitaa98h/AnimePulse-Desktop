@@ -19,22 +19,28 @@ npm start
    git checkout -b fix/mejora-buscador
    ```
 3. Hacé **commits chicos y con mensajes claros** (estilo convencional: `fix:`, `feat:`, `docs:`, `test:`, `chore:`).
-4. **Agregá/actualizá tests** para cualquier cambio de lógica en `src/api.js` o `src/modules/`.
-5. Corré la suite antes de abrir el PR:
+4. **Agregá/actualizá tests** para cualquier cambio de lógica en `src/api.js`, `src/modules/` o `src/db.js`.
+5. Corré calidad antes de abrir el PR:
    ```bash
-   npm test
+   npm run lint   # ESLint: solo reglas de bugs (sin formato)
+   npm test       # vitest (scrobbler, api, db)
    ```
 6. Abrí el **Pull Request** describiendo qué cambia y por qué.
 
 ## Estructura del código
 
-La UI es un archivo único (`index.html` con JS ES6 inline) y los módulos de lógica viven en `src/` como scripts globales cargados con `<script defer>`:
+La UI es `index.html` (markup) con scripts clásicos cargados como `<script defer>`; los módulos de lógica viven en `src/` y comparten scope global (por eso importa el orden de carga). El CSS está en `src/css/styles.css`. Los archivos del proceso main (`main.js`, `discord-rpc.js`, `folder-watcher.js`, `src/db.js`, `src/scrobbler.js`, `src/secrets.js`, `src/logger.js`) son CommonJS.
+
+Para el flujo completo de datos y el modelo de seguridad, ver [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ```
 src/
 ├── utils.js            # helpers (esc, titleTokens, sleep, clamp…)
-├── state.js            # estado global y persistencia
+├── state.js            # estado global del renderer
 ├── api.js              # AniList (principal) + Jikan (respaldo)
+├── secrets.js          # cifrado de tokens (safeStorage + fallback .install-key)
+├── logger.js           # logs a userData/logs/
+├── db.js               # persistencia SQLite (node:sqlite)
 └── modules/
     ├── scrobbler.js    # detección por título de ventana
     ├── calendar.js
