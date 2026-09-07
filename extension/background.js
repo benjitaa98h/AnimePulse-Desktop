@@ -6,6 +6,43 @@ var AP_RECONNECT_MS = 4000;
 var apSocket = null;
 var apConnected = false;
 var apTabs = {};
+var apHistory = [];
+var apHistoryCap = 300;
+var apStorageDebounce = null;
+
+function apHistoryAdd(p) {
+  if (!p || p.paused || p.progress == null || p.progress < 0.85 || p.episode == null || !p.title) return;
+  var key = p.site + '|' + p.title + '|' + p.episode;
+  for (var i = 0; i < apHistory.length; i++) { if (apHistory[i].key === key) return; }
+  apHistory.push({ key: key, site: p.site, title: p.title, episode: p.episode, ts: Date.now(), sent: false });
+  if (apHistory.length > apHistoryCap) apHistory.splice(0, apHistory.length - apHistoryCap);
+  apHistorySave();
+}
+
+function apHistorySave() {
+  if (apStorageDebounce) clearTimeout(apStorageDebounce);
+  apStorageDebounce = setTimeout(function () {
+    try { chrome.storage.local.set({ apHistory: apHistory.slice() }); } catch (e) {}
+  }, 300);
+}
+
+function apHistoryRestore() {
+  try {
+    chrome.storage.local.get('apHistory', function (r) {
+      if (r && Array.isArray(r.apHistory)) apHistory = r.apHistory;
+    });
+  } catch (e) {}
+}
+
+// envia lo que quedo pendiente mientras la app estaba cerrada. no lo marca
+// como enviado hasta recibir el ack de la app, asi no se pierde nada si la
+// app todavia no estaba lista para recibirlo.
+function apFlushHistory() {
+  var pending = apHistory.filter(function (h) { return !h.sent; });
+  if (!pending.length) return;
+  var items = pending.map(function (h) { return { t: h.title + ' Episodio ' + h.episode, n: 'ext:' + h.site, ts: h.ts }; });
+  apSend({ type: 'history', items: items });
+}
 
 function apConnect() {
   try {
@@ -18,6 +55,16 @@ function apConnect() {
   apSocket.onopen = function () {
     apConnected = true;
     console.log('[AnimePulse ext] conectado a la app');
+    apFlushHistory();
+  };
+
+  apSocket.onmessage = function (ev) {
+    var m = null;
+    try { m = JSON.parse(ev.data); } catch (e) { return; }
+    if (m && m.type === 'history-ack') {
+      for (var i = 0; i < apHistory.length; i++) apHistory[i].sent = true;
+      apHistorySave();
+    }
   };
 
   apSocket.onclose = function () {
@@ -70,13 +117,17 @@ chrome.runtime.onMessage.addListener(function (msg, sender) {
   var tabId = sender.tab && sender.tab.id;
   if (tabId == null) return;
   apTabs[tabId] = msg.payload;
+  apHistoryAdd(msg.payload);
 });
+
+apHistoryRestore();
 
 chrome.tabs.onRemoved.addListener(function (tabId) {
   delete apTabs[tabId];
 });
 
 setInterval(apBroadcastToApp, 4000);
+setInterval(apFlushHistory, 60000);
 
 // esto lo agregue despues para el popup, separado del listener de arriba
 // porque son cosas distintas (uno recibe datos, este otro responde a pedido)

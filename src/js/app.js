@@ -245,6 +245,68 @@ refreshDetail();
   if (state.settings.notifications) toast('Estado actualizado: <b>' + STATUS_META[status].label + '</b>', 'info');
 }
 
+// Se procesa el historial que la extension guardo mientras la app estaba
+// cerrada. Cada item es { t, n, ts }: avanza episodios de animes ya en lista
+// y agrega los que no estaban (resolviendo la ficha por Kitsu/AniList/Jikan).
+async function processWatchHistory(items) {
+  if (!Array.isArray(items) || !items.length) return;
+  let added = 0, advanced = 0, missed = 0;
+  const done = new Set();
+  const cap = Math.min(items.length, 50);
+  for (const it of items.slice(0, cap)) {
+    if (!it || !it.t) continue;
+    const name = animeNameFromTitle(it.t);
+    const ep = episodeFromTitle(it.t);
+    if (!name || ep == null) continue;
+    const key = name + '#' + ep;
+    if (done.has(key)) continue;
+    done.add(key);
+    const match = state.animeList.find(a => Math.max(watchScore(a.title, name), watchScore(a.title_english || '', name)) >= 0.5);
+    if (match) {
+      const cur = match.watched || 0;
+      if (ep <= cur) continue;
+      if (match.status === 'completed' || match.status === 'plan') match.status = 'watching';
+      if (totalEps(match) > 0 && ep > totalEps(match)) {
+        match.airing = true;
+        match.airingEpisodes = Math.max(match.airingEpisodes || 0, ep);
+      }
+      match.watched = ep;
+      advanced++;
+    } else {
+      let item = null;
+      try { const f = await searchAnimeFinal(name, 3); item = f && f[0]; } catch (e) { item = null; }
+      if (item) {
+        const byId = state.animeList.find(a => a.id === item.id);
+        if (byId) {
+          // lo agrego el detector nativo mientras tanto; no rebajar lo que ya tiene
+          if (ep > (byId.watched || 0)) {
+            if (byId.status === 'completed' || byId.status === 'plan') byId.status = 'watching';
+            byId.watched = ep;
+            advanced++;
+          }
+        } else {
+          const entry = addAnimeFrom(item, 'watching');
+          if (entry) { entry.watched = ep; added++; }
+        }
+      } else {
+        missed++;
+      }
+    }
+  }
+  if (added || advanced) {
+    save();
+    renderDashboard(); recomputeStats();
+  }
+  if (window.electronAPI && window.electronAPI.extensionHistoryAck) window.electronAPI.extensionHistoryAck();
+  if (state.settings.notifications && (added || advanced || missed)) {
+    const parts = [];
+    if (added) parts.push(added + ' anime(s) agregados');
+    if (advanced) parts.push(advanced + ' episodios avanzados');
+    if (missed) parts.push(missed + ' sin resolver');
+    toast('Histórico de la extensión: ' + parts.join(', ') + '.', 'ok');
+  }
+}
+
 // Se detectó un capítulo más allá del total registrado: al anime le salió
 // otra temporada/capítulo. Lo marcamos en emisión y destapamos el tope de
 // episodios para que el auto-scrobbler pueda avanzar y eventualmente volver
@@ -2650,6 +2712,9 @@ async function init() {
   if (window.electronAPI && window.electronAPI.onBrowserTitles) {
     window.electronAPI.onBrowserTitles(list => onBrowserTitles(list));
     window.electronAPI.browserDetectStart();
+  }
+  if (window.electronAPI && window.electronAPI.onExtensionHistory) {
+    window.electronAPI.onExtensionHistory(items => processWatchHistory(items));
   }
   if (window.electronAPI && window.electronAPI.onScrobbleNative) {
     window.electronAPI.onScrobbleNative(evt => onScrobbleNative(evt));

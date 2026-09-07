@@ -8,6 +8,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onMaximized: (cb) => ipcRenderer.on('window:maximized', (_e, val) => cb(val)),
   browserDetectStart: () => ipcRenderer.send('browser:detect-start'),
   onBrowserTitles: (cb) => ipcRenderer.on('browser:titles', (_e, list) => cb(list)),
+  onExtensionHistory: (cb) => ipcRenderer.on('extension:history', (_e, items) => cb(items)),
+  extensionHistoryAck: () => ipcRenderer.send('extension:history-ack'),
   openExternal: (url) => ipcRenderer.invoke('external:open', String(url)),
   focus: () => ipcRenderer.invoke('win:focus'),
   pickFolder: () => ipcRenderer.invoke('fs:pick-folder'),

@@ -22,6 +22,13 @@ El bridge exige que el `Origin` de la conexión sea `chrome-extension://` o
 títulos, pero es el indicador de que el WebSocket viene de la extensión y no
 de un proceso cualquiera.
 
+4. **Historial offline**: al ver un episodio hasta ≥85% con la app cerrada, el
+   `background.js` lo guarda en `chrome.storage.local` (dedupe
+   `site|titulo|episodio`, top 300). Al reconectar lo manda como
+   `{type:'history'}`, lo reenvía `ext-bridge.js` por `extension:history` y el
+   renderer avanza `watched` o agrega el anime (resuelto por Kitsu/AniList/Jikan);
+   la extensión lo marca como enviado recién al recibir `history-ack`.
+
 ## Instalar en modo desarrollador
 
 **Chrome / Edge / Brave / Opera:**
@@ -49,5 +56,6 @@ de un proceso cualquiera.
 - `background.js` descarta las pestañas pausadas: si pausás el video, el
   título desaparece del flujo y la app interpreta que dejaste de ver. Es la
   semántica actual; cambiarla es tocar `apBroadcastToApp`.
-- El progreso (`progress`) viaja en `ap-detail` pero todavía no se usa en el
-  renderer (el scrobbler sigue usando su progreso simulado).
+- El progreso (`progress`) se usa en `background.js` para el historial offline
+  (episodios vistos ≥85% con la app cerrada); el scrobbler en vivo sigue usando
+  su progreso simulado.
